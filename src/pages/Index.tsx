@@ -297,7 +297,7 @@ const DashboardMockup = () => {
       ref={ref}
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, ease: EASE as unknown as number[] }}
+      transition={{ duration: 0.7, ease: EASE }}
       className="w-full max-w-4xl mx-auto mt-16"
     >
       {/* Title bar */}
@@ -575,7 +575,7 @@ const Index = () => {
             }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: EASE as unknown as number[] }}
+            transition={{ duration: 0.4, ease: EASE }}
             className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-border text-xs font-medium text-muted-foreground mb-8 hover:border-muted-foreground transition-colors bg-card/80 rounded-full cursor-pointer"
           >
             Performance appraisals, built for modern organizations
@@ -586,7 +586,7 @@ const Index = () => {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: EASE as unknown as number[] }}
+            transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] font-[Space_Grotesk]"
           >
             Performance Appraisals
@@ -598,7 +598,7 @@ const Index = () => {
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: EASE as unknown as number[] }}
+            transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
             className="mt-6 max-w-xl mx-auto text-lg text-muted-foreground leading-relaxed"
           >
             SIA gives HR teams, managers, and employees one place to set goals, track progress, and
@@ -609,7 +609,7 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3, ease: EASE as unknown as number[] }}
+            transition={{ duration: 0.5, delay: 0.3, ease: EASE }}
             className="mt-10"
           >
             <Link
