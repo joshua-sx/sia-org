@@ -31,20 +31,7 @@ const OrgStructure = () => {
   const [addTypeId, setAddTypeId] = useState<string>("");
   const [wizardDone, setWizardDone] = useState(false);
 
-  // Access control
-  if (profile && profile.role !== "hr_admin") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Access restricted</h1>
-          <p className="mt-2 text-muted-foreground">This area is for HR Administrators only.</p>
-          <Button asChild variant="ghost" className="mt-6 gap-2">
-            <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const isNotAdmin = profile && profile.role !== "hr_admin";
 
   const loading = loadingTypes || loadingUnits;
   const hasTypes = unitTypes.length > 0;
