@@ -68,6 +68,20 @@ const OrgStructure = () => {
     setShowAdd(true);
   };
 
+  if (isNotAdmin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold tracking-tight">Access restricted</h1>
+          <p className="mt-2 text-muted-foreground">This area is for HR Administrators only.</p>
+          <Button asChild variant="ghost" className="mt-6 gap-2">
+            <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (showWizard) {
     return <SetupWizard onComplete={() => setWizardDone(true)} />;
   }
