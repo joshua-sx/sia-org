@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      org_unit_types: {
+        Row: {
+          created_at: string | null
+          id: string
+          level: number
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          level: number
+          name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          level?: number
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_unit_types_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_units: {
+        Row: {
+          created_at: string | null
+          depth: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          organization_id: string
+          parent_id: string | null
+          path: unknown
+          unit_type_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          depth?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          organization_id: string
+          parent_id?: string | null
+          path?: unknown
+          unit_type_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          depth?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          organization_id?: string
+          parent_id?: string | null
+          path?: unknown
+          unit_type_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_units_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_units_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "org_units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_units_unit_type_id_fkey"
+            columns: ["unit_type_id"]
+            isOneToOne: false
+            referencedRelation: "org_unit_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           country: string
@@ -82,6 +175,7 @@ export type Database = {
     }
     Functions: {
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
+      text2ltree: { Args: { "": string }; Returns: unknown }
     }
     Enums: {
       [_ in never]: never
