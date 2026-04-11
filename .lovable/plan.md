@@ -1,53 +1,72 @@
 
 
-# Redesign Landing Page — Notion-Inspired Style
+# Improve Dashboard with Shadcn Sidebar — Notion-inspired
 
 ## Overview
-Rewrite `src/pages/Index.tsx` to adopt Notion's design language: warm neutral backgrounds (`#f6f5f4`), clean white cards with subtle borders and 12px rounded corners, large bold headings with tight tracking, minimal color palette (near-black text, blue accent links), generous white space, and direct/confident copywriting.
+Replace the custom sidebar in Dashboard (and OrgStructure/OrgEmployees) with a shared layout using the Shadcn `Sidebar` component. Adopt Notion-style aesthetics: warm `#f9f8f7` background, clean typography, subtle borders, minimal icons.
 
-## Design Direction (from Notion screenshots)
+## Architecture
 
-- **Background**: Warm off-white `#f6f5f4` for sections, pure white for cards
-- **Typography**: Large bold headings (54px desktop, tight tracking like `-1.875px`), system sans-serif stack. Keep Space Grotesk for headings but make them bolder/larger
-- **Cards**: White background, `border border-[rgba(0,0,0,0.1)]`, `rounded-xl` (12px), no heavy shadows
-- **Links**: Blue `#0075de` with arrow `→` suffix
-- **Layout**: Bento-style grids for feature sections, full-width cards spanning columns
-- **Copy style**: Short, declarative, confident. "One system. Zero paperwork." not "We help you manage..."
-- **Footer**: Clean multi-column with category headings, minimal
+Create a shared `AppLayout` component that wraps all authenticated pages with the sidebar + header, eliminating the duplicated sidebar code across Dashboard, OrgStructure, and OrgEmployees.
 
-## Key Changes
+```text
+SidebarProvider
+├── AppSidebar (collapsible="icon")
+│   ├── SidebarHeader — SIA logo + org name
+│   ├── SidebarContent — Nav groups (Dashboard, Org Structure, Employees)
+│   └── SidebarFooter — User avatar + name + sign out
+└── Main area
+    ├── Header (SidebarTrigger + breadcrumb/page title)
+    └── {children} (page content)
+```
 
-### Visual Overhaul
-- Replace dot-grid hero with clean warm background
-- Make hero headline significantly larger (48-56px mobile, 64-72px desktop) with tighter line-height
-- Replace dark Problem section with warm `#f6f5f4` background section
-- Turn Solution cards into Notion-style bento grid: one large card spanning full width + two smaller cards below
-- Each feature card gets a colored accent area (like Notion's yellow/red/blue card headers)
-- Who It's For becomes a 2x3 or 3x2 card grid with org logos/icons
-- How It Works keeps stepper but cleaner, more spacious
-- Pricing card gets cleaner border treatment
-- Footer matches Notion's 4-column layout with category headers
+## Changes
 
-### Copywriting Refresh (Notion-style)
-- Hero: "Run appraisals that actually work." (shorter, punchier)
-- Problem: "Still using spreadsheets?" (conversational)
-- Solution: "One system for every phase." with sub-cards using action-oriented labels
-- Trust: Use a testimonial-style quote block like Notion's OpenAI quote
-- Final CTA: "Your next cycle starts here."
+### 1. Create `src/components/AppSidebar.tsx`
+Notion-style sidebar using Shadcn Sidebar primitives:
+- `SidebarHeader`: SIA wordmark + org name
+- `SidebarContent`: Navigation items using `SidebarMenu`/`SidebarMenuItem`/`SidebarMenuButton` with `NavLink` for active state highlighting
+- `SidebarFooter`: User dropdown (avatar, name, sign out)
+- Uses `collapsible="icon"` so it collapses to icon strip
 
-### Component Structure
-Same file (`src/pages/Index.tsx`), full rewrite. Same data arrays mostly preserved but with copy tweaks. Same framer-motion animations but lighter/subtler.
+### 2. Create `src/components/AppLayout.tsx`
+Shared layout wrapper:
+- `SidebarProvider` + `AppSidebar` + main content area
+- Header bar with `SidebarTrigger`, page title, org name
+- Warm background (`bg-[#f9f8f7]`)
+- All authenticated routes use this layout
 
-### What stays the same
-- All nav links and routing (`/login`, `/signup`)
-- framer-motion dependency and animation approach
-- ScrollProgressBar, BackToTop, Navbar structure
-- Dashboard mockup concept (restyled to match)
-- Mobile responsiveness
+### 3. Rewrite `src/pages/Dashboard.tsx`
+- Remove custom sidebar/header (now in AppLayout)
+- Keep setup checklist content, restyle with Notion aesthetics:
+  - Larger heading, warm card style
+  - Clean check items with subtle styling
+  - Welcome message using profile name
+
+### 4. Update `src/pages/OrgStructure.tsx`
+- Remove duplicated sidebar code, wrap content only
+- Keep all existing functionality (wizard, tree, modals)
+
+### 5. Update `src/pages/OrgEmployees.tsx`
+- Same: remove sidebar, keep content
+
+### 6. Update `src/App.tsx`
+- Wrap all `ProtectedRoute` children with `AppLayout`
+
+## Notion Design Tokens
+- Sidebar bg: `#f9f8f7`, text: `#2c2c2b`, muted: `#7d7a75`
+- Main bg: `white`, cards: white with `border-[rgba(0,0,0,0.08)]` and `rounded-xl`
+- Active nav item: subtle `bg-[rgba(0,0,0,0.04)]` highlight
+- Icons: `lucide-react`, 16px, `text-[#8e8b86]`
 
 ## Files
 
 | Action | File |
 |--------|------|
-| Rewrite | `src/pages/Index.tsx` |
+| Create | `src/components/AppSidebar.tsx` |
+| Create | `src/components/AppLayout.tsx` |
+| Rewrite | `src/pages/Dashboard.tsx` |
+| Modify | `src/pages/OrgStructure.tsx` — remove sidebar |
+| Modify | `src/pages/OrgEmployees.tsx` — remove sidebar |
+| Modify | `src/App.tsx` — wrap protected routes with AppLayout |
 
