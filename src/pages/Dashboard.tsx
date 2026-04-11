@@ -23,8 +23,8 @@ const Dashboard = () => {
 
   const checklist = [
     { label: "Account created", done: true },
-    { label: "Configure org hierarchy", done: false, href: "/org/structure" },
-    { label: "Add employees", done: false },
+    { label: "Configure org hierarchy", done: !!organization?.setup_complete, href: "/org/structure" },
+    { label: "Add employees", done: false, href: "/org/employees" },
     { label: "Create appraisal cycle", done: false },
   ];
 
@@ -42,7 +42,9 @@ const Dashboard = () => {
             <Link
               key={link.href}
               to={link.href}
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+                link.href === "/dashboard" ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground"
+              }`}
             >
               <link.icon className="h-4 w-4" />
               {link.label}
