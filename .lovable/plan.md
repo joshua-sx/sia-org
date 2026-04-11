@@ -1,44 +1,53 @@
 
 
-# Update Landing Page — Implementation Plan
+# Redesign Landing Page — Notion-Inspired Style
 
 ## Overview
-Replace the minimal landing page with a full marketing page featuring multiple sections (Hero, Problem, Solution, Who It's For, How It Works, Trust, Pricing, Final CTA, Footer), smooth scroll animations, a responsive navbar with mobile menu and features dropdown, a dashboard mockup, and a back-to-top button.
+Rewrite `src/pages/Index.tsx` to adopt Notion's design language: warm neutral backgrounds (`#f6f5f4`), clean white cards with subtle borders and 12px rounded corners, large bold headings with tight tracking, minimal color palette (near-black text, blue accent links), generous white space, and direct/confident copywriting.
 
-## Changes
+## Design Direction (from Notion screenshots)
 
-### 1. Install framer-motion
-The provided design relies heavily on `framer-motion` for scroll-linked parallax, fade-up animations, staggered reveals, and `AnimatePresence` for the mobile menu. This dependency must be added.
+- **Background**: Warm off-white `#f6f5f4` for sections, pure white for cards
+- **Typography**: Large bold headings (54px desktop, tight tracking like `-1.875px`), system sans-serif stack. Keep Space Grotesk for headings but make them bolder/larger
+- **Cards**: White background, `border border-[rgba(0,0,0,0.1)]`, `rounded-xl` (12px), no heavy shadows
+- **Links**: Blue `#0075de` with arrow `→` suffix
+- **Layout**: Bento-style grids for feature sections, full-width cards spanning columns
+- **Copy style**: Short, declarative, confident. "One system. Zero paperwork." not "We help you manage..."
+- **Footer**: Clean multi-column with category headings, minimal
 
-### 2. Rewrite `src/pages/Index.tsx`
-Full replacement with the new landing page component. Key sections:
-- **Navbar** — Sticky header with logo, desktop nav links (Features dropdown, Who It's For, How It Works, Pricing), Sign In / Get Started buttons, hamburger mobile menu
-- **Hero** — Dot-grid background, parallax text, badge link, serif headline, subheadline, CTA button linking to `/signup`, dashboard mockup component
-- **Problem** — Three numbered pain points
-- **Solution** — Three feature cards with icons (Target, ClipboardCheck, BarChart3)
-- **Who It's For** — Four industry cards (Government, Aviation, Healthcare, Education)
-- **How It Works** — Four numbered steps with connecting lines
-- **Trust/Credibility** — Stats (100+, 3×, 0) and bullet points
-- **Pricing** — Single plan card with feature checklist and CTA
-- **Final CTA** — Dark background call-to-action
-- **Footer** — Three-column links (Product, Company, Legal), brand, copyright
+## Key Changes
 
-All internal links (Sign In → `/login`, Get Started → `/signup`) use React Router `Link`. Section navigation uses smooth scroll to anchors.
+### Visual Overhaul
+- Replace dot-grid hero with clean warm background
+- Make hero headline significantly larger (48-56px mobile, 64-72px desktop) with tighter line-height
+- Replace dark Problem section with warm `#f6f5f4` background section
+- Turn Solution cards into Notion-style bento grid: one large card spanning full width + two smaller cards below
+- Each feature card gets a colored accent area (like Notion's yellow/red/blue card headers)
+- Who It's For becomes a 2x3 or 3x2 card grid with org logos/icons
+- How It Works keeps stepper but cleaner, more spacious
+- Pricing card gets cleaner border treatment
+- Footer matches Notion's 4-column layout with category headers
 
-### 3. Preserve route protection
-The `PublicRoute` wrapper in `App.tsx` already redirects authenticated users to `/dashboard`. No changes needed to routing.
+### Copywriting Refresh (Notion-style)
+- Hero: "Run appraisals that actually work." (shorter, punchier)
+- Problem: "Still using spreadsheets?" (conversational)
+- Solution: "One system for every phase." with sub-cards using action-oriented labels
+- Trust: Use a testimonial-style quote block like Notion's OpenAI quote
+- Final CTA: "Your next cycle starts here."
 
-## Technical Notes
-- The user's code snippet has incomplete JSX (missing return statements, broken tags from copy-paste). I will reconstruct the full working component faithfully from the data structures and intent provided.
-- All section IDs (`#solution`, `#who`, `#how`, `#pricing`) will be set for smooth-scroll navigation.
-- The dashboard mockup is a static visual component — no real data.
-- ScrollProgressBar renders a fixed progress indicator at the top of the page.
-- BackToTop button appears after 600px scroll.
+### Component Structure
+Same file (`src/pages/Index.tsx`), full rewrite. Same data arrays mostly preserved but with copy tweaks. Same framer-motion animations but lighter/subtler.
+
+### What stays the same
+- All nav links and routing (`/login`, `/signup`)
+- framer-motion dependency and animation approach
+- ScrollProgressBar, BackToTop, Navbar structure
+- Dashboard mockup concept (restyled to match)
+- Mobile responsiveness
 
 ## Files
 
 | Action | File |
 |--------|------|
-| Install | `framer-motion` package |
-| Rewrite | `src/pages/Index.tsx` — full landing page |
+| Rewrite | `src/pages/Index.tsx` |
 
