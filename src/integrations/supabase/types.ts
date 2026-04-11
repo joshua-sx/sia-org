@@ -14,13 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      organizations: {
+        Row: {
+          country: string
+          created_at: string | null
+          id: string
+          industry: string
+          name: string
+          setup_complete: boolean | null
+        }
+        Insert: {
+          country: string
+          created_at?: string | null
+          id?: string
+          industry: string
+          name: string
+          setup_complete?: boolean | null
+        }
+        Update: {
+          country?: string
+          created_at?: string | null
+          id?: string
+          industry?: string
+          name?: string
+          setup_complete?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          organization_id: string
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id: string
+          organization_id: string
+          role: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          organization_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      custom_jwt_claims: { Args: { event: Json }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
