@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute, PublicRoute } from "@/components/ProtectedRoute";
+import AppLayout from "@/components/AppLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -26,9 +27,9 @@ const App = () => (
             <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/org/structure" element={<ProtectedRoute><OrgStructure /></ProtectedRoute>} />
-            <Route path="/org/employees" element={<ProtectedRoute><OrgEmployees /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+            <Route path="/org/structure" element={<ProtectedRoute><AppLayout><OrgStructure /></AppLayout></ProtectedRoute>} />
+            <Route path="/org/employees" element={<ProtectedRoute><AppLayout><OrgEmployees /></AppLayout></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
