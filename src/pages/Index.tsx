@@ -195,7 +195,7 @@ const FOOTER_COLS = [
 
 /* ─────────────────────── ANIMATION HELPERS ──────────────────── */
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE = [0.22, 1, 0.36, 1] as any;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
