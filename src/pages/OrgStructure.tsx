@@ -76,7 +76,7 @@ const OrgStructure = () => {
   }
 
   if (showWizard) {
-    return <SetupWizard onComplete={() => setWizardDone(true)} />;
+    return <SetupWizard onComplete={() => setWizardDone(true)} createTypes={createTypes} addUnit={addUnit} />;
   }
 
   if (loading) {

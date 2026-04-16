@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
+import type { UseMutationResult } from "@tanstack/react-query";
+import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
+import type { OrgUnit } from "@/hooks/useOrgUnits";
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Done"];
 const TOTAL_STEPS = 3;
@@ -20,8 +24,15 @@ const LEVEL_DOT_COLORS = [
   "bg-rose-500",
 ];
 
-const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
+interface SetupWizardProps {
+  onComplete: () => void;
+  createTypes: UseMutationResult<OrgUnitType[], Error, { name: string; level: number }[]>;
+  addUnit: UseMutationResult<OrgUnit, Error, { name: string; unit_type_id: string; parent_id?: string | null }>;
+}
+
+const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -67,13 +78,57 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
     setStep(3);
   };
 
-  const startRewardCeremony = () => {
+  const [saving, setSaving] = useState(false);
+
+  const startRewardCeremony = async () => {
+    setSaving(true);
     setStep(4);
     setPhase("anticipation");
     setRewardProgress(0);
     setTreeNodesShown(0);
     setShowStats(false);
     setShowCTA(false);
+
+    try {
+      // 1. Persist levels
+      const typeRows = confirmedLevels.map((name, i) => ({ name, level: i + 1 }));
+      const createdTypes = await createTypes.mutateAsync(typeRows);
+
+      // Build a map: level number → created type id
+      const levelToTypeId: Record<number, string> = {};
+      createdTypes.forEach((t) => { levelToTypeId[t.level] = t.id; });
+
+      // 2. Recursively persist units
+      const persistNodes = async (nodes: UnitNode[], depth: number, parentId: string | null) => {
+        for (const node of nodes) {
+          const typeId = levelToTypeId[depth + 1]; // levels are 1-indexed
+          if (!typeId) continue;
+          const created = await addUnit.mutateAsync({
+            name: node.name,
+            unit_type_id: typeId,
+            parent_id: parentId,
+          });
+          if (node.children.length > 0) {
+            await persistNodes(node.children, depth + 1, created.id);
+          }
+        }
+      };
+
+      if (units.length > 0) {
+        await persistNodes(units, 0, null);
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error saving structure",
+        description: err?.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+      setStep(3);
+      setSaving(false);
+      return;
+    }
+
+    setSaving(false);
   };
 
   // Flatten units for sequential reveal
