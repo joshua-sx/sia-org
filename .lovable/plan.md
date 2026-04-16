@@ -1,20 +1,30 @@
 
 
-# Widen Setup Wizard Container
+# Fix: Persist Wizard Data to Database on Completion
 
-## Current
-`max-w-2xl` = 672px — too narrow for a SaaS wizard with a 2x3 card grid.
+## Problem
+The setup wizard is purely client-side — it never saves anything to the database. When you click "Get Started", it just sets a local `wizardDone` flag. The page then checks `unitTypes` from the database (which is empty), so you see the empty "Your hierarchy is configured" state.
 
-## Change
-Update the container class in `src/components/org/SetupWizard.tsx` line 138 from `max-w-2xl` to `max-w-4xl` (896px).
+## Solution
+At the start of the reward ceremony (Step 3 / "Done"), persist the confirmed levels and units to the database before running the animation. This uses the existing `useOrgUnitTypes().createTypes` and `useOrgUnits().addUnit` mutations.
 
-This is the standard width used by tools like Notion, Linear, and Stripe for onboarding/settings flows. It gives the 2x3 template grid proper breathing room and looks proportional on 1280px+ screens.
+## Changes
 
-### Optional: go `max-w-5xl` (1024px)
-If you want it even wider — closer to a full dashboard content area — I can use `max-w-5xl` instead. Let me know your preference or I'll default to `max-w-4xl`.
+### Modify `src/components/org/SetupWizard.tsx`
+- Accept `createTypes` and `addUnit` mutations as props (from `OrgStructure.tsx`)
+- In `startRewardCeremony` (when moving to the Done step), call:
+  1. `createTypes` with the `confirmedLevels` array mapped to `{ name, level }` objects
+  2. For each unit in the nested `units` tree, recursively call `addUnit` with the correct `unit_type_id` (from the created types) and `parent_id` (from the created parent)
+- Show the anticipation animation during this async work
+- If DB calls fail, show an error toast and stay on the current step
 
-## File
+### Modify `src/pages/OrgStructure.tsx`
+- Pass `createTypes` (from `useOrgUnitTypes`) and `addUnit` (from `useOrgUnits`) as props to `SetupWizard`
+
+## Files
+
 | Action | File |
 |--------|------|
-| Modify | `src/components/org/SetupWizard.tsx` line 138 — change `max-w-2xl` → `max-w-4xl` |
+| Modify | `src/components/org/SetupWizard.tsx` — add props for mutations, persist data before reward animation |
+| Modify | `src/pages/OrgStructure.tsx` — pass `createTypes` and `addUnit` to SetupWizard |
 
