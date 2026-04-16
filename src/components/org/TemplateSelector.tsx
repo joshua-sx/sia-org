@@ -51,6 +51,8 @@ const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, on
       );
     })}
   </div>
-);
+));
+
+TemplateSelector.displayName = "TemplateSelector";
 
 export default TemplateSelector;
