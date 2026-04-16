@@ -1,72 +1,62 @@
 
 
-# Improve Dashboard with Shadcn Sidebar — Notion-inspired
+# Apply Notion Design System (DESIGN.md) Across All Pages
 
 ## Overview
-Replace the custom sidebar in Dashboard (and OrgStructure/OrgEmployees) with a shared layout using the Shadcn `Sidebar` component. Adopt Notion-style aesthetics: warm `#f9f8f7` background, clean typography, subtle borders, minimal icons.
+The `DESIGN.md` file from `getdesign` has been installed with Notion's full design system specification. Now apply these tokens consistently across the dashboard, sidebar, layout, and landing page.
 
-## Architecture
+## Key Design Tokens from DESIGN.md
 
-Create a shared `AppLayout` component that wraps all authenticated pages with the sidebar + header, eliminating the duplicated sidebar code across Dashboard, OrgStructure, and OrgEmployees.
-
-```text
-SidebarProvider
-├── AppSidebar (collapsible="icon")
-│   ├── SidebarHeader — SIA logo + org name
-│   ├── SidebarContent — Nav groups (Dashboard, Org Structure, Employees)
-│   └── SidebarFooter — User avatar + name + sign out
-└── Main area
-    ├── Header (SidebarTrigger + breadcrumb/page title)
-    └── {children} (page content)
-```
+- **Text**: `rgba(0,0,0,0.95)` (not `#2c2c2b`)
+- **Secondary text**: `#615d59` (not `#7d7a75`)
+- **Muted text**: `#a39e98` (not `#c4c1bc`)
+- **Backgrounds**: `#ffffff` (page), `#f6f5f4` (alt sections/sidebar)
+- **Border**: `1px solid rgba(0,0,0,0.1)` (not `rgba(0,0,0,0.06)` or `0.08`)
+- **Accent blue**: `#0075de`
+- **Shadows**: Multi-layer card shadow stack (max 0.04 opacity)
+- **Radius**: 4px buttons, 12px cards, 9999px badges
+- **Typography**: DM Sans/Inter as NotionInter substitute, tight letter-spacing at large sizes
 
 ## Changes
 
-### 1. Create `src/components/AppSidebar.tsx`
-Notion-style sidebar using Shadcn Sidebar primitives:
-- `SidebarHeader`: SIA wordmark + org name
-- `SidebarContent`: Navigation items using `SidebarMenu`/`SidebarMenuItem`/`SidebarMenuButton` with `NavLink` for active state highlighting
-- `SidebarFooter`: User dropdown (avatar, name, sign out)
-- Uses `collapsible="icon"` so it collapses to icon strip
+### 1. `src/components/AppSidebar.tsx`
+- Update color tokens: `#7d7a75` → `#615d59`, `#8e8b86` → `#a39e98`, `#2c2c2b` → `rgba(0,0,0,0.95)`
+- Active state: `bg-[rgba(0,0,0,0.04)]` stays (matches Notion's tertiary bg)
+- Avatar fallback bg: `rgba(0,0,0,0.06)` → `rgba(0,0,0,0.05)`
 
-### 2. Create `src/components/AppLayout.tsx`
-Shared layout wrapper:
-- `SidebarProvider` + `AppSidebar` + main content area
-- Header bar with `SidebarTrigger`, page title, org name
-- Warm background (`bg-[#f9f8f7]`)
-- All authenticated routes use this layout
+### 2. `src/components/AppLayout.tsx`
+- Header border: `rgba(0,0,0,0.06)` → `rgba(0,0,0,0.1)`
+- Trigger icon color: align to `#a39e98`
 
-### 3. Rewrite `src/pages/Dashboard.tsx`
-- Remove custom sidebar/header (now in AppLayout)
-- Keep setup checklist content, restyle with Notion aesthetics:
-  - Larger heading, warm card style
-  - Clean check items with subtle styling
-  - Welcome message using profile name
+### 3. `src/pages/Dashboard.tsx`
+- Text colors: align to DESIGN.md tokens (`rgba(0,0,0,0.95)`, `#615d59`)
+- Card border: `rgba(0,0,0,0.08)` → `rgba(0,0,0,0.1)`
+- Card dividers: `rgba(0,0,0,0.06)` → `rgba(0,0,0,0.1)`
+- Add multi-layer card shadow from DESIGN.md
+- Checklist check icon: keep emerald-500 (maps to Notion teal semantic)
+- Unchecked icon: `#c4c1bc` → `#a39e98`
+- Heading: increase tracking tightness per DESIGN.md scale
 
-### 4. Update `src/pages/OrgStructure.tsx`
-- Remove duplicated sidebar code, wrap content only
-- Keep all existing functionality (wizard, tree, modals)
+### 4. `src/pages/Index.tsx`
+- Update all hardcoded colors to match DESIGN.md tokens
+- Ensure border, shadow, and radius values align with the spec
+- Link blue: any blue accent → `#0075de`
 
-### 5. Update `src/pages/OrgEmployees.tsx`
-- Same: remove sidebar, keep content
+### 5. `src/pages/OrgEmployees.tsx` & `src/pages/OrgStructure.tsx`
+- Update text color tokens to match
 
-### 6. Update `src/App.tsx`
-- Wrap all `ProtectedRoute` children with `AppLayout`
-
-## Notion Design Tokens
-- Sidebar bg: `#f9f8f7`, text: `#2c2c2b`, muted: `#7d7a75`
-- Main bg: `white`, cards: white with `border-[rgba(0,0,0,0.08)]` and `rounded-xl`
-- Active nav item: subtle `bg-[rgba(0,0,0,0.04)]` highlight
-- Icons: `lucide-react`, 16px, `text-[#8e8b86]`
+### 6. `src/index.css`
+- Update CSS custom properties to align with Notion palette where applicable (primary blue → `#0075de`, border → `rgba(0,0,0,0.1)`, muted-foreground → `#615d59`)
 
 ## Files
 
 | Action | File |
 |--------|------|
-| Create | `src/components/AppSidebar.tsx` |
-| Create | `src/components/AppLayout.tsx` |
-| Rewrite | `src/pages/Dashboard.tsx` |
-| Modify | `src/pages/OrgStructure.tsx` — remove sidebar |
-| Modify | `src/pages/OrgEmployees.tsx` — remove sidebar |
-| Modify | `src/App.tsx` — wrap protected routes with AppLayout |
+| Modify | `src/index.css` — update CSS vars to Notion tokens |
+| Modify | `src/components/AppSidebar.tsx` — align colors |
+| Modify | `src/components/AppLayout.tsx` — align border/icon colors |
+| Modify | `src/pages/Dashboard.tsx` — align colors, add card shadows |
+| Modify | `src/pages/Index.tsx` — align to DESIGN.md tokens |
+| Modify | `src/pages/OrgStructure.tsx` — align text colors |
+| Modify | `src/pages/OrgEmployees.tsx` — align text colors |
 
