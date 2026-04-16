@@ -1,63 +1,87 @@
 
 
-# Improve Setup Wizard UX — Breadcrumbs, Back Navigation, and Reward Design
+# Overhaul Setup Wizard — Accordion Builder + Tree Preview + Reward Ceremony
 
 ## Overview
-Transform the setup wizard from a linear, one-way flow into a polished multi-step experience with back navigation, clickable breadcrumbs, and neuroscience-backed reward moments at completion. Apply Nielsen's heuristics: user control (back buttons), visibility of system status (progress), recognition over recall (clickable steps), and aesthetic design (Notion tokens).
+Replace the current flat "add 5 inputs" Step 2 with a rich accordion-based nesting builder inspired by the provided reference code. After picking a template (Step 1), users build their full hierarchy with nested accordion sections, chip-style inputs, and an opt-in tree preview. Step 3 becomes a polished reward ceremony with progress-bar anticipation, sequential tree reveal, and stats afterglow.
 
-## Problems Today
-- Step starts at 2 (step 1 "Organization" is phantom — confusing)
-- No back button on any step
-- Breadcrumb steps are not clickable — no way to revisit
-- Completion screen (step 4) is flat — no ceremony, no reward moment
-- No animations or transitions between steps
+## Architecture (4 Steps)
 
-## Changes
+```text
+Step 1: Pick Template     → Select hierarchy template (existing)
+Step 2: Build Structure   → Accordion nesting builder (NEW)
+Step 3: Preview (opt-in)  → Tree preview confirmation (NEW)  
+Step 4: Done              → Reward ceremony (IMPROVED)
+```
 
-### 1. Fix step structure
-- Remove phantom step 1 "Organization" — start wizard at step 1 with 3 total steps: **Hierarchy → First Units → Done**
-- Renumber everything accordingly
-- Progress bar: `(step / 3) * 100`
+## Detailed Changes
 
-### 2. Clickable breadcrumb stepper
-- Steps already completed are clickable — user can tap to go back
-- Current step is highlighted, future steps are dimmed and non-interactive
-- Clicking a past step navigates back (state is preserved)
+### 1. New component: `src/components/org/AccordionBuilder.tsx`
+Core nesting builder with:
+- **Dynamic levels** from `confirmedLevels` (not hardcoded Division/Department/Team)
+- Each level gets a semantic color (primary blue, green `#16A34A`, violet `#7C3AED`, amber `#D97706`, etc.)
+- **Accordion rows**: click to expand/collapse, `▶` rotation indicator
+- **Chip input**: inline `+` button, type name + Enter to add. Chips are removable with `×`
+- **Stats bar** at top: count badges per level (e.g., "3 Divisions · 5 Departments · 4 Teams")
+- **No unit cap** — users can add as many as needed
+- Uses existing shadcn `Input`, `Button`, `Badge` components with Notion tokens
 
-### 3. Back button on every step
-- Steps 2 and 3 get a "Back" button (left side) alongside the continue button
-- Uses `ArrowLeft` icon, ghost variant
+### 2. New component: `src/components/org/TreePreview.tsx`
+Opt-in tree preview panel:
+- Toggle button "🌳 Preview" in the stats bar
+- Shows hierarchy as indented tree with `├─` / `└─` connectors
+- Level dots (square/circle/diamond shapes) with semantic colors
+- Closeable panel
+- Empty state: "Add items below to see your org tree here"
 
-### 4. Reward design for completion (Step 3 — "Done")
-Apply the Gift Framework:
+### 3. Rewrite `src/components/org/SetupWizard.tsx`
+**Step structure**: 4 steps — "Template", "Build", "Preview", "Done"
 
-**Anticipation (1.5s)**
-- When entering the final step, show a brief "Setting things up..." message with a pulsing animation before revealing the success state
+**Step 1 (Template)**: Keep existing `TemplateSelector` + `CustomLevelBuilder`. No changes.
 
-**Reveal (with ceremony)**
-- Animated checkmark that scales in (Framer Motion `motion.div` with `scale` + `opacity`)
-- Hierarchy levels appear one by one with staggered fade-in
-- Confetti-like particle burst using CSS keyframes (lightweight, no library)
+**Step 2 (Build Structure)**: 
+- Render `AccordionBuilder` with levels from Step 1
+- Back button to Step 1
+- "Continue" button (enabled when at least 1 top-level unit exists)
+- Skip link available
 
-**Afterglow**
-- "You're all set" with warm copy: "Your organization structure is ready to go"
-- Stats framing: show count of levels configured and units added
-- Brief hold (buttons fade in after 1s delay) so user sits with the moment
+**Step 3 (Preview — optional)**:
+- Full tree preview of what was built
+- Confirm or go back to edit
+- Can also be reached via the preview toggle in Step 2
 
-### 5. Step transitions
-- Wrap step content in simple fade-in animation (`animate-fade-in` from existing tailwind config)
+**Step 4 (Done — Reward Ceremony)**:
+Improved reward sequence matching the reference:
+- **Anticipation**: Animated progress bar with rotating micro-copy ("Mapping divisions...", "Linking departments...", "Connecting teams...", "Almost there...")
+- **Reveal**: Checkmark pop-in animation, hierarchy path with level dots, sequential tree node reveal (staggered 150ms per node)
+- **Afterglow**: Stats grid (levels, count per level with semantic colors), delayed CTA buttons ("Get Started", "Go to Dashboard")
 
-### 6. Notion design alignment
-- Card shadows: multi-layer stack from DESIGN.md
-- Text colors: `rgba(0,0,0,0.95)` headings, `#615d59` secondary, `#a39e98` muted
-- Border: `rgba(0,0,0,0.1)`
-- Button radius: 4px per DESIGN.md
-- Accent blue: `#0075de` for progress bar and active states
+### 4. Update `src/index.css`
+- Add `@keyframes popIn`, `@keyframes fadeUp` for reward animations
+- Add `animate-pop-in` and `animate-fade-up` utility classes
+
+### 5. No changes to
+- `TemplateSelector.tsx`, `CustomLevelBuilder.tsx` — reused as-is
+- `OrgStructure.tsx` — wizard integration unchanged
+- Existing theme/fonts (DM Sans, Space Grotesk, Notion color tokens)
+
+## Data Shape (local state in SetupWizard)
+```typescript
+interface UnitNode {
+  name: string;
+  expanded: boolean;
+  children: UnitNode[];
+}
+// divisions: UnitNode[] — top level
+// Each child level maps to confirmedLevels[depth]
+```
 
 ## Files
 
 | Action | File |
 |--------|------|
-| Rewrite | `src/components/org/SetupWizard.tsx` — 3-step flow, back nav, clickable breadcrumbs, reward completion screen, fade transitions, Notion tokens |
-| No change | `TemplateSelector.tsx`, `CustomLevelBuilder.tsx` — these are fine as-is |
+| Create | `src/components/org/AccordionBuilder.tsx` — nested accordion builder with chip inputs, stats bar |
+| Create | `src/components/org/TreePreview.tsx` — opt-in tree preview with connectors |
+| Rewrite | `src/components/org/SetupWizard.tsx` — 4-step flow with accordion builder + improved reward |
+| Modify | `src/index.css` — add popIn/fadeUp keyframes |
 
