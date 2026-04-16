@@ -50,17 +50,17 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r border-[rgba(0,0,0,0.06)] bg-[#f9f8f7]"
+      className="border-r border-[rgba(0,0,0,0.1)] bg-[#f6f5f4]"
     >
       {/* Header */}
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <span className="text-base font-bold tracking-tight font-[Space_Grotesk] text-[#2c2c2b]">
+          <span className="text-base font-bold tracking-tight font-[Space_Grotesk] text-[rgba(0,0,0,0.95)]">
             {collapsed ? "S" : "SIA"}
           </span>
         </div>
         {!collapsed && organization && (
-          <p className="mt-0.5 text-xs text-[#7d7a75] truncate">
+          <p className="mt-0.5 text-xs text-[#615d59] truncate">
             {organization.name}
           </p>
         )}
@@ -77,10 +77,10 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[#7d7a75] transition-colors hover:bg-[rgba(0,0,0,0.04)] hover:text-[#2c2c2b]"
-                      activeClassName="bg-[rgba(0,0,0,0.04)] text-[#2c2c2b] font-medium"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[#615d59] transition-colors hover:bg-[rgba(0,0,0,0.04)] hover:text-[rgba(0,0,0,0.95)]"
+                      activeClassName="bg-[rgba(0,0,0,0.04)] text-[rgba(0,0,0,0.95)] font-medium"
                     >
-                      <item.icon className="h-4 w-4 shrink-0 text-[#8e8b86]" />
+                      <item.icon className="h-4 w-4 shrink-0 text-[#a39e98]" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -97,18 +97,18 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-[#2c2c2b] hover:bg-[rgba(0,0,0,0.04)] w-full">
+                <SidebarMenuButton className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-[rgba(0,0,0,0.95)] hover:bg-[rgba(0,0,0,0.04)] w-full">
                   <Avatar className="h-6 w-6 shrink-0">
-                    <AvatarFallback className="bg-[rgba(0,0,0,0.06)] text-[#7d7a75] text-[10px] font-medium">
+                    <AvatarFallback className="bg-[rgba(0,0,0,0.05)] text-[#615d59] text-[10px] font-medium">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   {!collapsed && (
                     <>
-                      <span className="truncate font-medium text-[#2c2c2b]">
+                      <span className="truncate font-medium text-[rgba(0,0,0,0.95)]">
                         {profile?.full_name ?? "User"}
                       </span>
-                      <ChevronsUpDown className="ml-auto h-3 w-3 text-[#8e8b86]" />
+                      <ChevronsUpDown className="ml-auto h-3 w-3 text-[#a39e98]" />
                     </>
                   )}
                 </SidebarMenuButton>

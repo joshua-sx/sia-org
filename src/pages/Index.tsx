@@ -186,7 +186,7 @@ function Navbar() {
     <header
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        scrolled ? "bg-white/90 backdrop-blur-md border-b border-[rgba(0,0,0,0.06)]" : "bg-transparent"
+        scrolled ? "bg-white/90 backdrop-blur-md border-b border-[rgba(0,0,0,0.1)]" : "bg-transparent"
       )}
     >
       <nav className="max-w-[1200px] mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
@@ -218,7 +218,7 @@ function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-[rgba(0,0,0,0.06)] overflow-hidden"
+            className="md:hidden bg-white border-b border-[rgba(0,0,0,0.1)] overflow-hidden"
           >
             <div className="px-5 py-4 flex flex-col gap-3">
               {NAV_LINKS.map((l) => (
@@ -226,7 +226,7 @@ function Navbar() {
                   {l.label}
                 </button>
               ))}
-              <hr className="border-[rgba(0,0,0,0.06)]" />
+              <hr className="border-[rgba(0,0,0,0.1)]" />
               <Link to="/login" className="text-sm text-foreground/70" onClick={() => setMobileOpen(false)}>
                 Sign in
               </Link>
@@ -247,7 +247,7 @@ function DashboardMockup() {
   return (
     <div className="w-full max-w-[900px] mx-auto mt-12 md:mt-16">
       <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[rgba(0,0,0,0.06)]">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-[rgba(0,0,0,0.1)]">
           <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
@@ -526,7 +526,7 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-12 bg-white border-t border-[rgba(0,0,0,0.06)]">
+      <footer className="py-12 bg-white border-t border-[rgba(0,0,0,0.1)]">
         <Section>
           <div className="grid sm:grid-cols-4 gap-8 mb-10">
             <div>
@@ -561,7 +561,7 @@ const Index = () => {
               </div>
             ))}
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[rgba(0,0,0,0.06)]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[rgba(0,0,0,0.1)]">
             <span className="text-xs text-foreground/40">&copy; {new Date().getFullYear()} SIA. All rights reserved.</span>
             <span className="text-xs text-foreground/40">Built in the Caribbean 🌴</span>
           </div>
