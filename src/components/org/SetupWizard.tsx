@@ -1,15 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, ChevronRight, ArrowLeft, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
+import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
+import TreePreview from "./TreePreview";
 
-const STEP_LABELS = ["Hierarchy", "First Units", "Done"];
-const TOTAL_STEPS = 3;
+const STEP_LABELS = ["Template", "Build", "Preview", "Done"];
+const TOTAL_STEPS = 4;
+
+const LEVEL_DOT_COLORS = [
+  "bg-primary",
+  "bg-green-500",
+  "bg-violet-500",
+  "bg-amber-500",
+  "bg-rose-500",
+];
 
 const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
   const navigate = useNavigate();
@@ -18,12 +28,15 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [customLevels, setCustomLevels] = useState<string[]>([]);
   const [confirmedLevels, setConfirmedLevels] = useState<string[]>([]);
-  const [topLevelUnits, setTopLevelUnits] = useState<string[]>([""]);
+  const [units, setUnits] = useState<UnitNode[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
-  // Reward design state
-  const [showAnticipation, setShowAnticipation] = useState(false);
-  const [showReveal, setShowReveal] = useState(false);
-  const [showButtons, setShowButtons] = useState(false);
+  // Reward ceremony state
+  const [phase, setPhase] = useState<"anticipation" | "reveal" | "afterglow">("anticipation");
+  const [rewardProgress, setRewardProgress] = useState(0);
+  const [treeNodesShown, setTreeNodesShown] = useState(0);
+  const [showStats, setShowStats] = useState(false);
+  const [showCTA, setShowCTA] = useState(false);
 
   const progress = (step / TOTAL_STEPS) * 100;
 
@@ -48,68 +61,97 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
 
   const confirmStep2 = () => {
     setStep(3);
-    // Trigger reward sequence
-    setShowAnticipation(true);
-    setShowReveal(false);
-    setShowButtons(false);
   };
 
   const skipStep2 = () => {
-    setTopLevelUnits([""]);
+    setUnits([]);
     setStep(3);
-    setShowAnticipation(true);
-    setShowReveal(false);
-    setShowButtons(false);
   };
 
-  // Reward design: anticipation → reveal → afterglow
+  const startRewardCeremony = () => {
+    setStep(4);
+    setPhase("anticipation");
+    setRewardProgress(0);
+    setTreeNodesShown(0);
+    setShowStats(false);
+    setShowCTA(false);
+  };
+
+  // Flatten units for sequential reveal
+  const flattenUnits = useCallback((nodes: UnitNode[], depth = 0): { name: string; depth: number }[] => {
+    const result: { name: string; depth: number }[] = [];
+    for (const n of nodes) {
+      result.push({ name: n.name, depth });
+      result.push(...flattenUnits(n.children, depth + 1));
+    }
+    return result;
+  }, []);
+
+  const flatNodes = flattenUnits(units);
+
+  // Count nodes at each level
+  const countAtLevel = useCallback((nodes: UnitNode[], depth: number, target: number): number => {
+    if (depth === target) return nodes.length;
+    return nodes.reduce((sum, n) => sum + countAtLevel(n.children, depth + 1, target), 0);
+  }, []);
+
+  // Reward ceremony animation
   useEffect(() => {
-    if (step !== 3) return;
-    if (!showAnticipation) return;
+    if (step !== 4) return;
 
-    const revealTimer = setTimeout(() => {
-      setShowAnticipation(false);
-      setShowReveal(true);
-    }, 1800);
+    let p = 0;
+    const tick = setInterval(() => {
+      p += p > 75 ? 0.8 : 2.5;
+      setRewardProgress(Math.min(p, 100));
+      if (p >= 100) {
+        clearInterval(tick);
+        setTimeout(() => {
+          setPhase("reveal");
+          let n = 0;
+          const maxNodes = flatNodes.length;
+          if (maxNodes === 0) {
+            setShowStats(true);
+            setTimeout(() => { setPhase("afterglow"); setShowCTA(true); }, 500);
+            return;
+          }
+          const nodeIn = setInterval(() => {
+            n++;
+            setTreeNodesShown(n);
+            if (n >= maxNodes) {
+              clearInterval(nodeIn);
+              setTimeout(() => setShowStats(true), 400);
+              setTimeout(() => { setPhase("afterglow"); setShowCTA(true); }, 900);
+            }
+          }, 150);
+        }, 350);
+      }
+    }, 30);
 
-    return () => clearTimeout(revealTimer);
-  }, [step, showAnticipation]);
+    return () => clearInterval(tick);
+  }, [step, flatNodes.length]);
 
-  useEffect(() => {
-    if (!showReveal) return;
-    const buttonTimer = setTimeout(() => setShowButtons(true), 1200);
-    return () => clearTimeout(buttonTimer);
-  }, [showReveal]);
+  const anticipationMessages = ["Mapping structure...", "Linking levels...", "Connecting units...", "Almost there..."];
+  const msgIdx = rewardProgress < 30 ? 0 : rewardProgress < 60 ? 1 : rewardProgress < 90 ? 2 : 3;
 
-  const addUnitField = () => {
-    if (topLevelUnits.length < 5) setTopLevelUnits([...topLevelUnits, ""]);
-  };
-
-  const updateUnitField = (idx: number, value: string) => {
-    const copy = [...topLevelUnits];
-    copy[idx] = value;
-    setTopLevelUnits(copy);
-  };
-
-  const filledUnitsCount = topLevelUnits.filter((u) => u.trim()).length;
+  const hasUnits = units.length > 0;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-6 md:p-10">
+    <div className="mx-auto max-w-2xl space-y-6 p-6 md:p-10">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Set up your organization structure
+        <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk]">
+          Set up your organization
         </h1>
-        <p className="mt-1 text-muted-foreground">
-          Configure how your organization is structured.
+        <p className="mt-1 text-sm text-muted-foreground">
+          Configure your organizational hierarchy step by step.
         </p>
       </div>
 
       {/* Progress bar */}
-      <Progress value={progress} className="h-2" />
+      <Progress value={progress} className="h-1.5" />
 
       {/* Clickable breadcrumb stepper */}
-      <div className="flex gap-6 text-sm">
+      <div className="flex gap-1">
         {STEP_LABELS.map((label, i) => {
           const stepNum = i + 1;
           const isCompleted = stepNum < step;
@@ -121,38 +163,23 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
               key={i}
               onClick={() => isCompleted && goToStep(stepNum)}
               disabled={isFuture}
-              className={`flex items-center gap-1.5 transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 isCompleted
-                  ? "cursor-pointer hover:text-primary"
-                  : isFuture
-                  ? "cursor-default"
-                  : ""
+                  ? "cursor-pointer text-primary bg-accent hover:bg-primary/10"
+                  : isCurrent
+                  ? "text-primary-foreground bg-primary"
+                  : "text-muted-foreground bg-muted"
               }`}
             >
-              {isCompleted ? (
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-              ) : isCurrent ? (
-                <div className="h-4 w-4 rounded-full border-2 border-primary bg-primary/10" />
-              ) : (
-                <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />
-              )}
-              <span
-                className={
-                  isCompleted
-                    ? "font-medium text-foreground"
-                    : isCurrent
-                    ? "font-semibold text-foreground"
-                    : "text-muted-foreground"
-                }
-              >
-                {label}
-              </span>
+              {isCompleted && <CheckCircle2 className="h-3 w-3" />}
+              {isCurrent && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              {label}
             </button>
           );
         })}
       </div>
 
-      {/* Step 1: Hierarchy */}
+      {/* ═══ Step 1: Template ═══ */}
       {step === 1 && (
         <div className="animate-fade-in" key="step-1">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
@@ -176,50 +203,58 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
         </div>
       )}
 
-      {/* Step 2: First Units */}
+      {/* ═══ Step 2: Build Structure ═══ */}
       {step === 2 && (
         <div className="animate-fade-in" key="step-2">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardHeader>
-              <CardTitle className="text-lg">
-                Add your first {confirmedLevels[0]}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Build your structure</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {confirmedLevels.join(" → ")}
+                  </p>
+                </div>
+                <Button
+                  variant={showPreview ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="gap-1.5"
+                >
+                  {showPreview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  {showPreview ? "Hide" : "Preview"}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                You can add up to 5 top-level {confirmedLevels[0]?.toLowerCase()}s now, or skip
-                and add them later.
-              </p>
-              {topLevelUnits.map((val, idx) => (
-                <Input
-                  key={idx}
-                  placeholder={`${confirmedLevels[0]} name`}
-                  value={val}
-                  onChange={(e) => updateUnitField(idx, e.target.value)}
+              {showPreview && (
+                <TreePreview
+                  units={units}
+                  levels={confirmedLevels}
+                  onClose={() => setShowPreview(false)}
                 />
-              ))}
-              {topLevelUnits.length < 5 && (
-                <Button variant="outline" size="sm" onClick={addUnitField}>
-                  + Add another
-                </Button>
               )}
-              <div className="flex items-center justify-between pt-2">
+
+              <AccordionBuilder
+                levels={confirmedLevels}
+                units={units}
+                onUnitsChange={setUnits}
+              />
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
                 <div className="flex items-center gap-3">
                   <Button variant="ghost" size="sm" onClick={() => setStep(1)}>
                     <ArrowLeft className="mr-1 h-4 w-4" /> Back
                   </Button>
                   <button
-                    className="text-sm text-muted-foreground underline hover:text-foreground transition-colors"
+                    className="text-xs text-muted-foreground underline hover:text-foreground transition-colors"
                     onClick={skipStep2}
                   >
                     Skip for now
                   </button>
                 </div>
-                <Button
-                  onClick={confirmStep2}
-                  disabled={!topLevelUnits.some((u) => u.trim())}
-                >
-                  Save & Continue <ChevronRight className="ml-1 h-4 w-4" />
+                <Button onClick={confirmStep2} disabled={!hasUnits}>
+                  Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -227,27 +262,87 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
         </div>
       )}
 
-      {/* Step 3: Done — Reward Design */}
+      {/* ═══ Step 3: Preview / Confirm ═══ */}
       {step === 3 && (
         <div className="animate-fade-in" key="step-3">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
-            <CardContent className="py-10">
-              {/* Anticipation phase */}
-              {showAnticipation && (
-                <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-                    <Sparkles className="h-6 w-6 text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground animate-pulse">
-                    Setting things up…
+            <CardHeader>
+              <CardTitle className="text-lg">Review your structure</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {units.length > 0 ? (
+                <TreePreview
+                  units={units}
+                  levels={confirmedLevels}
+                  onClose={() => {}}
+                />
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-sm text-muted-foreground">
+                    No units added yet. You can add them later from the org structure page.
                   </p>
                 </div>
               )}
 
+              {/* Stats summary */}
+              <div className="flex gap-4 justify-center py-2">
+                {confirmedLevels.map((level, i) => {
+                  const count = countAtLevel(units, 0, i);
+                  return (
+                    <div key={level} className="flex items-center gap-1.5 text-sm">
+                      <div className={`h-2 w-2 rounded-full ${LEVEL_DOT_COLORS[i % LEVEL_DOT_COLORS.length]}`} />
+                      <span className="font-semibold text-foreground">{count}</span>
+                      <span className="text-muted-foreground">{level}{count !== 1 ? "s" : ""}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+                  <ArrowLeft className="mr-1 h-4 w-4" /> Edit
+                </Button>
+                <Button onClick={startRewardCeremony}>
+                  Confirm & Finish <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ═══ Step 4: Done — Reward Ceremony ═══ */}
+      {step === 4 && (
+        <div className="animate-fade-in" key="step-4">
+          <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
+            <CardContent className="py-10">
+              {/* Anticipation */}
+              {phase === "anticipation" && (
+                <div className="flex flex-col items-center justify-center space-y-5 py-8">
+                  <div className="h-12 w-12 rounded-full border-2 border-primary/20 flex items-center justify-center">
+                    <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      Building your org chart
+                    </p>
+                    <p className="text-xs text-muted-foreground animate-pulse">
+                      {anticipationMessages[msgIdx]}
+                    </p>
+                  </div>
+                  <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-100"
+                      style={{ width: `${rewardProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Reveal + Afterglow */}
-              {showReveal && (
+              {(phase === "reveal" || phase === "afterglow") && (
                 <div className="flex flex-col items-center text-center space-y-6">
-                  {/* Confetti burst */}
+                  {/* Checkmark */}
                   <div className="relative">
                     <div className="confetti-burst" />
                     <div className="animate-scale-in">
@@ -257,50 +352,72 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
                     </div>
                   </div>
 
-                  {/* Title */}
-                  <div className="animate-fade-in space-y-2">
-                    <h2 className="text-xl font-bold text-foreground">
-                      You're all set!
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-bold text-foreground font-[Space_Grotesk]">
+                      Organization structure ready
                     </h2>
                     <p className="text-sm text-muted-foreground max-w-sm">
-                      Your organization structure is ready to go.
+                      Your hierarchy is configured and ready to use.
                     </p>
                   </div>
 
-                  {/* Stats framing */}
-                  <div className="flex gap-6 animate-fade-in" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{confirmedLevels.length}</div>
-                      <div className="text-xs text-muted-foreground">Hierarchy levels</div>
-                    </div>
-                    {filledUnitsCount > 0 && (
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{filledUnitsCount}</div>
-                        <div className="text-xs text-muted-foreground">Units added</div>
-                      </div>
-                    )}
-                  </div>
-
                   {/* Hierarchy path */}
-                  <div className="animate-fade-in" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
-                    <div className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground">
-                      {confirmedLevels.map((level, i) => (
-                        <span key={i} className="flex items-center gap-1">
-                          {i > 0 && <span className="text-muted-foreground/50">→</span>}
-                          <span className="font-medium text-foreground">{level}</span>
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap items-center justify-center gap-2 animate-fade-in">
+                    {confirmedLevels.map((level, i) => (
+                      <span key={i} className="flex items-center gap-1.5">
+                        {i > 0 && <span className="text-muted-foreground/40">→</span>}
+                        <div className={`h-2 w-2 rounded-full ${LEVEL_DOT_COLORS[i % LEVEL_DOT_COLORS.length]}`} />
+                        <span className="text-sm font-medium text-foreground">{level}</span>
+                      </span>
+                    ))}
                   </div>
 
-                  {/* Buttons — delayed afterglow */}
-                  {showButtons && (
+                  {/* Sequential tree reveal */}
+                  {flatNodes.length > 0 && (
+                    <div className="w-full max-w-xs text-left bg-muted/50 rounded-lg p-3 space-y-0.5">
+                      {flatNodes.map((node, idx) =>
+                        idx < treeNodesShown ? (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 animate-fade-in"
+                            style={{ paddingLeft: node.depth * 16 }}
+                          >
+                            <div className={`h-1.5 w-1.5 rounded-full ${LEVEL_DOT_COLORS[node.depth % LEVEL_DOT_COLORS.length]}`} />
+                            <span className="text-xs text-foreground">{node.name}</span>
+                          </div>
+                        ) : null
+                      )}
+                    </div>
+                  )}
+
+                  {/* Stats */}
+                  {showStats && (
+                    <div className="flex gap-6 animate-fade-in">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-foreground">{confirmedLevels.length}</div>
+                        <div className="text-xs text-muted-foreground">Levels</div>
+                      </div>
+                      {confirmedLevels.map((level, i) => {
+                        const count = countAtLevel(units, 0, i);
+                        if (count === 0) return null;
+                        return (
+                          <div key={level} className="text-center">
+                            <div className="text-2xl font-bold text-foreground">{count}</div>
+                            <div className="text-xs text-muted-foreground">{level}s</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* CTA */}
+                  {showCTA && (
                     <div className="flex gap-3 pt-2 animate-fade-in">
                       <Button onClick={onComplete}>
                         Get Started <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
                       <Button variant="outline" onClick={() => navigate("/dashboard")}>
-                        <ArrowLeft className="mr-1 h-4 w-4" /> Go to Dashboard
+                        Go to Dashboard
                       </Button>
                     </div>
                   )}
