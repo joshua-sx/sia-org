@@ -10,8 +10,8 @@ import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
 
-const STEP_LABELS = ["Template", "Build", "Preview", "Done"];
-const TOTAL_STEPS = 4;
+const STEP_LABELS = ["Hierarchy", "Structure", "Done"];
+const TOTAL_STEPS = 3;
 
 const LEVEL_DOT_COLORS = [
   "bg-primary",

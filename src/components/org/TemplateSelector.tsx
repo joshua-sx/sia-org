@@ -1,20 +1,38 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Landmark, HeartPulse, GraduationCap, LayoutList, Settings2 } from "lucide-react";
+import React, { useState } from "react";
+import { Building2, Landmark, HeartPulse, GraduationCap, LayoutList, Settings2, Check, Pencil } from "lucide-react";
 
 export interface HierarchyTemplate {
   key: string;
   label: string;
+  desc: string;
   icon: React.ElementType;
   levels: string[];
+  isCustom?: boolean;
 }
 
+const LEVEL_COLORS = [
+  "bg-primary",
+  "bg-green-500",
+  "bg-violet-500",
+  "bg-amber-500",
+  "bg-rose-500",
+];
+
+const LEVEL_TEXT_COLORS = [
+  "text-primary",
+  "text-green-500",
+  "text-violet-500",
+  "text-amber-500",
+  "text-rose-500",
+];
+
 export const TEMPLATES: HierarchyTemplate[] = [
-  { key: "government", label: "Government", icon: Landmark, levels: ["Ministry", "Directorate", "Division", "Section", "Unit"] },
-  { key: "corporate", label: "Corporate", icon: Building2, levels: ["Division", "Department", "Team"] },
-  { key: "healthcare", label: "Healthcare", icon: HeartPulse, levels: ["Facility", "Department", "Ward"] },
-  { key: "education", label: "Education", icon: GraduationCap, levels: ["Faculty", "Department", "Programme"] },
-  { key: "flat", label: "Flat", icon: LayoutList, levels: ["Department"] },
-  { key: "custom", label: "Custom", icon: Settings2, levels: [] },
+  { key: "government", label: "Government", desc: "Public sector hierarchy", icon: Landmark, levels: ["Ministry", "Agency", "Bureau", "Unit"] },
+  { key: "corporate", label: "Corporate", desc: "Standard business structure", icon: Building2, levels: ["Division", "Department", "Team"] },
+  { key: "healthcare", label: "Healthcare", desc: "Medical org structure", icon: HeartPulse, levels: ["Facility", "Department", "Unit", "Team"] },
+  { key: "education", label: "Education", desc: "Academic institution", icon: GraduationCap, levels: ["Faculty", "Department", "Programme"] },
+  { key: "flat", label: "Flat", desc: "Single-level, no nesting", icon: LayoutList, levels: ["Team"] },
+  { key: "custom", label: "Custom", desc: "Build your own hierarchy", icon: Settings2, levels: [], isCustom: true },
 ];
 
 interface Props {
@@ -22,33 +40,78 @@ interface Props {
   onSelect: (key: string) => void;
 }
 
-import React from "react";
+const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTemplate; active: boolean; onSelect: () => void }) => {
+  const [hovered, setHovered] = useState(false);
+  const Icon = template.icon;
+
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={`relative flex flex-col text-left rounded-xl border-[1.5px] p-4 pb-3.5 min-h-[155px] transition-all duration-150 cursor-pointer outline-none ${
+        active
+          ? "border-primary bg-accent shadow-[0_0_0_2px_hsl(var(--primary)/0.15),0_4px_14px_rgba(28,25,23,0.08)]"
+          : hovered
+          ? "border-border/80 bg-card shadow-[0_4px_14px_rgba(28,25,23,0.08),0_2px_4px_rgba(28,25,23,0.04)]"
+          : "border-border bg-card shadow-[0_1px_3px_rgba(28,25,23,0.06),0_1px_2px_rgba(28,25,23,0.04)]"
+      }`}
+    >
+      {/* Checkmark */}
+      <div className={`absolute top-3 right-3 h-5 w-5 rounded-full flex items-center justify-center transition-all duration-150 ${
+        active ? "bg-primary scale-100" : "bg-muted scale-75 opacity-0"
+      }`}>
+        <Check className="h-3 w-3 text-primary-foreground" />
+      </div>
+
+      {/* Icon + Name */}
+      <div className="flex items-center gap-2.5 mb-1.5">
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
+          active ? "bg-primary/10" : "bg-muted"
+        }`}>
+          <Icon className={`h-4.5 w-4.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+        </div>
+        <span className="text-sm font-semibold text-foreground">{template.label}</span>
+      </div>
+
+      {/* Description */}
+      <p className="text-xs text-muted-foreground mb-3">{template.desc}</p>
+
+      {/* Mini hierarchy tree */}
+      <div className="mt-auto space-y-0.5">
+        {template.isCustom ? (
+          <div className="flex items-center gap-1.5">
+            <Pencil className="h-3 w-3 text-muted-foreground" />
+            <span className="text-[11px] text-muted-foreground">Define your own levels</span>
+          </div>
+        ) : (
+          template.levels.map((level, i) => (
+            <div key={i} className="flex items-center gap-1.5" style={{ paddingLeft: i > 0 ? i * 10 : 0 }}>
+              {i > 0 && (
+                <span className="text-[10px] text-muted-foreground/50 font-mono leading-none">└</span>
+              )}
+              <div className={`h-1.5 w-1.5 rounded-full ${LEVEL_COLORS[i % LEVEL_COLORS.length]}`} />
+              <span className={`text-[11px] font-medium ${active ? LEVEL_TEXT_COLORS[i % LEVEL_TEXT_COLORS.length] : "text-muted-foreground"}`}>
+                {level}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+    </button>
+  );
+};
 
 const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect }, ref) => (
-  <div ref={ref} className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-    {TEMPLATES.map((t) => {
-      const Icon = t.icon;
-      const isSelected = selected === t.key;
-      return (
-        <Card
-          key={t.key}
-          className={`cursor-pointer transition-all hover:border-primary/50 ${
-            isSelected ? "border-primary ring-2 ring-primary/20" : ""
-          }`}
-          onClick={() => onSelect(t.key)}
-        >
-          <CardContent className="flex flex-col items-center gap-2 p-5">
-            <Icon className="h-8 w-8 text-primary" />
-            <span className="text-sm font-semibold">{t.label}</span>
-            {t.levels.length > 0 && isSelected && (
-              <p className="mt-1 text-center text-xs text-muted-foreground">
-                {t.levels.join(" → ")}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      );
-    })}
+  <div ref={ref} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    {TEMPLATES.map((t) => (
+      <TemplateCard
+        key={t.key}
+        template={t}
+        active={selected === t.key}
+        onSelect={() => onSelect(t.key)}
+      />
+    ))}
   </div>
 ));
 
