@@ -14,8 +14,8 @@ import EditLevelsModal from "@/components/org/EditLevelsModal";
 
 const OrgStructure = () => {
   const { profile } = useAuth();
-  const { data: unitTypes = [], isLoading: loadingTypes } = useOrgUnitTypes();
-  const { data: units = [], isLoading: loadingUnits } = useOrgUnits();
+  const { data: unitTypes = [], isLoading: loadingTypes, createTypes } = useOrgUnitTypes();
+  const { data: units = [], isLoading: loadingUnits, addUnit } = useOrgUnits();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
