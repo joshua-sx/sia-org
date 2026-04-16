@@ -22,7 +22,10 @@ interface Props {
   onSelect: (key: string) => void;
 }
 
-const TemplateSelector = ({ selected, onSelect }: Props) => (
+import React from "react";
+
+const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect }, ref) => (
+  <div ref={ref} className="grid grid-cols-2 gap-4 sm:grid-cols-3">
   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
     {TEMPLATES.map((t) => {
       const Icon = t.icon;

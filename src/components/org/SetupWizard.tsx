@@ -5,27 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, ChevronRight, ArrowLeft } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
-import { useOrgUnits } from "@/hooks/useOrgUnits";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
-import { toast } from "sonner";
 
 const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
-  const { organization } = useAuth();
   const navigate = useNavigate();
-  const { createTypes } = useOrgUnitTypes();
-  const { addUnit } = useOrgUnits();
 
-  const [step, setStep] = useState(2); // Step 1 is pre-checked
+  const [step, setStep] = useState(2);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [customLevels, setCustomLevels] = useState<string[]>([]);
   const [confirmedLevels, setConfirmedLevels] = useState<string[]>([]);
   const [topLevelUnits, setTopLevelUnits] = useState<string[]>([""]);
-  const [saving, setSaving] = useState(false);
-  const [createdTypeIds, setCreatedTypeIds] = useState<string[]>([]);
 
   const progress = (step / 4) * 100;
 
@@ -35,68 +25,17 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
     return t?.levels ?? [];
   };
 
-  const canProceedStep2 = () => {
-    const levels = getLevels();
-    return levels.length >= 1;
-  };
+  const canProceedStep2 = () => getLevels().length >= 1;
 
-  const confirmStep2 = async () => {
+  const confirmStep2 = () => {
     const levels = getLevels();
     if (levels.length < 1) return;
-    setSaving(true);
-    try {
-      const rows = levels.map((name, idx) => ({ name, level: idx }));
-      const result = await createTypes.mutateAsync(rows);
-      setConfirmedLevels(levels);
-      setCreatedTypeIds(result.map((r) => r.id));
-      setStep(3);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save hierarchy");
-    } finally {
-      setSaving(false);
-    }
+    setConfirmedLevels(levels);
+    setStep(3);
   };
 
-  const confirmStep3 = async () => {
-    setSaving(true);
-    try {
-      const validUnits = topLevelUnits.filter((u) => u.trim());
-      if (validUnits.length > 0 && createdTypeIds[0]) {
-        for (const name of validUnits) {
-          await addUnit.mutateAsync({
-            name: name.trim(),
-            unit_type_id: createdTypeIds[0],
-            parent_id: null,
-          });
-        }
-      }
-      // Mark setup complete
-      await supabase
-        .from("organizations")
-        .update({ setup_complete: true })
-        .eq("id", organization!.id);
-      setStep(4);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save units");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const skipStep3 = async () => {
-    setSaving(true);
-    try {
-      await supabase
-        .from("organizations")
-        .update({ setup_complete: true })
-        .eq("id", organization!.id);
-      setStep(4);
-    } catch {
-      toast.error("Failed to complete setup");
-    } finally {
-      setSaving(false);
-    }
-  };
+  const confirmStep3 = () => setStep(4);
+  const skipStep3 = () => setStep(4);
 
   const addUnitField = () => {
     if (topLevelUnits.length < 5) setTopLevelUnits([...topLevelUnits, ""]);
@@ -130,10 +69,6 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
         ))}
       </div>
 
-      {/* Step 1 - Pre-checked */}
-      {step === 1 && null}
-
-      {/* Step 2 - Template selection */}
       {step === 2 && (
         <Card>
           <CardHeader>
@@ -147,15 +82,14 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
             )}
 
             <div className="flex justify-end">
-              <Button onClick={confirmStep2} disabled={!canProceedStep2() || saving}>
-                {saving ? "Saving…" : "Confirm & Continue"} <ChevronRight className="ml-1 h-4 w-4" />
+              <Button onClick={confirmStep2} disabled={!canProceedStep2()}>
+                Confirm & Continue <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Step 3 - Add first units */}
       {step === 3 && (
         <Card>
           <CardHeader>
@@ -184,22 +118,20 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
               <button
                 className="text-sm text-muted-foreground underline hover:text-foreground"
                 onClick={skipStep3}
-                disabled={saving}
               >
                 Skip for now — I'll add units later
               </button>
               <Button
                 onClick={confirmStep3}
-                disabled={saving || !topLevelUnits.some((u) => u.trim())}
+                disabled={!topLevelUnits.some((u) => u.trim())}
               >
-                {saving ? "Saving…" : "Save & Continue"} <ChevronRight className="ml-1 h-4 w-4" />
+                Save & Continue <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Step 4 - Done */}
       {step === 4 && (
         <Card>
           <CardHeader>
