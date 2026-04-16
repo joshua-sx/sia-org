@@ -16,34 +16,34 @@ const Dashboard = () => {
   return (
     <div className="px-8 py-10 max-w-2xl">
       {/* Welcome */}
-      <h1 className="text-[28px] font-bold tracking-tight text-[#2c2c2b] font-[Space_Grotesk]">
+      <h1 className="text-[28px] font-bold tracking-[-0.5px] text-[rgba(0,0,0,0.95)] font-[Space_Grotesk]">
         Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
       </h1>
-      <p className="mt-1 text-sm text-[#7d7a75]">
+      <p className="mt-1 text-sm text-[#615d59]">
         Complete these steps to get started.
       </p>
 
       {/* Checklist */}
-      <div className="mt-8 rounded-xl border border-[rgba(0,0,0,0.08)] bg-white">
-        <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.06)]">
-          <h2 className="text-sm font-semibold text-[#2c2c2b]">Setup checklist</h2>
+      <div className="mt-8 rounded-xl border border-[rgba(0,0,0,0.1)] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
+        <div className="px-5 py-4 border-b border-[rgba(0,0,0,0.1)]">
+          <h2 className="text-sm font-semibold text-[rgba(0,0,0,0.95)]">Setup checklist</h2>
         </div>
-        <div className="divide-y divide-[rgba(0,0,0,0.06)]">
+        <div className="divide-y divide-[rgba(0,0,0,0.1)]">
           {checklist.map((item, i) => (
             <div key={i} className="flex items-center justify-between px-5 py-3">
               <div className="flex items-center gap-3">
                 {item.done ? (
                   <CheckCircle2 className="h-[18px] w-[18px] text-emerald-500" />
                 ) : (
-                  <Circle className="h-[18px] w-[18px] text-[#c4c1bc]" />
+                  <Circle className="h-[18px] w-[18px] text-[#a39e98]" />
                 )}
-                <span className={`text-sm ${item.done ? "text-[#c4c1bc] line-through" : "text-[#2c2c2b]"}`}>
+                <span className={`text-sm ${item.done ? "text-[#a39e98] line-through" : "text-[rgba(0,0,0,0.95)]"}`}>
                   {item.label}
                 </span>
               </div>
               {item.href && !item.done && (
                 <Link to={item.href}>
-                  <Button variant="ghost" size="sm" className="gap-1 text-xs text-[#7d7a75] hover:text-[#2c2c2b]">
+                  <Button variant="ghost" size="sm" className="gap-1 text-xs text-[#615d59] hover:text-[rgba(0,0,0,0.95)]">
                     Configure <ChevronRight className="h-3 w-3" />
                   </Button>
                 </Link>

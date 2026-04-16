@@ -65,9 +65,9 @@ const OrgStructure = () => {
     return (
       <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-[#2c2c2b]">Access restricted</h1>
-          <p className="mt-2 text-sm text-[#7d7a75]">This area is for HR Administrators only.</p>
-          <Button asChild variant="ghost" className="mt-6 gap-2 text-[#7d7a75]">
+          <h1 className="text-2xl font-bold tracking-tight text-[rgba(0,0,0,0.95)]">Access restricted</h1>
+          <p className="mt-2 text-sm text-[#615d59]">This area is for HR Administrators only.</p>
+          <Button asChild variant="ghost" className="mt-6 gap-2 text-[#615d59]">
             <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
           </Button>
         </div>
@@ -82,7 +82,7 @@ const OrgStructure = () => {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-[#7d7a75]">Loading…</p>
+        <p className="text-sm text-[#615d59]">Loading…</p>
       </div>
     );
   }
@@ -91,10 +91,10 @@ const OrgStructure = () => {
     <div className="flex-1 p-6 md:p-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[28px] font-bold tracking-tight text-[#2c2c2b] font-[Space_Grotesk]">
+          <h1 className="text-[28px] font-bold tracking-[-0.5px] text-[rgba(0,0,0,0.95)] font-[Space_Grotesk]">
             Organization Structure
           </h1>
-          <p className="mt-1 text-sm text-[#7d7a75]">
+          <p className="mt-1 text-sm text-[#615d59]">
             {sortedTypes.map((t) => t.name).join(" → ")}
           </p>
         </div>
@@ -113,10 +113,10 @@ const OrgStructure = () => {
 
       {units.length === 0 ? (
         <div className="mt-16 flex flex-col items-center gap-4 text-center">
-          <Building2 className="h-12 w-12 text-[#c4c1bc]" />
+          <Building2 className="h-12 w-12 text-[#a39e98]" />
           <div>
-            <h2 className="text-lg font-semibold text-[#2c2c2b]">Your hierarchy is configured</h2>
-            <p className="text-sm text-[#7d7a75]">
+            <h2 className="text-lg font-semibold text-[rgba(0,0,0,0.95)]">Your hierarchy is configured</h2>
+            <p className="text-sm text-[#615d59]">
               Add your first {topLevelType?.name ?? "unit"}.
             </p>
           </div>
@@ -126,14 +126,14 @@ const OrgStructure = () => {
         </div>
       ) : (
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-white p-4">
+          <div className="rounded-xl border border-[rgba(0,0,0,0.1)] bg-white p-4">
             <OrgTree nodes={tree} selectedId={selectedId} onSelect={(n) => setSelectedId(n.id)} />
           </div>
-          <div className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-white p-5">
+          <div className="rounded-xl border border-[rgba(0,0,0,0.1)] bg-white p-5">
             {selectedNode ? (
               <UnitDetailPanel node={selectedNode} onAddChild={handleAddChild} />
             ) : (
-              <p className="text-sm text-[#7d7a75]">Select a unit to view details.</p>
+              <p className="text-sm text-[#615d59]">Select a unit to view details.</p>
             )}
           </div>
         </div>

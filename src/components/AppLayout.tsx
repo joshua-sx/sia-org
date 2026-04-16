@@ -11,9 +11,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen flex w-full bg-white">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Thin header with sidebar trigger */}
-          <header className="h-11 flex items-center border-b border-[rgba(0,0,0,0.06)] px-4 shrink-0">
-            <SidebarTrigger className="text-[#8e8b86] hover:text-[#2c2c2b]" />
+          <header className="h-11 flex items-center border-b border-[rgba(0,0,0,0.1)] px-4 shrink-0">
+            <SidebarTrigger className="text-[#a39e98] hover:text-[rgba(0,0,0,0.95)]" />
           </header>
           <main className="flex-1 overflow-auto">{children}</main>
         </div>
