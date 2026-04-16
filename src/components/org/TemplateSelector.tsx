@@ -22,8 +22,10 @@ interface Props {
   onSelect: (key: string) => void;
 }
 
-const TemplateSelector = ({ selected, onSelect }: Props) => (
-  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+import React from "react";
+
+const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect }, ref) => (
+  <div ref={ref} className="grid grid-cols-2 gap-4 sm:grid-cols-3">
     {TEMPLATES.map((t) => {
       const Icon = t.icon;
       const isSelected = selected === t.key;
@@ -48,6 +50,8 @@ const TemplateSelector = ({ selected, onSelect }: Props) => (
       );
     })}
   </div>
-);
+));
+
+TemplateSelector.displayName = "TemplateSelector";
 
 export default TemplateSelector;
