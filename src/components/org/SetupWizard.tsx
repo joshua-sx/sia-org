@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
@@ -10,8 +9,8 @@ import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
 
-const STEP_LABELS = ["Template", "Build", "Preview", "Done"];
-const TOTAL_STEPS = 4;
+const STEP_LABELS = ["Hierarchy", "Structure", "Done"];
+const TOTAL_STEPS = 3;
 
 const LEVEL_DOT_COLORS = [
   "bg-primary",
@@ -140,41 +139,52 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk]">
-          Set up your organization
+          {step === 1 ? "Choose your hierarchy template" : step === 2 ? "Build your structure" : step === 3 ? "Review your structure" : "Done"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Configure your organizational hierarchy step by step.
+          {step === 1
+            ? "This determines the organizational levels available during setup. You can adjust later in settings."
+            : step === 2
+            ? confirmedLevels.join(" → ")
+            : step === 3
+            ? "Confirm your organizational hierarchy."
+            : ""}
         </p>
       </div>
 
-      {/* Progress bar */}
-      <Progress value={progress} className="h-1.5" />
-
-      {/* Clickable breadcrumb stepper */}
-      <div className="flex gap-1">
+      {/* Numbered step indicator */}
+      <div className="flex items-center justify-center gap-0">
         {STEP_LABELS.map((label, i) => {
           const stepNum = i + 1;
           const isCompleted = stepNum < step;
           const isCurrent = stepNum === step;
-          const isFuture = stepNum > step;
 
           return (
-            <button
-              key={i}
-              onClick={() => isCompleted && goToStep(stepNum)}
-              disabled={isFuture}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                isCompleted
-                  ? "cursor-pointer text-primary bg-accent hover:bg-primary/10"
-                  : isCurrent
-                  ? "text-primary-foreground bg-primary"
-                  : "text-muted-foreground bg-muted"
-              }`}
-            >
-              {isCompleted && <CheckCircle2 className="h-3 w-3" />}
-              {isCurrent && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
-              {label}
-            </button>
+            <div key={i} className="flex items-center">
+              <div className="flex flex-col items-center gap-1">
+                <button
+                  onClick={() => isCompleted && goToStep(stepNum)}
+                  disabled={!isCompleted}
+                  className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+                    isCompleted
+                      ? "bg-primary text-primary-foreground cursor-pointer"
+                      : isCurrent
+                      ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : stepNum}
+                </button>
+                <span className={`text-[11px] font-medium ${isCurrent || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
+                  {label}
+                </span>
+              </div>
+              {i < STEP_LABELS.length - 1 && (
+                <div className={`w-16 h-px mx-2 mb-5 border-t border-dashed ${
+                  stepNum < step ? "border-primary" : "border-border"
+                }`} />
+              )}
+            </div>
           );
         })}
       </div>
@@ -183,20 +193,36 @@ const SetupWizard = ({ onComplete }: { onComplete: () => void }) => {
       {step === 1 && (
         <div className="animate-fade-in" key="step-1">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
-            <CardHeader>
-              <CardTitle className="text-lg">Choose your hierarchy template</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="pt-6 space-y-6">
               <TemplateSelector selected={selectedTemplate} onSelect={setSelectedTemplate} />
 
               {selectedTemplate === "custom" && (
                 <CustomLevelBuilder levels={customLevels} onChange={setCustomLevels} />
               )}
 
-              <div className="flex justify-end">
-                <Button onClick={confirmStep1} disabled={!canProceedStep1()}>
-                  Confirm & Continue <ChevronRight className="ml-1 h-4 w-4" />
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-4 border-t border-border">
+                <Button variant="ghost" size="sm" disabled>
+                  <ArrowLeft className="mr-1 h-4 w-4" /> Back
                 </Button>
+                <div className="flex items-center gap-3">
+                  {/* Level path preview */}
+                  {selectedTemplate && selectedTemplate !== "custom" && getLevels().length > 0 && (
+                    <div className="hidden sm:flex items-center gap-1.5">
+                      {getLevels().map((l, i) => (
+                        <span key={i} className="flex items-center gap-1">
+                          <span className="text-xs font-medium text-muted-foreground">{l}</span>
+                          {i < getLevels().length - 1 && (
+                            <span className="text-muted-foreground/40 text-xs">→</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <Button onClick={confirmStep1} disabled={!canProceedStep1()}>
+                    Confirm & Continue <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
