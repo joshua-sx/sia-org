@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import OrgStructure from "./pages/OrgStructure";
 import OrgEmployees from "./pages/OrgEmployees";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
@@ -25,8 +26,9 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
             <Route path="/org/structure" element={<ProtectedRoute><AppLayout><OrgStructure /></AppLayout></ProtectedRoute>} />
             <Route path="/org/employees" element={<ProtectedRoute><AppLayout><OrgEmployees /></AppLayout></ProtectedRoute>} />
