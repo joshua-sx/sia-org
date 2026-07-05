@@ -17,6 +17,8 @@ import EditLevelsModal from "@/components/org/EditLevelsModal";
 
 const OrgStructure = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
+  const { markComplete } = useOnboarding();
   const { data: unitTypes = [], isLoading: loadingTypes, createTypes } = useOrgUnitTypes();
   const { data: units = [], isLoading: loadingUnits, addUnit } = useOrgUnits();
 
