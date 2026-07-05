@@ -158,7 +158,7 @@ const OrgEmployees = () => {
         </div>
       </div>
 
-      <EmployeeFormDrawer
+      <EmployeeFormModal
         open={formOpen}
         onOpenChange={setFormOpen}
         editing={editing}
