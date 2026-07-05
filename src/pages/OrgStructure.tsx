@@ -81,7 +81,21 @@ const OrgStructure = () => {
   }
 
   if (showWizard) {
-    return <SetupWizard onComplete={() => setWizardDone(true)} createTypes={createTypes} addUnit={addUnit} />;
+    return (
+      <SetupWizard
+        onComplete={async () => {
+          try {
+            await markComplete("structure");
+          } catch (e: any) {
+            toast.error(e?.message ?? "Could not mark step complete");
+          }
+          setWizardDone(true);
+          navigate("/org/employees");
+        }}
+        createTypes={createTypes}
+        addUnit={addUnit}
+      />
+    );
   }
 
   if (loading) {
@@ -93,7 +107,8 @@ const OrgStructure = () => {
   }
 
   return (
-    <div className="flex-1 px-6 md:px-10 py-10">
+    <>
+      <OnboardingStrip />
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))]">
