@@ -418,7 +418,7 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-6">
             {STEPS.map((s, i) => (
               <SectionReveal key={s.num}>
-                <motion.div custom={i} variants={fadeUp} className="flex flex-col gap-3">
+                <motion.div custom={i} variants={fadeUp} className="flex flex-col items-center text-center gap-3">
                   <span className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-bold">
                     {s.num}
                   </span>
