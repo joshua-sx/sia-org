@@ -14,6 +14,139 @@ export type Database = {
   }
   public: {
     Tables: {
+      appraisal_cycles: {
+        Row: {
+          acknowledgement_due: string
+          created_at: string
+          final_window_end: string
+          final_window_start: string
+          goal_window_end: string
+          goal_window_start: string
+          id: string
+          interim_window_end: string
+          interim_window_start: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledgement_due: string
+          created_at?: string
+          final_window_end: string
+          final_window_start: string
+          goal_window_end: string
+          goal_window_start: string
+          id?: string
+          interim_window_end: string
+          interim_window_start: string
+          name: string
+          organization_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledgement_due?: string
+          created_at?: string
+          final_window_end?: string
+          final_window_start?: string
+          goal_window_end?: string
+          goal_window_start?: string
+          id?: string
+          interim_window_end?: string
+          interim_window_start?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appraisal_cycles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cycle_participants: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          cycle_id: string
+          employee_id: string
+          extra_reviewer_id: string | null
+          final_score: number | null
+          final_submitted_at: string | null
+          id: string
+          interim_score: number | null
+          interim_submitted_at: string | null
+          manager_id: string
+          overall_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          cycle_id: string
+          employee_id: string
+          extra_reviewer_id?: string | null
+          final_score?: number | null
+          final_submitted_at?: string | null
+          id?: string
+          interim_score?: number | null
+          interim_submitted_at?: string | null
+          manager_id: string
+          overall_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          cycle_id?: string
+          employee_id?: string
+          extra_reviewer_id?: string | null
+          final_score?: number | null
+          final_submitted_at?: string | null
+          id?: string
+          interim_score?: number | null
+          interim_submitted_at?: string | null
+          manager_id?: string
+          overall_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_participants_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "appraisal_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
+            columns: ["extra_reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           created_at: string
@@ -105,6 +238,85 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_ratings: {
+        Row: {
+          created_at: string
+          goal_id: string
+          id: string
+          manager_comment: string | null
+          rating: number | null
+          reviewer_comment: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          goal_id: string
+          id?: string
+          manager_comment?: string | null
+          rating?: number | null
+          reviewer_comment?: string | null
+          stage: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          goal_id?: string
+          id?: string
+          manager_comment?: string | null
+          rating?: number | null
+          reviewer_comment?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_ratings_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          participant_id: string
+          title: string
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          participant_id: string
+          title: string
+          updated_at?: string
+          weight: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          participant_id?: string
+          title?: string
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "cycle_participants"
             referencedColumns: ["id"]
           },
         ]
@@ -208,8 +420,10 @@ export type Database = {
           created_at: string | null
           cycle_complete: boolean
           cycle_skipped: boolean
+          final_weight_pct: number
           id: string
           industry: string
+          interim_weight_pct: number
           name: string
           people_complete: boolean
           people_skipped: boolean
@@ -222,8 +436,10 @@ export type Database = {
           created_at?: string | null
           cycle_complete?: boolean
           cycle_skipped?: boolean
+          final_weight_pct?: number
           id?: string
           industry: string
+          interim_weight_pct?: number
           name: string
           people_complete?: boolean
           people_skipped?: boolean
@@ -236,8 +452,10 @@ export type Database = {
           created_at?: string | null
           cycle_complete?: boolean
           cycle_skipped?: boolean
+          final_weight_pct?: number
           id?: string
           industry?: string
+          interim_weight_pct?: number
           name?: string
           people_complete?: boolean
           people_skipped?: boolean
@@ -287,8 +505,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_employee_id: { Args: never; Returns: string }
       current_user_org_id: { Args: never; Returns: string }
+      current_user_role: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
+      cycle_org: { Args: { p_cycle_id: string }; Returns: string }
+      goal_participant: { Args: { p_goal_id: string }; Returns: string }
+      participant_org: { Args: { p_participant_id: string }; Returns: string }
       text2ltree: { Args: { "": string }; Returns: unknown }
     }
     Enums: {
