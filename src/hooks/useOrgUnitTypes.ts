@@ -36,10 +36,18 @@ export function useOrgUnitTypes() {
         name: t.name,
         level: t.level,
       }));
-      const { data, error } = await supabase
-        .from("org_unit_types")
-        .insert(rows)
-        .select();
+      const attempt = () =>
+        supabase.from("org_unit_types").insert(rows).select();
+      let { data, error } = await attempt();
+      // If the JWT is missing the organization_id claim (e.g. session was issued
+      // before the profile row existed), refresh the session once and retry.
+      if (
+        error &&
+        (error.code === "42501" || /row-level security/i.test(error.message))
+      ) {
+        await supabase.auth.refreshSession();
+        ({ data, error } = await attempt());
+      }
       if (error) throw error;
       return data as OrgUnitType[];
     },
