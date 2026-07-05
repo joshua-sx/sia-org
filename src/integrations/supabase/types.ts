@@ -174,6 +174,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_org_id: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
       text2ltree: { Args: { "": string }; Returns: unknown }
     }
