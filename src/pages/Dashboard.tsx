@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PageHead } from "@/components/PageHead";
-import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -186,6 +185,7 @@ const Dashboard = () => {
 
 function LaunchOnboardingView() {
   const { organization } = useAuth();
+  const navigate = useNavigate();
   const { steps } = useOnboarding();
   const employees = useEmployees();
   const units = useOrgUnits();
@@ -204,7 +204,7 @@ function LaunchOnboardingView() {
 
   const handleCta = () => {
     if (current.key === "cycle") {
-      toast.info("Appraisal cycle builder is coming soon.");
+      navigate("/appraisals");
       return;
     }
     if (current.href) window.location.assign(current.href);

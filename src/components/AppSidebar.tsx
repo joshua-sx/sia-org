@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Building2,
   Users,
+  CalendarClock,
   LogOut,
   ChevronsUpDown,
 } from "lucide-react";
@@ -32,6 +33,7 @@ const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, accent: "--accent-blue" },
   { title: "Org Structure", url: "/org/structure", icon: Building2, accent: "--accent-green" },
   { title: "Employees", url: "/org/employees", icon: Users, accent: "--accent-red" },
+  { title: "Appraisals", url: "/appraisals", icon: CalendarClock, accent: "--accent-yellow" },
 ];
 
 export function AppSidebar() {
