@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download } from "lucide-react";
+import { UserPlus, Upload, Download, Info, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
