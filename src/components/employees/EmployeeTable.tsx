@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Search, MoreHorizontal, Pencil, Trash2, ChevronRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Employee } from "@/hooks/useEmployees";
 import { EMPLOYMENT_STATUS_LABELS } from "@/lib/employeeSchema";
+import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
+import { buildAncestryMap, orderedLevels, unitsByLevel } from "@/lib/orgHierarchy";
 
 interface Props {
   employees: Employee[];
-  unitsById: Record<string, string>;
+  /** Kept for API compatibility; not used since ancestry is derived internally. */
+  unitsById?: Record<string, string>;
   onEdit: (e: Employee) => void;
   onDelete: (e: Employee) => void;
 }
@@ -24,8 +28,13 @@ const STATUS_COLORS: Record<Employee["employment_status"], string> = {
   terminated: "--accent-red",
 };
 
-export function EmployeeTable({ employees, unitsById, onEdit, onDelete }: Props) {
+export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
   const [q, setQ] = useState("");
+  const { data: units = [] } = useOrgUnits();
+  const { data: types = [] } = useOrgUnitTypes();
+
+  const levels = useMemo(() => orderedLevels(types), [types]);
+  const ancestry = useMemo(() => buildAncestryMap(units), [units]);
 
   const managerById = useMemo(() => {
     const m: Record<string, Employee> = {};
@@ -64,16 +73,17 @@ export function EmployeeTable({ employees, unitsById, onEdit, onDelete }: Props)
             <tr className="border-b border-[hsl(var(--hairline))] text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
               <th className="text-left px-4 py-2.5 font-medium">Name</th>
               <th className="text-left px-4 py-2.5 font-medium">Job title</th>
-              <th className="text-left px-4 py-2.5 font-medium">Department</th>
+              <th className="text-left px-4 py-2.5 font-medium">Unit</th>
               <th className="text-left px-4 py-2.5 font-medium">Manager</th>
               <th className="text-left px-4 py-2.5 font-medium">Status</th>
-              <th className="text-left px-4 py-2.5 font-medium">Start date</th>
               <th className="w-10" />
             </tr>
           </thead>
           <tbody>
             {filtered.map((e) => {
               const manager = e.manager_id ? managerById[e.manager_id] : null;
+              const chain = unitsByLevel(e.org_unit_id, ancestry, levels).filter(Boolean);
+
               return (
                 <tr key={e.id} className="border-b border-[hsl(var(--hairline))] last:border-b-0 hover:bg-[hsl(var(--ink-strong)/0.02)]">
                   <td className="px-4 py-3">
@@ -82,7 +92,28 @@ export function EmployeeTable({ employees, unitsById, onEdit, onDelete }: Props)
                   </td>
                   <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">{e.job_title ?? "—"}</td>
                   <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">
-                    {e.org_unit_id ? unitsById[e.org_unit_id] ?? "—" : "—"}
+                    {chain.length === 0 ? (
+                      "—"
+                    ) : (
+                      <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5">
+                        {chain.map((u, i) => (
+                          <span key={u!.id} className="flex items-center gap-1">
+                            <span
+                              className={
+                                i === chain.length - 1
+                                  ? "text-foreground text-[13px]"
+                                  : "text-[12px]"
+                              }
+                            >
+                              {u!.name}
+                            </span>
+                            {i < chain.length - 1 && (
+                              <ChevronRight className="h-3 w-3 opacity-40" />
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">
                     {manager ? `${manager.first_name} ${manager.last_name}` : "—"}
@@ -101,9 +132,6 @@ export function EmployeeTable({ employees, unitsById, onEdit, onDelete }: Props)
                       />
                       {EMPLOYMENT_STATUS_LABELS[e.employment_status]}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-[hsl(var(--ink-muted))] tabular-nums">
-                    {e.start_date ?? "—"}
                   </td>
                   <td className="px-2 py-3">
                     <DropdownMenu>
@@ -127,7 +155,7 @@ export function EmployeeTable({ employees, unitsById, onEdit, onDelete }: Props)
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">
                   No matching employees.
                 </td>
               </tr>
