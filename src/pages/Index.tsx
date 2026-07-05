@@ -320,14 +320,14 @@ const Index = () => {
       {/* Problem */}
       <div className="py-20 md:py-28 bg-white">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Still using spreadsheets?
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">
+            <p className="text-foreground/60">
               Most orgs run appraisals with tools that weren't built for the job.
             </p>
           </SectionReveal>
