@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AuthShell } from "@/components/AuthShell";
 
 const INDUSTRIES = ["Government", "Aviation", "Healthcare", "Education", "Finance", "Hospitality", "Other"];
-
 const COUNTRIES = [
   "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
   "India", "Japan", "Brazil", "South Africa", "Nigeria", "Kenya", "UAE",
@@ -61,7 +60,6 @@ const Signup = () => {
       });
 
       if (error) {
-        // FunctionsHttpError: parse the response body for the real message
         let message = error.message || "Signup failed";
         let details: Record<string, string> | undefined;
         const ctx = (error as { context?: Response }).context;
@@ -93,8 +91,6 @@ const Signup = () => {
         return;
       }
 
-
-      // Sign in after successful signup
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password,
@@ -130,70 +126,64 @@ const Signup = () => {
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="text-center">
-          <Link to="/" className="mb-2 inline-block text-xl font-bold tracking-tight font-[Space_Grotesk]">
-            SIA
+    <AuthShell
+      title="Create your account"
+      description="Set up your organization and start managing appraisals"
+      size="lg"
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-primary hover:underline">
+            Sign in
           </Link>
-          <CardTitle className="text-2xl">Create your account</CardTitle>
-          <CardDescription>Set up your organization and start managing appraisals</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {field("full_name", "Full name", "text", "Jane Doe")}
-            {field("email", "Work email", "email", "jane@company.com")}
-            <div className="grid grid-cols-2 gap-4">
-              {field("password", "Password", "password")}
-              {field("confirm_password", "Confirm password", "password")}
-            </div>
-            {field("org_name", "Organization name", "text", "Acme Corp")}
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {field("full_name", "Full name", "text", "Jane Doe")}
+        {field("email", "Work email", "email", "jane@company.com")}
+        <div className="grid grid-cols-2 gap-4">
+          {field("password", "Password", "password")}
+          {field("confirm_password", "Confirm password", "password")}
+        </div>
+        {field("org_name", "Organization name", "text", "Acme Corp")}
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Country</Label>
-                <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v }))}>
-                  <SelectTrigger className={errors.country ? "border-destructive" : ""}>
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COUNTRIES.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.country && <p className="text-xs text-destructive">{errors.country}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <Label>Industry</Label>
-                <Select value={form.industry} onValueChange={(v) => setForm((f) => ({ ...f, industry: v }))}>
-                  <SelectTrigger className={errors.industry ? "border-destructive" : ""}>
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INDUSTRIES.map((i) => (
-                      <SelectItem key={i} value={i}>{i}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.industry && <p className="text-xs text-destructive">{errors.industry}</p>}
-              </div>
-            </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label>Country</Label>
+            <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v }))}>
+              <SelectTrigger className={errors.country ? "border-destructive" : ""}>
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.country && <p className="text-xs text-destructive">{errors.country}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label>Industry</Label>
+            <Select value={form.industry} onValueChange={(v) => setForm((f) => ({ ...f, industry: v }))}>
+              <SelectTrigger className={errors.industry ? "border-destructive" : ""}>
+                <SelectValue placeholder="Select industry" />
+              </SelectTrigger>
+              <SelectContent>
+                {INDUSTRIES.map((i) => (
+                  <SelectItem key={i} value={i}>{i}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.industry && <p className="text-xs text-destructive">{errors.industry}</p>}
+          </div>
+        </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create account"}
-            </Button>
-          </form>
-
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Creating account..." : "Create account"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 };
 
