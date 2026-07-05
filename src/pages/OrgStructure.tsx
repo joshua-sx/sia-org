@@ -117,7 +117,7 @@ const OrgStructure = () => {
 
   return (
     <>
-      <div className="flex-1 px-6 md:px-10 py-10">
+      <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
