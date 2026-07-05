@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/AuthShell";
+import { PageHead } from "@/components/PageHead";
 
 const INDUSTRIES = ["Government", "Aviation", "Healthcare", "Education", "Finance", "Hospitality", "Other"];
 const COUNTRIES = [
@@ -126,6 +127,12 @@ const Signup = () => {
   );
 
   return (
+    <>
+      <PageHead
+        title="Sign up | SIA"
+        description="Create your SIA workspace and start running appraisal cycles for your organization in minutes."
+        path="/signup"
+      />
     <AuthShell
       title="Create your account"
       description="Set up your organization and start managing appraisals"
@@ -184,6 +191,7 @@ const Signup = () => {
         </Button>
       </form>
     </AuthShell>
+    </>
   );
 };
 

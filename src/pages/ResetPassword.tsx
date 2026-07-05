@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/AuthShell";
+import { PageHead } from "@/components/PageHead";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -45,6 +46,12 @@ const ResetPassword = () => {
   };
 
   return (
+    <>
+      <PageHead
+        title="Reset password | SIA"
+        description="Set a new password for your SIA workspace."
+        path="/reset-password"
+      />
     <AuthShell
       title="Set a new password"
       description={ready ? "Choose a strong password you haven't used before" : "Verifying reset link..."}
@@ -75,6 +82,7 @@ const ResetPassword = () => {
         </Button>
       </form>
     </AuthShell>
+    </>
   );
 };
 
