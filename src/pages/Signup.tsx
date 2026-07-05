@@ -127,6 +127,12 @@ const Signup = () => {
   );
 
   return (
+    <>
+      <PageHead
+        title="Sign up | SIA"
+        description="Create your SIA workspace and start running appraisal cycles for your organization in minutes."
+        path="/signup"
+      />
     <AuthShell
       title="Create your account"
       description="Set up your organization and start managing appraisals"
@@ -185,6 +191,7 @@ const Signup = () => {
         </Button>
       </form>
     </AuthShell>
+    </>
   );
 };
 
