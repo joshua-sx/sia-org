@@ -109,6 +109,7 @@ const OrgStructure = () => {
   return (
     <>
       <OnboardingStrip />
+      <div className="flex-1 px-6 md:px-10 py-10">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))]">
