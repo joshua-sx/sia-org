@@ -100,8 +100,18 @@ export function useOnboarding() {
   const setupComplete = structureDone && peopleDone && cycleDone;
   const isOnboarding = !setupComplete && !!organization;
 
+  type OrgPatch = Partial<{
+    structure_complete: boolean;
+    structure_skipped: boolean;
+    people_complete: boolean;
+    people_skipped: boolean;
+    cycle_complete: boolean;
+    cycle_skipped: boolean;
+    setup_complete: boolean;
+  }>;
+
   const updateOrg = useMutation({
-    mutationFn: async (patch: Record<string, boolean>) => {
+    mutationFn: async (patch: OrgPatch) => {
       if (!organization) return;
       const { error } = await supabase
         .from("organizations")
