@@ -69,6 +69,15 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
     const parentIdx = parseInt(mapping.parent);
     const typeNames = new Map(sortedTypes.map((t) => [t.name.toLowerCase(), t]));
 
+    // Names present in the CSV itself so a child row whose parent appears
+    // later in the same file isn't flagged as "Parent not found".
+    const inFileNames = new Set(
+      rows
+        .map((r) => (r.values[nameIdx] ?? "").trim().toLowerCase())
+        .filter(Boolean)
+    );
+    const existingNames = new Set(units.map((u) => u.name.toLowerCase()));
+
     return rows.map((row) => {
       const name = row.values[nameIdx]?.trim();
       const typeName = row.values[typeIdx]?.trim();
@@ -81,8 +90,10 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
       if (!unitType) return { ...row, error: `Unknown type: "${typeName}"` };
 
       if (parentName) {
-        const parent = units.find((u) => u.name.toLowerCase() === parentName.toLowerCase());
-        if (!parent) return { ...row, error: `Parent not found: "${parentName}"` };
+        const key = parentName.toLowerCase();
+        if (!existingNames.has(key) && !inFileNames.has(key)) {
+          return { ...row, error: `Parent not found: "${parentName}"` };
+        }
       } else if (unitType.level !== sortedTypes[0]?.level) {
         return { ...row, error: `Non-top-level type "${typeName}" requires a parent` };
       }
@@ -106,32 +117,63 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
     const parentIdx = parseInt(mapping.parent);
     const typeNames = new Map(sortedTypes.map((t) => [t.name.toLowerCase(), t]));
 
-    let successCount = 0;
+    // Map of unit name (lowercase) -> id. Seeded with existing DB units, then
+    // grown as new rows are inserted so later passes can resolve in-batch parents.
+    const nameToId = new Map<string, string>(
+      units.map((u) => [u.name.toLowerCase(), u.id])
+    );
+
     const updated = [...validated];
+    const pending = () =>
+      updated
+        .map((row, idx) => ({ row, idx }))
+        .filter(({ row }) => !row.error && !row.imported);
 
-    for (let i = 0; i < updated.length; i++) {
-      const row = updated[i];
-      if (row.error) continue;
-      const name = row.values[nameIdx].trim();
-      const typeName = row.values[typeIdx].trim();
+    let successCount = 0;
+    let progressed = true;
+    // Multi-pass: as long as any row was inserted last pass, retry the rest so
+    // rows whose parent was created earlier in the same import get resolved.
+    while (progressed && pending().length > 0) {
+      progressed = false;
+      for (const { row, idx } of pending()) {
+        const name = row.values[nameIdx].trim();
+        const typeName = row.values[typeIdx].trim();
+        const parentName = row.values[parentIdx]?.trim();
+        const unitType = typeNames.get(typeName.toLowerCase())!;
+
+        let parentId: string | null = null;
+        if (parentName) {
+          const found = nameToId.get(parentName.toLowerCase());
+          if (!found) continue; // parent not yet created this pass — try next pass
+          parentId = found;
+        }
+
+        try {
+          const inserted = await addUnit.mutateAsync({
+            name,
+            unit_type_id: unitType.id,
+            parent_id: parentId,
+          });
+          if (inserted?.id) nameToId.set(name.toLowerCase(), inserted.id);
+          updated[idx] = { ...row, imported: true };
+          successCount++;
+          progressed = true;
+        } catch (err: any) {
+          updated[idx] = { ...row, error: err.message };
+        }
+      }
+    }
+
+    // Anything still pending after we stopped progressing is a cyclic or
+    // orphaned parent — surface it clearly instead of silently skipping.
+    for (const { row, idx } of pending()) {
       const parentName = row.values[parentIdx]?.trim();
-      const unitType = typeNames.get(typeName.toLowerCase())!;
-
-      let parentId: string | null = null;
-      if (parentName) {
-        // Check both existing units and newly imported ones
-        const allUnits = [...units, ...(addUnit as any)._newUnits ?? []];
-        const parent = allUnits.find((u: any) => u.name.toLowerCase() === parentName.toLowerCase());
-        if (parent) parentId = parent.id;
-      }
-
-      try {
-        await addUnit.mutateAsync({ name, unit_type_id: unitType.id, parent_id: parentId });
-        updated[i] = { ...row, imported: true };
-        successCount++;
-      } catch (err: any) {
-        updated[i] = { ...row, error: err.message };
-      }
+      updated[idx] = {
+        ...row,
+        error: parentName
+          ? `Parent "${parentName}" could not be resolved (cyclic or missing)`
+          : "Could not import row",
+      };
     }
 
     setRows(updated);
