@@ -538,10 +538,10 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                   {showCTA && (
                     <div className="flex gap-3 pt-2 animate-fade-in">
                       <Button onClick={onComplete}>
-                        Get Started <ChevronRight className="ml-1 h-4 w-4" />
+                        Next: add your people <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
-                      <Button variant="outline" onClick={() => navigate("/dashboard")}>
-                        Go to Dashboard
+                      <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                        Go to dashboard
                       </Button>
                     </div>
                   )}
