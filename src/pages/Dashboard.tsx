@@ -341,6 +341,7 @@ function LaunchOnboardingView() {
         </aside>
       </div>
     </div>
+    </>
   );
 }
 
