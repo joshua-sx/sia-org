@@ -406,15 +406,16 @@ const Index = () => {
       {/* How It Works */}
       <div id="how" className="py-20 md:py-28 bg-[#f6f5f4]">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Up and running in four steps.
             </h2>
+            <p className="text-foreground/60">From account creation to your first cycle in under an hour.</p>
           </SectionReveal>
-          <div className="grid md:grid-cols-4 gap-6 mt-12">
+          <div className="grid md:grid-cols-4 gap-6">
             {STEPS.map((s, i) => (
               <SectionReveal key={s.num}>
                 <motion.div custom={i} variants={fadeUp} className="flex flex-col gap-3">
