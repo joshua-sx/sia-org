@@ -12,6 +12,8 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import OrgStructure from "./pages/OrgStructure";
 import OrgEmployees from "./pages/OrgEmployees";
+import AppraisalCycles from "./pages/AppraisalCycles";
+import AppraisalCycleDetail from "./pages/AppraisalCycleDetail";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -36,6 +38,8 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
             <Route path="/org/structure" element={<ProtectedRoute><AppLayout><OrgStructure /></AppLayout></ProtectedRoute>} />
             <Route path="/org/employees" element={<ProtectedRoute><AppLayout><OrgEmployees /></AppLayout></ProtectedRoute>} />
+            <Route path="/appraisals" element={<ProtectedRoute><AppLayout><AppraisalCycles /></AppLayout></ProtectedRoute>} />
+            <Route path="/appraisals/:id" element={<ProtectedRoute><AppLayout><AppraisalCycleDetail /></AppLayout></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

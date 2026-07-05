@@ -1,0 +1,68 @@
+import { describe, it, expect } from "vitest";
+import { cycleFormSchema, windowState, type CycleFormValues } from "@/lib/cycleSchema";
+
+function validForm(): CycleFormValues {
+  return {
+    name: "FY26 Annual Review",
+    goal_window_start: "2026-01-01",
+    goal_window_end: "2026-01-31",
+    interim_window_start: "2026-06-01",
+    interim_window_end: "2026-06-30",
+    final_window_start: "2026-11-01",
+    final_window_end: "2026-11-30",
+    acknowledgement_due: "2026-12-15",
+  };
+}
+
+describe("cycleFormSchema", () => {
+  it("accepts a correctly ordered timeline", () => {
+    expect(cycleFormSchema.safeParse(validForm()).success).toBe(true);
+  });
+
+  it("allows windows to share boundary dates (inclusive ordering)", () => {
+    const v = validForm();
+    v.interim_window_start = v.goal_window_end;
+    expect(cycleFormSchema.safeParse(v).success).toBe(true);
+  });
+
+  it("rejects a window that ends before it starts", () => {
+    const v = validForm();
+    v.goal_window_end = "2025-12-31";
+    const res = cycleFormSchema.safeParse(v);
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.error.issues.some((i) => i.path.includes("goal_window_end"))).toBe(true);
+    }
+  });
+
+  it("rejects an interim window that starts before goal setting ends", () => {
+    const v = validForm();
+    v.interim_window_start = "2026-01-15";
+    const res = cycleFormSchema.safeParse(v);
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.error.issues.some((i) => i.path.includes("interim_window_start"))).toBe(true);
+    }
+  });
+
+  it("rejects an acknowledgement due date before the final window closes", () => {
+    const v = validForm();
+    v.acknowledgement_due = "2026-11-15";
+    expect(cycleFormSchema.safeParse(v).success).toBe(false);
+  });
+
+  it("requires a name and all dates", () => {
+    const v = { ...validForm(), name: "", final_window_start: "" };
+    const res = cycleFormSchema.safeParse(v);
+    expect(res.success).toBe(false);
+  });
+});
+
+describe("windowState", () => {
+  it("classifies today against an inclusive window", () => {
+    expect(windowState("2026-01-01", "2026-01-31", "2025-12-31")).toBe("upcoming");
+    expect(windowState("2026-01-01", "2026-01-31", "2026-01-01")).toBe("open");
+    expect(windowState("2026-01-01", "2026-01-31", "2026-01-31")).toBe("open");
+    expect(windowState("2026-01-01", "2026-01-31", "2026-02-01")).toBe("closed");
+  });
+});
