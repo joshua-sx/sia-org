@@ -99,7 +99,7 @@ export function useEmployees() {
       }>
     ) => {
       if (!organization) throw new Error("No organization");
-      if (!rows.length) return { inserted: [] as Employee[] };
+      if (!rows.length) return { inserted: [] as Employee[], unresolvedManagers: [] as string[] };
 
       const payload = rows.map((r) => ({
         organization_id: organization.id,
@@ -121,22 +121,34 @@ export function useEmployees() {
 
       const inserted = (data ?? []) as Employee[];
 
-      // Resolve managers by email in a second pass
-      const emailToId = new Map(inserted.map((e) => [e.email.toLowerCase(), e.id]));
-      const updates = rows
-        .map((r, i) => ({ row: r, insertedId: inserted[i]?.id }))
-        .filter((x) => x.row.manager_email_pending && x.insertedId)
-        .map((x) => ({
-          id: x.insertedId!,
-          manager_id: emailToId.get(x.row.manager_email_pending!.toLowerCase()) ?? null,
-        }))
-        .filter((u) => u.manager_id);
+      // Build the manager lookup from BOTH existing employees and the freshly
+      // inserted rows, so a manager_email pointing at someone who was already
+      // in the database resolves correctly instead of being silently dropped.
+      const existing =
+        qc.getQueryData<Employee[]>(["employees", organization.id]) ?? [];
+      const emailToId = new Map<string, string>();
+      existing.forEach((e) => emailToId.set(e.email.toLowerCase(), e.id));
+      inserted.forEach((e) => emailToId.set(e.email.toLowerCase(), e.id));
+
+      const unresolvedManagers = new Set<string>();
+      const updates: { id: string; manager_id: string }[] = [];
+      rows.forEach((r, i) => {
+        const insertedId = inserted[i]?.id;
+        const managerEmail = r.manager_email_pending?.toLowerCase();
+        if (!insertedId || !managerEmail) return;
+        const managerId = emailToId.get(managerEmail);
+        if (managerId) {
+          updates.push({ id: insertedId, manager_id: managerId });
+        } else {
+          unresolvedManagers.add(r.manager_email_pending!);
+        }
+      });
 
       for (const u of updates) {
         await supabase.from("employees").update({ manager_id: u.manager_id }).eq("id", u.id);
       }
 
-      return { inserted };
+      return { inserted, unresolvedManagers: [...unresolvedManagers] };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["employees"] }),
   });
