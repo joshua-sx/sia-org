@@ -115,13 +115,8 @@ const PRICING_FEATURES = [
   "Dedicated onboarding support",
 ];
 
-const FOOTER_COLS = [
-  { heading: "Product", links: [{ label: "Features", href: "#solution" }, { label: "Pricing", href: "#pricing" }, { label: "How It Works", href: "#how" }] },
-  { heading: "Company", links: [{ label: "About", href: "#" }, { label: "Blog", href: "#" }, { label: "Careers", href: "#" }] },
-  { heading: "Legal", links: [{ label: "Privacy", href: "#" }, { label: "Terms", href: "#" }, { label: "Security", href: "#" }] },
-];
 
-const TRUSTED_BY = ["Ministry of Health", "TransCarib Airways", "St. Kitts University", "Port Authority", "Central Bank", "Public Service"];
+
 
 /* ─────────────────────────── HELPERS ─────────────────────────── */
 
