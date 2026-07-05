@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
@@ -12,6 +13,7 @@ import TreePreview from "./TreePreview";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
+
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Done"];
 const TOTAL_STEPS = 3;
