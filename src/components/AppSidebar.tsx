@@ -51,7 +51,7 @@ export function AppSidebar() {
       collapsible="icon"
       className="border-r border-[hsl(var(--hairline))] bg-[hsl(var(--sidebar-background))]"
     >
-      <SidebarHeader className="px-4 py-4">
+      <SidebarHeader className={collapsed ? "flex items-center justify-center px-0 py-4" : "px-4 py-4"}>
         {collapsed ? (
           <span className="text-base font-bold tracking-tight font-[Space_Grotesk] text-foreground">
             S
@@ -68,18 +68,26 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className={collapsed ? "px-0" : "px-2"}>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className={collapsed ? "items-center gap-1" : undefined}>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
-                      className="group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[hsl(var(--ink-muted))] transition-colors hover:bg-[hsl(var(--accent-blue)/0.06)] hover:text-foreground"
-                      activeClassName="!bg-[hsl(var(--accent-blue)/0.08)] !text-foreground font-medium before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] before:rounded-r before:bg-[hsl(var(--accent-blue))]"
+                      className={
+                        collapsed
+                          ? "group relative flex h-9 w-9 items-center justify-center rounded-md text-[hsl(var(--ink-muted))] transition-colors hover:bg-[hsl(var(--ink-strong)/0.05)] hover:text-foreground"
+                          : "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm text-[hsl(var(--ink-muted))] transition-colors hover:bg-[hsl(var(--ink-strong)/0.05)] hover:text-foreground"
+                      }
+                      activeClassName={
+                        collapsed
+                          ? "!bg-[hsl(var(--ink-strong)/0.07)] !text-foreground"
+                          : "!bg-[hsl(var(--ink-strong)/0.06)] !text-foreground font-medium before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] before:rounded-r before:bg-[hsl(var(--ink-strong)/0.35)]"
+                      }
                     >
                       <item.icon
                         className="h-4 w-4 shrink-0"
@@ -95,12 +103,18 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-2 pb-3">
-        <SidebarMenu>
+      <SidebarFooter className={collapsed ? "flex items-center px-0 pb-3" : "px-2 pb-3"}>
+        <SidebarMenu className={collapsed ? "items-center" : undefined}>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-foreground hover:bg-[hsl(var(--hairline))] w-full">
+                <SidebarMenuButton
+                  className={
+                    collapsed
+                      ? "flex h-9 w-9 items-center justify-center rounded-md hover:bg-[hsl(var(--ink-strong)/0.05)]"
+                      : "flex items-center gap-2 rounded-md px-2 py-2 text-sm text-foreground hover:bg-[hsl(var(--ink-strong)/0.05)] w-full"
+                  }
+                >
                   <div className="relative">
                     <Avatar className="h-6 w-6 shrink-0">
                       <AvatarFallback className="bg-[hsl(var(--accent-blue)/0.1)] text-[hsl(var(--accent-blue))] text-[10px] font-medium">
@@ -129,6 +143,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
     </Sidebar>
   );
 }
