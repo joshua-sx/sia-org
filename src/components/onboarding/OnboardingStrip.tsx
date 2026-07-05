@@ -79,7 +79,7 @@ function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }
 }
 
 export function OnboardingStrip({ className }: { className?: string }) {
-  const { steps, isOnboarding, completedCount, totalSteps, stepIndexByKey } = useOnboarding();
+  const { steps, isOnboarding, completedCount, totalSteps } = useOnboarding();
   const { activeStep } = useOnboardingContext();
 
   if (!isOnboarding) return null;
@@ -88,8 +88,6 @@ export function OnboardingStrip({ className }: { className?: string }) {
     (activeStep && steps.find((s) => s.key === activeStep)) ||
     steps.find((s) => s.status === "current") ||
     steps[0];
-  const activeIndex = stepIndexByKey(active.key);
-  const hint = STEP_HINT[active.key];
 
   return (
     <div
@@ -98,29 +96,15 @@ export function OnboardingStrip({ className }: { className?: string }) {
         (className ?? "")
       }
     >
-      <div className="mx-auto max-w-5xl px-6 md:px-10 py-3.5">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
-            <span className="tabular-nums">Step {activeIndex + 1} of {totalSteps}</span>
-            <span className="mx-1.5 opacity-40">·</span>
-            <span className="text-foreground font-semibold normal-case tracking-normal">
-              {active.label}
-            </span>
-          </p>
-          <p className="text-[11px] text-[hsl(var(--ink-subtle))] tabular-nums">
-            {completedCount}/{totalSteps} complete
-          </p>
-        </div>
-
-        <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+      <div className="mx-auto max-w-5xl px-6 md:px-10 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
           {steps.map((step) => (
             <Segment key={step.key} step={step} isActive={step.key === active.key} />
           ))}
         </div>
-
-        {hint && (
-          <p className="mt-2 text-xs text-[hsl(var(--ink-muted))]">{hint}</p>
-        )}
+        <p className="text-[11px] text-[hsl(var(--ink-subtle))] tabular-nums shrink-0">
+          {completedCount}/{totalSteps}
+        </p>
       </div>
     </div>
   );
