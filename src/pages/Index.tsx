@@ -285,7 +285,7 @@ const Index = () => {
       {/* Hero */}
       <div className="pt-28 pb-16 md:pt-36 md:pb-24 bg-[#f6f5f4]">
         <Section>
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[800px]">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[820px] mx-auto text-center">
             <span className="inline-block text-xs font-medium tracking-wide uppercase text-foreground/50 mb-4">
               Performance management for structured orgs
             </span>
@@ -295,10 +295,10 @@ const Index = () => {
             >
               Run appraisals that actually work.
             </h1>
-            <p className="text-lg md:text-xl text-foreground/60 max-w-[560px] leading-relaxed mb-8">
+            <p className="text-lg md:text-xl text-foreground/60 max-w-[620px] mx-auto leading-relaxed mb-8">
               One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
                 to="/signup"
                 className="inline-flex items-center gap-2 bg-foreground text-background font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity text-sm"
