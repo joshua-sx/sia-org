@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Upload, Download, Info, AlertTriangle } from "lucide-react";
+import { UserPlus, Upload, Download, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
@@ -29,14 +29,13 @@ const OrgEmployees = () => {
   const navigate = useNavigate();
   const { data: employees = [], isLoading, deleteEmployee } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { markSkipped, stepIndexByKey, totalSteps } = useOnboarding();
+  const { markSkipped } = useOnboarding();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Employee | null>(null);
 
-  const stepIndex = stepIndexByKey("people");
 
   const hasManagerLink = useMemo(
     () => employees.some((e) => !!e.manager_id),
@@ -97,19 +96,11 @@ const OrgEmployees = () => {
       <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div>
-            <p className="mb-2 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--accent-red))]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-red))]" />
-              Step {stepIndex + 1} of {totalSteps} · People
-            </p>
-            <h1 className="text-[32px] font-semibold tracking-[-0.8px] text-foreground font-[Space_Grotesk] text-balance">
+            <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
               Add your employees
             </h1>
-            <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] leading-relaxed max-w-[520px]">
-              Import your employee list or add people manually. You can review everything before any invitations are sent.
-            </p>
-            <p className="mt-3 inline-flex items-center gap-2 text-xs text-[hsl(var(--ink-muted))]">
-              <Info className="h-3.5 w-3.5 text-[hsl(var(--accent-blue))]" />
-              No employee invitations will be sent during setup.
+            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+              Import a CSV or add people manually. No invitations are sent during setup.
             </p>
           </div>
 
