@@ -146,7 +146,7 @@ export function CycleFormModal({ open, onOpenChange, editing, onSaved }: Props) 
               Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? "Saving…" : editing ? "Save changes" : "Create draft cycle"}
+              {saving ? "Saving…" : editing ? "Save changes" : "Create cycle"}
             </Button>
           </DialogFooter>
         </form>
