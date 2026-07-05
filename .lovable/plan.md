@@ -1,85 +1,52 @@
 
-# Landing Page Redesign — Attio × Google
+# Credibility Fixes — Pre-launch cleanup
 
-Rebuild `src/pages/Index.tsx` so it reads like Attio (clean, minimal, product-forward, mostly neutral) with subtle Google-style splashes of blue / red / yellow / green used sparingly on icons, tags, and small shapes.
+Three targeted fixes, in the order requested. No new features, no design overhaul.
 
-## Design commitments
+## 1. Remove fake trust signals — `src/pages/Index.tsx`
 
-- **Palette (locked)**
-  - Neutrals: `#ffffff` background, `#fafafa` alt band, `#0a0a0a` text, `#6b7280` muted, `rgba(0,0,0,0.08)` hairline borders
-  - Accent set (used sparingly, one per element — never gradients):
-    - Google Blue `#4285F4`
-    - Google Red `#EA4335`
-    - Google Yellow `#FBBC05`
-    - Google Green `#34A853`
-  - Primary CTA stays black (`#0a0a0a`), Attio-style. Colors live on icon tiles, dot markers, tag pills, small shapes.
-- **Type:** Space Grotesk (headings, tight `-0.02em` tracking) + DM Sans (body). Kept from current.
-- **Spacing/radius:** Attio-like — 12px card radius, generous whitespace, hairline `1px rgba(0,0,0,0.08)` borders instead of shadows.
-- **Motion:** Keep existing framer-motion fade-up + scroll reveal. No new heavy animation.
+The "Trust" section currently invents stats and quotes a fictional HR Director. Replace it with honest pre-launch positioning that keeps the section's visual weight.
 
-## Page structure (top → bottom)
+- Delete the three fake stats (`100+`, `3×`, `0`) and the fabricated testimonial block.
+- In their place, keep the same centered card layout but swap in a **positioning statement**:
+  - Small eyebrow: "Built for the Caribbean"
+  - Headline: "Built for the way Caribbean government orgs actually run appraisals."
+  - Sub: One honest sentence about the design intent — e.g. "Designed around the real hierarchies, cycles, and review formats used across ministries, health authorities, and statutory bodies — not adapted from generic HR software."
+  - Four small colored dots (blue/red/yellow/green) as the visual anchor instead of the invented `TrendingUp` icons.
+- No numbers, no quotes, no invented customer names.
 
-```text
-1. Navbar         — unchanged (already Attio-like)
-2. Hero (BENTO)   — new: centered eyebrow + headline + CTAs, then a bento grid of 5 tiles
-3. Logo strip     — small greyscale "trusted by" row (Government / Aviation / Healthcare / Education wordmarks as text)
-4. Feature bento  — 2×2 mixed-size grid, one accent color per tile (blue/red/yellow/green)
-5. How it works   — 4 numbered steps, each with its own accent color dot
-6. Who it's for   — 4 industry cards, colored icon tiles
-7. Trust stats + testimonial — centered, minimal
-8. Pricing        — single centered card, black CTA
-9. Final CTA      — full-width dark band, one accent underline
-10. Footer        — unchanged structure, tightened
-```
+## 2. Prune the footer — `src/pages/Index.tsx`
 
-### 2. Hero — bento
+Every link in `FOOTER_COLS` (About, Blog, Careers, Privacy, Terms, Security) is `href: "#"`. Since none of those pages exist and this project isn't the place to build a full marketing site right now, **drop the three link columns entirely**.
 
-- Centered eyebrow ("Performance management for structured orgs"), headline "Run appraisals that actually work.", subhead, two CTAs (black "Get started free" + text "See how it works →"). Max width ~820px, centered — consistent with current alignment preference.
-- Below the copy, a **bento grid** (`grid-cols-6 grid-rows-2` on md+, stacked on mobile) with 5 tiles totaling one hero visual composition:
-  - **Tile A (col-span-4 row-span-2)** — mini dashboard mock (reuse current DashboardMockup content: 3 metrics with progress bars, blue accent bar)
-  - **Tile B (col-span-2)** — colored icon tile: blue circle w/ Target icon, label "Goals cascaded"
-  - **Tile C (col-span-1)** — yellow dot + "12 cycles active" pill
-  - **Tile D (col-span-1)** — green check + "Review submitted" tag
-  - **Tile E (col-span-2)** — red bar chart mini "Completion 87%"
-- All tiles white cards, hairline border, 12px radius, no drop shadow — Attio hallmark.
+- Remove `FOOTER_COLS` and its `.map()` in the footer.
+- Keep the brand mark + tagline on the left and the copyright/tagline row at the bottom.
+- Restructure the footer to a simple two-row layout: brand + short description on top, `© 2026 SIA · Built in the Caribbean 🌴` on the bottom. No dead links.
 
-### 4. Feature bento (Solution section)
+If the user later wants Privacy / Terms pages, we build them as real routes; we don't stub them.
 
-- 2×2 grid, mixed spans:
-  - Big tile (col-span-2, blue accent) — "Goal Setting"
-  - Small tile (red accent) — "360° Reviews"
-  - Small tile (yellow accent) — "Analytics"
-  - Small tile (green accent) — "Org Structure" (new tile; balances the grid)
-- Each tile: small colored icon square (28×28, 6px radius, tinted bg `${color}/10`, icon in solid color), title, one-line description. No colored top-bar strip (replace current `bg-amber-300` bar with the icon tile approach — cleaner, more Attio).
+## 3. Real meta tags — `index.html`
 
-### 5. How it works
+Replace the template scaffolding with real SIA metadata. Concretely:
 
-- 4 steps in a horizontal row (stacks on mobile). Each step: colored numbered dot (blue → red → yellow → green in order), title, description. Centered text under the dot.
+- `<title>`: `SIA — Performance appraisals for structured orgs`
+- Remove the `<!-- TODO -->` comments and the stray blank meta lines.
+- `<meta name="author">`: `SIA`
+- `<meta name="description">` (keep sitewide, tighten): `Goal-setting, 360° reviews, and performance analytics for government, aviation, healthcare, and education.`
+- `og:title` / `twitter:title`: `SIA — Performance appraisals for structured orgs`
+- `og:description` / `twitter:description`: same as `description`.
+- `og:url` + `<link rel="canonical">`: `https://sia-org.lovable.app/`
+- `og:type`: `website` (keep)
+- Remove `<meta name="twitter:site" content="@Lovable" />` — no real handle to point at yet. (Better to omit than to lie.)
+- **No `og:image`** — the project doesn't have a real preview image and Lovable's hosting will inject one at serve time. Placeholder previews are worse than none.
 
-### 6. Who it's for
-
-- Same 4 industries. Each card: colored icon tile (blue/red/yellow/green rotating), industry name, one-line desc. White card, hairline border.
-
-### 8. Pricing
-
-- Keep single centered card. Add 4 tiny colored dots next to the "Enterprise" eyebrow as a decorative Google touch. Feature checkmarks in green `#34A853`.
-
-### 9. Final CTA
-
-- Black background, centered headline with the word "cycle" underlined in Google Blue (subtle SVG underline stroke). Single white CTA button.
-
-## Consistency cleanups
-
-- Remove all remaining tailwind color classes like `bg-amber-300`, `bg-rose-400`, `bg-sky-400`, `border-l-4 border-foreground` — replace with the locked 4-color accent system.
-- Replace testimonial's heavy left border with a centered pull-quote (already partly done).
-- Standardize every section header block to the same centered `max-w-[640px]` pattern (already applied — audit and fix any drift).
-- Standardize card style: `bg-white border border-black/[0.08] rounded-xl` — no shadows in the light sections.
-- Ensure card icon tiles all share the same size / radius / tint recipe.
+Result: browser tab, link previews, and SEO description all say what the product actually is, with no lingering "Lovable App" strings.
 
 ## Files
 
 | Action | File |
 |--------|------|
-| Modify | `src/pages/Index.tsx` — rewrite hero to bento, restructure feature grid, apply 4-color accent system across all sections, unify card styling |
+| Modify | `src/pages/Index.tsx` — replace trust section content; drop footer link columns and `FOOTER_COLS` constant |
+| Modify | `index.html` — real title, description, author, og:*, twitter:*, canonical; remove `@Lovable` handle and TODO comments |
 
-No other files touched. No new dependencies (framer-motion + lucide already installed). Fonts unchanged.
+No new dependencies. No route or backend changes.
