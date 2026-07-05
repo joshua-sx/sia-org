@@ -380,14 +380,14 @@ const Index = () => {
       {/* Who It's For */}
       <div id="who" className="py-20 md:py-28 bg-white">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Built for structured organizations.
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">SIA works wherever performance reviews follow a formal structure.</p>
+            <p className="text-foreground/60">SIA works wherever performance reviews follow a formal structure.</p>
           </SectionReveal>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {INDUSTRIES.map((ind, i) => (
