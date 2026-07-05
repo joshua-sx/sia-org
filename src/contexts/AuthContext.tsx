@@ -14,8 +14,11 @@ interface Profile {
 interface Organization {
   id: string;
   name: string;
+  country: string | null;
+  industry: string | null;
   setup_complete: boolean | null;
 }
+
 
 interface AuthContextType {
   session: Session | null;
