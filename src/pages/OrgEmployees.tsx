@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { Plus, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
+import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import EmployeeEmptyState from "@/components/employees/EmployeeEmptyState";
 import EmployeeTable from "@/components/employees/EmployeeTable";
 import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
@@ -30,26 +29,29 @@ const OrgEmployees = () => {
   const navigate = useNavigate();
   const { data: employees = [], isLoading, deleteEmployee } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { markComplete, markSkipped, isOnboarding } = useOnboarding();
+  const { markSkipped, stepIndexByKey, totalSteps } = useOnboarding();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Employee | null>(null);
-  const [showJustAddedBanner, setShowJustAddedBanner] = useState(false);
+
+  const stepIndex = stepIndexByKey("people");
+
+  // Register readiness for the onboarding footer
+  useStepReadiness(
+    "people",
+    employees.length >= 1,
+    employees.length >= 1
+      ? `${employees.length} ${employees.length === 1 ? "person" : "people"} added — ready to continue.`
+      : "Add at least 1 employee to continue."
+  );
 
   const unitsById = useMemo(() => {
     const m: Record<string, string> = {};
     units.forEach((u) => (m[u.id] = u.name));
     return m;
   }, [units]);
-
-  // Auto-mark people step complete the first time an employee exists
-  useEffect(() => {
-    if (employees.length > 0 && isOnboarding) {
-      markComplete("people").catch(() => {});
-    }
-  }, [employees.length, isOnboarding, markComplete]);
 
   if (profile && profile.role !== "hr_admin") {
     return (
@@ -68,9 +70,9 @@ const OrgEmployees = () => {
     setFormOpen(true);
   };
 
-  const handleSkip = async () => {
+  const handleEmptyStateSkip = async () => {
     await markSkipped("people");
-    toast.info("Skipped for now. You can add people any time.");
+    toast.info("Skipped People — you can add employees any time.");
     navigate("/dashboard");
   };
 
@@ -78,21 +80,19 @@ const OrgEmployees = () => {
 
   return (
     <>
-      <OnboardingStrip />
-
       <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-red))]">
+            <p className="mb-2 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--accent-red))]">
               <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-red))]" />
-              People
+              Step {stepIndex + 1} of {totalSteps} · People
             </p>
             <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
               Employees
             </h1>
             <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
               {empty
-                ? "Add the people who take part in appraisal cycles."
+                ? "Add the people who'll take part in appraisal cycles."
                 : `${employees.length} ${employees.length === 1 ? "person" : "people"} in your organization.`}
             </p>
           </div>
@@ -119,41 +119,15 @@ const OrgEmployees = () => {
             <EmployeeEmptyState
               onImport={() => setImportOpen(true)}
               onAddManual={openAdd}
-              onSkip={handleSkip}
+              onSkip={handleEmptyStateSkip}
             />
           ) : (
-            <>
-              {showJustAddedBanner && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[hsl(var(--accent-green)/0.3)] bg-[hsl(var(--accent-green)/0.06)] px-4 py-3"
-                >
-                  <div className="flex items-center gap-2 text-sm">
-                    <span
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold text-white"
-                      style={{ backgroundColor: "hsl(var(--accent-green))" }}
-                    >
-                      ✓
-                    </span>
-                    <span className="text-foreground font-medium">People added.</span>
-                    <span className="text-[hsl(var(--ink-muted))]">
-                      Next up: create your first appraisal cycle.
-                    </span>
-                  </div>
-                  <Button size="sm" onClick={() => navigate("/dashboard")} className="active:scale-[0.96] transition-transform">
-                    Continue <ArrowRight className="ml-1 h-3 w-3" />
-                  </Button>
-                </motion.div>
-              )}
-              <EmployeeTable
-                employees={employees}
-                unitsById={unitsById}
-                onEdit={openEdit}
-                onDelete={(e) => setConfirmDelete(e)}
-              />
-            </>
+            <EmployeeTable
+              employees={employees}
+              unitsById={unitsById}
+              onEdit={openEdit}
+              onDelete={(e) => setConfirmDelete(e)}
+            />
           )}
         </div>
       </div>
@@ -162,16 +136,12 @@ const OrgEmployees = () => {
         open={formOpen}
         onOpenChange={setFormOpen}
         editing={editing}
-        onSaved={() => {
-          if (employees.length === 0) setShowJustAddedBanner(true);
-        }}
+        onSaved={() => {}}
       />
       <EmployeeCsvImportModal
         open={importOpen}
         onOpenChange={setImportOpen}
-        onImported={(n) => {
-          if (n > 0 && employees.length === 0) setShowJustAddedBanner(true);
-        }}
+        onImported={() => {}}
       />
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
