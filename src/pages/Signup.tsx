@@ -61,7 +61,27 @@ const Signup = () => {
       });
 
       if (error) {
-        toast.error(error.message || "Signup failed");
+        // FunctionsHttpError: parse the response body for the real message
+        let message = error.message || "Signup failed";
+        let details: Record<string, string> | undefined;
+        const ctx = (error as { context?: Response }).context;
+        if (ctx && typeof ctx.json === "function") {
+          try {
+            const body = await ctx.json();
+            if (body?.error) message = body.error;
+            if (body?.details) details = body.details;
+          } catch {
+            // ignore parse errors
+          }
+        }
+        if (/already been registered|already registered|already exists/i.test(message)) {
+          toast.error("An account with this email already exists.", {
+            action: { label: "Log in", onClick: () => navigate("/login") },
+          });
+        } else {
+          toast.error(message);
+        }
+        if (details) setErrors(details);
         setLoading(false);
         return;
       }
@@ -72,6 +92,7 @@ const Signup = () => {
         setLoading(false);
         return;
       }
+
 
       // Sign in after successful signup
       const { error: signInError } = await supabase.auth.signInWithPassword({
