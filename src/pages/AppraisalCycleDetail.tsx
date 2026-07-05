@@ -169,10 +169,10 @@ const AppraisalCycleDetail = () => {
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this draft cycle?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this cycle?</AlertDialogTitle>
             <AlertDialogDescription>
               "{cycle.name}" will be permanently removed. This is only possible while the
-              cycle is a draft.
+              cycle hasn't launched yet.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
