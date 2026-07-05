@@ -120,11 +120,7 @@ const OrgStructure = () => {
       <div className="flex-1 px-6 md:px-10 py-10">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="mb-2 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--accent-green))]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-green))]" />
-            Step {stepIndex + 1} of {totalSteps} · Structure
-          </p>
-          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk]">
+          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
             Organization structure
           </h1>
           <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
