@@ -1,14 +1,8 @@
 import { Link } from "react-router-dom";
 import { Check, Minus } from "lucide-react";
-import { useOnboarding, type OnboardingStep, type OnboardingStepKey } from "@/hooks/useOnboarding";
+import { useOnboarding, type OnboardingStep } from "@/hooks/useOnboarding";
 import { useOnboardingContext } from "./OnboardingContext";
 
-const STEP_HINT: Record<OnboardingStepKey, string> = {
-  account: "Your account is ready.",
-  structure: "Define the levels of your organization and add your first units.",
-  people: "Add the people who'll take part in appraisal cycles.",
-  cycle: "Create your first appraisal cycle to go live.",
-};
 
 function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }) {
   const { status, label, accent } = step;
