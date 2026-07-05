@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(profileData);
       const { data: orgData } = await supabase
         .from("organizations")
-        .select("id, name, setup_complete")
+        .select("id, name, country, industry, setup_complete")
         .eq("id", profileData.organization_id)
         .single();
       if (orgData) setOrganization(orgData);
