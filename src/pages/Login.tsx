@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthShell } from "@/components/AuthShell";
+import { PageHead } from "@/components/PageHead";
 
 // Only allow same-origin relative paths as the post-login redirect target.
 const safeNext = (raw: string | null) =>
@@ -48,6 +49,12 @@ const Login = () => {
   };
 
   return (
+    <>
+      <PageHead
+        title="Sign in | SIA"
+        description="Sign in to your SIA workspace to run appraisal cycles, review goals, and manage your team."
+        path="/login"
+      />
     <AuthShell
       title="Welcome back"
       description="Sign in to your account"
