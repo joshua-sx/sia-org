@@ -1,170 +1,117 @@
 
-## Goal
+# Employee record & entry-flow redesign
 
-Build the Employees section as the foundation of the app, and turn the current disconnected setup pages into a single guided onboarding journey where the user always knows what's done, what's next, and what's skipped.
+## The core insight
 
----
+The org structure is **user-defined and hierarchical** (ltree of `org_units` typed by `org_unit_types` with custom levels — could be Division → Department → Team, or Region → Store, etc.).
 
-## Part 1 — Employees data model
+So we should **not** hardcode `division` and `department` columns on the employee. Instead:
 
-New `employees` table (records only, no auth linkage yet). This is a first-class domain entity, separate from `profiles` (which is only for signed-in users).
+- Store **one** `org_unit_id` per employee → the deepest unit they belong to.
+- **Derive** every ancestor (Division, Department, Team, …) from the ltree `path`.
+- Show and filter by any level automatically, no matter how the org named its levels.
 
-**Fields**
-- `id` uuid pk
-- `organization_id` uuid → organizations
-- `employee_code` text — org's internal ID (e.g. E-0421). Unique per org, optional.
-- `first_name` text (required)
-- `last_name` text (required)
-- `email` citext (required, unique per org)
-- `job_title` text
-- `org_unit_id` uuid → org_units (department / team)
-- `manager_id` uuid → employees (self-ref, nullable)
-- `employment_type` enum: `full_time | part_time | contractor | intern`
-- `employment_status` enum: `active | on_leave | terminated` (default `active`)
-- `start_date` date
-- `end_date` date (nullable, for terminated/contract end)
-- `location` text (city / office)
-- `phone` text (nullable)
-- `notes` text (nullable)
-- `profile_id` uuid → profiles (nullable — set later when they sign up)
-- `created_at`, `updated_at`
+This is what the user is really asking for: the record must reflect the hierarchy they built — but the hierarchy is dynamic, so the field can't be.
 
-**RLS**: same tenant-isolation pattern as `org_units` (via `current_user_org_id()`), plus `hr_admin_full_access`. GRANTs to `authenticated` and `service_role`. Managers get read on their reports later; out of scope for v1.
+## Employee fields — final list
 
-**Indexes**: `(organization_id)`, `(organization_id, org_unit_id)`, `(organization_id, manager_id)`, unique `(organization_id, lower(email))`, unique `(organization_id, employee_code) where employee_code is not null`.
+### Required (core identity)
+- First name
+- Last name
+- Work email (unique per org)
+- Assigned unit (leaf of org tree — auto-derives all ancestor levels)
 
----
+### Recommended (shown by default, optional)
+- Employee ID
+- Job title
+- Manager (searchable picker of existing employees)
+- Employment type — Full-time / Part-time / Contractor / Intern
+- Status — Active / On leave / Terminated
+- Phone
 
-## Part 2 — Employees UI (`/org/employees`)
+### Removed from setup flow
+- Start date, End date, Location, Notes → move to a later "Employment details" edit view. Not part of onboarding.
 
-Replaces the current "coming soon" placeholder.
+### Derived / display-only (not inputs)
+- Division, Department, Team, … → computed from the assigned unit's ancestry and rendered as a breadcrumb on the record.
 
-**Empty state** (no employees yet)
-- Header eyebrow "People" switches from yellow to **red** (`--accent-red`).
-- Big focused card with three options presented as equal peers:
-  1. **Upload CSV** — recommended path
-  2. **Add manually** — opens the form
-  3. **Skip for now** — returns to dashboard, leaves step incomplete
+## UX pattern for manual entry
 
-**Populated state**
-- Toolbar: search, filter by department / status, `+ Add employee`, `Import CSV`, `Download template`.
-- Table columns: Name, Email, Job title, Department, Manager, Status, Start date, actions (edit / archive).
-- Row click → side panel with full detail + edit.
-- Bulk select for status changes / delete.
+Replace the current right-side drawer. It's cramped for a record this important and hides the org context.
 
-**Add / Edit form** (drawer, one field per row, grouped)
-- *Identity*: first name, last name, email, employee code
-- *Role*: job title, department (org_unit picker with tree), manager (searchable employee picker), employment type
-- *Employment*: status, start date, end date, location
-- *Extras*: phone, notes
-- Zod validation; email uniqueness checked on submit.
+**Use a centered modal with two clear modes**, chosen from the empty-state / "+ Add employee" button:
 
-**CSV import** (`EmployeeCsvImportModal`, mirrors existing `CsvImportModal` pattern)
-- Step 1: download template button generates `employees-template.csv` with all columns + one example row + inline column notes.
-- Step 2: drop / choose file.
-- Step 3: mapping preview — auto-map by header, user can remap.
-- Step 4: validation table — green = ready, amber = warning (unknown department → will be blank), red = blocked (missing name/email, duplicate email). Row-level fix inline.
-- Step 5: import summary — X created, Y skipped. Managers resolved by email in a second pass so order doesn't matter.
+1. **Quick add** (default) — single compact modal, one screen:
+   - Row 1: First name · Last name
+   - Row 2: Work email · Employee ID
+   - Row 3: Job title · Employment type
+   - Row 4: **Assign to unit** — cascading picker (see below) · Manager
+   - Row 5: Status · Phone
+   - Footer: "Save" · "Save and add another" (keeps modal open, clears form, focuses first name)
 
----
+2. **Bulk import** — existing CSV flow, unchanged in scope, but template columns match the new field list (no start/end date, no location, no division/department columns — one `unit_path` column instead, e.g. `Engineering / Platform / Infra`).
 
-## Part 3 — Guided onboarding flow
+Why modal, not drawer or full page:
+- Modal keeps the employee list visible behind it → users see their progress build up.
+- Two-column form fits comfortably at ~640px; not cramped like the drawer.
+- "Save and add another" makes manual entry of 5–20 people feel fast and rhythmic (the real manual-entry use case).
+- A full page would be overkill for ~10 fields and would break the "list + add" mental model.
 
-Answer the UX questions directly:
+## The unit picker (the important new component)
 
-### 3.1 Onboarding shell
-New `OnboardingLayout` wrapping the multi-page journey. Persistent top strip visible on `/org/structure` and `/org/employees` while `organization.setup_complete === false`:
+A single cascading select that adapts to whatever levels the org defined.
 
 ```text
- ●━━━━━━━━━●━━━━━━━━━○━━━━━━━━━○
- Account   Structure  People    Launch
- done      in progress next     locked
-                                        [Skip setup →]
+Assign to unit *
+┌──────────────────────────────────────────────┐
+│ Division ▾    Department ▾    Team ▾         │
+│ Engineering   Platform        Infra          │
+└──────────────────────────────────────────────┘
+Selected: Engineering / Platform / Infra
 ```
 
-- Steps render as pill nodes with icon + label + status dot (done / current / next / skipped / locked).
-- Current step pulses softly; done steps are filled green; skipped steps show a small amber "—" glyph; locked steps are muted.
-- Clicking any done/skipped step navigates back to it (back is always allowed).
-- "Skip setup" in the corner drops the user on the dashboard with the checklist showing what remains.
+- One dropdown per level in the org's `org_unit_types`, left → right by level.
+- Selecting a parent filters the next level's options.
+- Selection is valid when the deepest level is chosen (or when a mid-level unit has no children).
+- The label under the picker shows the derived breadcrumb — this is what "Division + Department" the user was asking for.
 
-### 3.2 Step completion signals
-- **Structure**: after the wizard writes types + units, show a full-page "Structure ready" success card (checkmark tick animation, count of units created), with primary CTA **"Next: add your people →"** and secondary **"Refine structure"**. This replaces today's ambiguous "wizardDone" jump.
-- **People**: after first employee (or first successful CSV batch) show a compact success toast + inline banner at the top of the employees page: "3 people added. Next up: create your first appraisal cycle." Primary CTA links forward.
-- Every step writes a boolean flag on `organizations` (`structure_complete`, `people_complete`, `cycle_complete`). `setup_complete` becomes true when all three are done.
+Same picker is reused in the table's column filter and in the manager picker's scoping.
 
-### 3.3 Back / edit
-- Step strip nodes are links for any step already visited.
-- Each step page has a subtle "← Previous: Structure" link at the bottom.
-- Wizard sub-steps (inside Structure) keep their existing back button; unchanged.
+## Table changes
 
-### 3.4 Skip semantics
-- Skipping a step sets `<step>_skipped = true` (but not `_complete`).
-- Skipped steps appear on the dashboard checklist with an amber dot and "Resume" affordance (not the green tick).
-- Onboarding strip shows the skipped step with an amber dash instead of a checkmark, so the user always sees what they bypassed.
+- Add dynamic columns for each org level (Division, Department, Team, …) derived from the unit path — replaces the single "Department" column.
+- Columns are collapsible; on narrow viewports collapse into a single "Unit" breadcrumb cell.
+- Filter chips per level at the top.
 
-### 3.5 Dashboard checklist upgrades
-- Uses the same status vocabulary as the strip (done / in progress / next / skipped / locked).
-- "In progress" and "skipped" rows get a persistent **Resume** button.
-- Progress percentage displayed with `tabular-nums` and a thin progress bar under the header.
-- When everything is complete, the checklist collapses into a small "Setup complete ✓" chip and the "Cycle" tile expands to fill the space.
+## Data model
 
-### 3.6 Micro-interactions (from make-interfaces-feel-better)
-- Step strip: `motion` fill animation (100ms stagger) on load; springs with `bounce: 0`.
-- Checkmark tick: SVG stroke draw on completion, once.
-- Skip buttons: `active:scale-[0.96]`.
-- Success banners: enter with 4px `translateY`, exit softer.
-- Numbers everywhere (`3 of 4`, employee counts) use `tabular-nums`.
-- No `transition: all`; specify properties.
+**No schema change to `employees` needed** — `org_unit_id` already stores the leaf. We just stop asking for division/department as separate inputs and start deriving ancestors in the client via the existing `org_units` tree + `org_unit_types.level`.
 
----
+Fields we'll stop writing from the form (kept nullable in DB, hidden in UI for now): `start_date`, `end_date`, `location`, `notes`.
 
-## Part 4 — Color tweak
+CSV template updated: drop `start_date`, `location`; add single `unit_path` column parsed by splitting on `/` and matching names level-by-level.
 
-The People / Employees accent moves from `--accent-yellow` to `--accent-red` everywhere it's referenced:
-- Sidebar People item icon tint
-- Dashboard checklist "Add employees" row accent
-- `/org/employees` eyebrow, empty-state icon tile, and header pill
+## Files to change
 
-`--accent-yellow` remains for the Appraisal cycle tile and any "warning / skipped" states.
+- `src/lib/employeeSchema.ts` — trim required set, drop start/end/location/notes from form schema; `toDbPayload` writes nulls for those.
+- `src/lib/employeeCsv.ts` — new template columns, `unit_path` resolver against the org tree.
+- `src/components/employees/EmployeeFormDrawer.tsx` → **replace with** `EmployeeFormModal.tsx` (Dialog, two-column, "Save and add another").
+- `src/components/employees/UnitPicker.tsx` — **new** cascading picker driven by `org_units` + `org_unit_types`.
+- `src/components/employees/EmployeeTable.tsx` — dynamic per-level columns derived from unit ancestry; responsive collapse.
+- `src/components/employees/EmployeeEmptyState.tsx` — copy tweaks to match new field set.
+- `src/pages/OrgEmployees.tsx` — swap drawer for modal, wire "add another".
 
----
+## Micro-interactions (per selected skills)
 
-## Technical section
+- Modal: `transform-origin: center`, scale from `0.95` + opacity, `ease-out` cubic-bezier, ~180ms.
+- "Save and add another": on save, form fields clear with a 120ms staggered fade, first-name auto-focus, subtle green check pulse next to the counter ("3 people added").
+- Buttons: `active:scale-[0.96]`, `transition: transform 160ms ease-out`.
+- Numbers in the header count-up ("3 people in your organization") use `tabular-nums`.
+- Unit picker dropdown chevron rotates 180° with `transition: transform 160ms ease-out`.
 
-**New files**
-- `supabase/migrations/<ts>_employees.sql` — table, enums, indexes, RLS, GRANTs.
-- `supabase/migrations/<ts>_onboarding_flags.sql` — add `structure_complete`, `people_complete`, `cycle_complete`, `structure_skipped`, `people_skipped`, `cycle_skipped` booleans on `organizations`; backfill `structure_complete` from existing `setup_complete`.
-- `src/hooks/useEmployees.ts` — list, create, update, archive, bulk import (react-query).
-- `src/lib/employeeSchema.ts` — Zod schemas for form + CSV row.
-- `src/lib/employeeCsv.ts` — template generator, parser, validator, manager-email resolver.
-- `src/components/employees/EmployeeTable.tsx`
-- `src/components/employees/EmployeeFormDrawer.tsx`
-- `src/components/employees/EmployeeCsvImportModal.tsx`
-- `src/components/employees/EmployeeEmptyState.tsx`
-- `src/components/onboarding/OnboardingStrip.tsx` — the persistent step strip.
-- `src/components/onboarding/StepSuccess.tsx` — reusable success card.
-- `src/contexts/OnboardingContext.tsx` — derives step statuses from `organization.*_complete/_skipped`, exposes `markComplete(step)`, `markSkipped(step)`, `resume(step)`.
+## Out of scope for this pass
 
-**Edited files**
-- `src/pages/OrgEmployees.tsx` — full rewrite around the new components.
-- `src/pages/OrgStructure.tsx` — mount `OnboardingStrip` while onboarding, add "Structure ready" success step after wizard.
-- `src/pages/Dashboard.tsx` — checklist upgrades, red accent for People, skipped/resume states.
-- `src/components/AppSidebar.tsx` — People item icon color to `--accent-red`.
-- `src/App.tsx` — wrap protected routes in `OnboardingProvider`.
-- `src/contexts/AuthContext.tsx` — expose the new onboarding flags from `organization`.
-
-**Out of scope for this pass**
-- Sending invite emails / linking employees to auth accounts (called out explicitly by the user).
-- Manager permission scopes on `employees` (records-only for now).
-- Appraisal cycle creation flow (next milestone).
-
----
-
-## Flow diagram
-
-```text
-Sign up ──▶ Structure wizard ──▶ [Structure ready ✓] ──▶ Employees ──▶ [People added ✓] ──▶ Cycle
-   │             │                       │                   │                                 │
-   ▼             ▼                       ▼                   ▼                                 ▼
-Dashboard (checklist mirrors every step; skipped items show amber dot + Resume; back always allowed)
-```
+- Start/end dates, location, notes (deferred to a later "Employment details" screen).
+- Invite emails.
+- Manager permission scopes.
+- Editing the org tree from inside the employee modal (link out instead).

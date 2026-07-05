@@ -19,6 +19,7 @@ import {
   type ParsedEmployeeRow,
 } from "@/lib/employeeCsv";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useEmployees } from "@/hooks/useEmployees";
 
 interface Props {
@@ -30,18 +31,13 @@ interface Props {
 export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const { data: units = [] } = useOrgUnits();
+  const { data: types = [] } = useOrgUnitTypes();
   const { data: existing = [], bulkInsert } = useEmployees();
 
   const [rows, setRows] = useState<ParsedEmployeeRow[]>([]);
   const [fileName, setFileName] = useState("");
   const [importing, setImporting] = useState(false);
   const [summary, setSummary] = useState<{ inserted: number; skipped: number } | null>(null);
-
-  const departmentByName = useMemo(() => {
-    const m = new Map<string, string>();
-    units.forEach((u) => m.set(u.name.toLowerCase(), u.id));
-    return m;
-  }, [units]);
 
   const errorCount = rows.filter((r) => r.errors.length > 0).length;
   const readyCount = rows.length - errorCount;
@@ -63,12 +59,12 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
         return obj;
       });
 
-      const departmentNames = new Set(units.map((u) => u.name.toLowerCase()));
       const existingEmails = new Set(existing.map((e) => e.email.toLowerCase()));
       const seenEmails = new Set<string>();
       const parsed = rowObjects.map((raw) =>
         validateRow(raw as Record<CsvColumn, string>, {
-          departmentNames,
+          units,
+          types,
           seenEmails,
           existingEmails,
         })
@@ -93,11 +89,11 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
         email: r.email,
         employee_code: r.employee_code,
         job_title: r.job_title,
-        org_unit_id: r.department ? departmentByName.get(r.department.toLowerCase()) ?? null : null,
+        org_unit_id: r.resolved_unit_id,
         employment_type: r.employment_type,
         employment_status: r.employment_status,
-        start_date: r.start_date,
-        location: r.location,
+        start_date: null,
+        location: null,
         phone: r.phone,
         manager_email_pending: r.manager_email,
       }));
@@ -130,13 +126,15 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
         <DialogHeader>
           <DialogTitle>Import employees</DialogTitle>
           <DialogDescription>
-            Upload a CSV with these columns: {CSV_COLUMNS.join(", ")}
+            Upload a CSV with these columns: {CSV_COLUMNS.join(", ")}. Use{" "}
+            <span className="font-mono text-[11px]">unit_path</span> like{" "}
+            <span className="font-mono text-[11px]">Engineering / Platform / Infra</span>.
           </DialogDescription>
         </DialogHeader>
 
         {summary ? (
           <div className="py-8 text-center">
-            <CheckCircle2 className="mx-auto h-12 w-12 text-[hsl(var(--accent-green))]" />
+            <CheckCircle2 className="mx-auto h-12 w-12" style={{ color: "hsl(var(--accent-green))" }} />
             <h3 className="mt-4 text-lg font-semibold text-foreground">Import complete</h3>
             <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
               <span className="tabular-nums">{summary.inserted}</span> added,{" "}
@@ -178,7 +176,7 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
             <div className="flex items-center justify-between text-xs">
               <span className="text-[hsl(var(--ink-muted))] truncate">{fileName}</span>
               <div className="flex items-center gap-3 tabular-nums">
-                <span className="text-[hsl(var(--accent-green))]">✓ {readyCount} ready</span>
+                <span style={{ color: "hsl(var(--accent-green))" }}>✓ {readyCount} ready</span>
                 {errorCount > 0 && (
                   <span className="text-destructive">✗ {errorCount} blocked</span>
                 )}
@@ -192,7 +190,7 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
                     <th className="text-left px-3 py-2 font-medium">#</th>
                     <th className="text-left px-3 py-2 font-medium">Name</th>
                     <th className="text-left px-3 py-2 font-medium">Email</th>
-                    <th className="text-left px-3 py-2 font-medium">Department</th>
+                    <th className="text-left px-3 py-2 font-medium">Unit</th>
                     <th className="text-left px-3 py-2 font-medium">Manager</th>
                     <th className="text-left px-3 py-2 font-medium">Status</th>
                   </tr>
@@ -206,11 +204,9 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
                       }`}
                     >
                       <td className="px-3 py-2 tabular-nums text-[hsl(var(--ink-subtle))]">{i + 1}</td>
-                      <td className="px-3 py-2">
-                        {r.first_name} {r.last_name}
-                      </td>
+                      <td className="px-3 py-2">{r.first_name} {r.last_name}</td>
                       <td className="px-3 py-2">{r.email}</td>
-                      <td className="px-3 py-2">{r.department ?? "—"}</td>
+                      <td className="px-3 py-2">{r.unit_path ?? "—"}</td>
                       <td className="px-3 py-2">{r.manager_email ?? "—"}</td>
                       <td className="px-3 py-2">
                         {r.errors.length ? (
@@ -221,7 +217,7 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
                         ) : r.warnings.length ? (
                           <span className="text-[hsl(45,70%,32%)]">{r.warnings[0]}</span>
                         ) : (
-                          <span className="text-[hsl(var(--accent-green))]">Ready</span>
+                          <span style={{ color: "hsl(var(--accent-green))" }}>Ready</span>
                         )}
                       </td>
                     </tr>
