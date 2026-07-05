@@ -464,17 +464,17 @@ const Index = () => {
       {/* Pricing */}
       <div id="pricing" className="py-20 md:py-28 bg-[#f6f5f4]">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Simple, transparent pricing.
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">One plan. Everything included. Scale as you grow.</p>
+            <p className="text-foreground/60">One plan. Everything included. Scale as you grow.</p>
           </SectionReveal>
           <SectionReveal>
-            <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] p-8 md:p-10 max-w-[520px]">
+            <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] p-8 md:p-10 max-w-[520px] mx-auto">
               <div className="mb-6">
                 <span className="text-xs font-medium uppercase tracking-wide text-foreground/50">Enterprise</span>
                 <div className="flex items-baseline gap-1 mt-2">
