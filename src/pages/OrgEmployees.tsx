@@ -36,7 +36,6 @@ const OrgEmployees = () => {
   const [editing, setEditing] = useState<Employee | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Employee | null>(null);
 
-  const stepIndex = stepIndexByKey("people");
 
   const hasManagerLink = useMemo(
     () => employees.some((e) => !!e.manager_id),
