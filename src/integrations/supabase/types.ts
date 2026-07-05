@@ -14,6 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      employees: {
+        Row: {
+          created_at: string
+          email: string
+          employee_code: string | null
+          employment_status: Database["public"]["Enums"]["employment_status"]
+          employment_type: Database["public"]["Enums"]["employment_type"]
+          end_date: string | null
+          first_name: string
+          id: string
+          job_title: string | null
+          last_name: string
+          location: string | null
+          manager_id: string | null
+          notes: string | null
+          org_unit_id: string | null
+          organization_id: string
+          phone: string | null
+          profile_id: string | null
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          employee_code?: string | null
+          employment_status?: Database["public"]["Enums"]["employment_status"]
+          employment_type?: Database["public"]["Enums"]["employment_type"]
+          end_date?: string | null
+          first_name: string
+          id?: string
+          job_title?: string | null
+          last_name: string
+          location?: string | null
+          manager_id?: string | null
+          notes?: string | null
+          org_unit_id?: string | null
+          organization_id: string
+          phone?: string | null
+          profile_id?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          employee_code?: string | null
+          employment_status?: Database["public"]["Enums"]["employment_status"]
+          employment_type?: Database["public"]["Enums"]["employment_type"]
+          end_date?: string | null
+          first_name?: string
+          id?: string
+          job_title?: string | null
+          last_name?: string
+          location?: string | null
+          manager_id?: string | null
+          notes?: string | null
+          org_unit_id?: string | null
+          organization_id?: string
+          phone?: string | null
+          profile_id?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_org_unit_id_fkey"
+            columns: ["org_unit_id"]
+            isOneToOne: false
+            referencedRelation: "org_units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_unit_types: {
         Row: {
           created_at: string | null
@@ -111,26 +206,44 @@ export type Database = {
         Row: {
           country: string
           created_at: string | null
+          cycle_complete: boolean
+          cycle_skipped: boolean
           id: string
           industry: string
           name: string
+          people_complete: boolean
+          people_skipped: boolean
           setup_complete: boolean | null
+          structure_complete: boolean
+          structure_skipped: boolean
         }
         Insert: {
           country: string
           created_at?: string | null
+          cycle_complete?: boolean
+          cycle_skipped?: boolean
           id?: string
           industry: string
           name: string
+          people_complete?: boolean
+          people_skipped?: boolean
           setup_complete?: boolean | null
+          structure_complete?: boolean
+          structure_skipped?: boolean
         }
         Update: {
           country?: string
           created_at?: string | null
+          cycle_complete?: boolean
+          cycle_skipped?: boolean
           id?: string
           industry?: string
           name?: string
+          people_complete?: boolean
+          people_skipped?: boolean
           setup_complete?: boolean | null
+          structure_complete?: boolean
+          structure_skipped?: boolean
         }
         Relationships: []
       }
@@ -179,7 +292,8 @@ export type Database = {
       text2ltree: { Args: { "": string }; Returns: unknown }
     }
     Enums: {
-      [_ in never]: never
+      employment_status: "active" | "on_leave" | "terminated"
+      employment_type: "full_time" | "part_time" | "contractor" | "intern"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -306,6 +420,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      employment_status: ["active", "on_leave", "terminated"],
+      employment_type: ["full_time", "part_time", "contractor", "intern"],
+    },
   },
 } as const

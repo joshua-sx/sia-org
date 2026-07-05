@@ -1,10 +1,13 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, Upload, Settings2, Building2 } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnits, buildTree, OrgUnitTreeNode } from "@/hooks/useOrgUnits";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
 import SetupWizard from "@/components/org/SetupWizard";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
@@ -14,6 +17,8 @@ import EditLevelsModal from "@/components/org/EditLevelsModal";
 
 const OrgStructure = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
+  const { markComplete } = useOnboarding();
   const { data: unitTypes = [], isLoading: loadingTypes, createTypes } = useOrgUnitTypes();
   const { data: units = [], isLoading: loadingUnits, addUnit } = useOrgUnits();
 
@@ -76,7 +81,21 @@ const OrgStructure = () => {
   }
 
   if (showWizard) {
-    return <SetupWizard onComplete={() => setWizardDone(true)} createTypes={createTypes} addUnit={addUnit} />;
+    return (
+      <SetupWizard
+        onComplete={async () => {
+          try {
+            await markComplete("structure");
+          } catch (e: any) {
+            toast.error(e?.message ?? "Could not mark step complete");
+          }
+          setWizardDone(true);
+          navigate("/org/employees");
+        }}
+        createTypes={createTypes}
+        addUnit={addUnit}
+      />
+    );
   }
 
   if (loading) {
@@ -88,7 +107,9 @@ const OrgStructure = () => {
   }
 
   return (
-    <div className="flex-1 px-6 md:px-10 py-10">
+    <>
+      <OnboardingStrip />
+      <div className="flex-1 px-6 md:px-10 py-10">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))]">
@@ -149,7 +170,8 @@ const OrgStructure = () => {
       <AddUnitModal open={showAdd} onOpenChange={setShowAdd} unitTypes={unitTypes} units={units} preselectedParent={addParent} preselectedTypeId={addTypeId} />
       <CsvImportModal open={showCsv} onOpenChange={setShowCsv} unitTypes={unitTypes} units={units} />
       <EditLevelsModal open={showEditLevels} onOpenChange={setShowEditLevels} unitTypes={unitTypes} hasUnits={units.length > 0} />
-    </div>
+      </div>
+    </>
   );
 };
 
