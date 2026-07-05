@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MoreHorizontal, Pencil, Trash2, ChevronRight } from "lucide-react";
+import { Search, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,9 +71,15 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[hsl(var(--hairline))] text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
-              <th className="text-left px-4 py-2.5 font-medium">Name</th>
+              <th className="text-left px-4 py-2.5 font-medium">First name</th>
+              <th className="text-left px-4 py-2.5 font-medium">Last name</th>
+              <th className="text-left px-4 py-2.5 font-medium">Email</th>
               <th className="text-left px-4 py-2.5 font-medium">Job title</th>
-              <th className="text-left px-4 py-2.5 font-medium">Unit</th>
+              {levels.map((lvl) => (
+                <th key={lvl.type.id} className="text-left px-4 py-2.5 font-medium">
+                  {lvl.type.name}
+                </th>
+              ))}
               <th className="text-left px-4 py-2.5 font-medium">Manager</th>
               <th className="text-left px-4 py-2.5 font-medium">Status</th>
               <th className="w-10" />
@@ -82,39 +88,19 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
           <tbody>
             {filtered.map((e) => {
               const manager = e.manager_id ? managerById[e.manager_id] : null;
-              const chain = unitsByLevel(e.org_unit_id, ancestry, levels).filter(Boolean);
+              const perLevel = unitsByLevel(e.org_unit_id, ancestry, levels);
 
               return (
                 <tr key={e.id} className="border-b border-[hsl(var(--hairline))] last:border-b-0 hover:bg-[hsl(var(--ink-strong)/0.02)]">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-foreground">{e.first_name} {e.last_name}</div>
-                    <div className="text-xs text-[hsl(var(--ink-muted))]">{e.email}</div>
-                  </td>
+                  <td className="px-4 py-3 font-medium text-foreground">{e.first_name}</td>
+                  <td className="px-4 py-3 font-medium text-foreground">{e.last_name}</td>
+                  <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">{e.email}</td>
                   <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">{e.job_title ?? "—"}</td>
-                  <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">
-                    {chain.length === 0 ? (
-                      "—"
-                    ) : (
-                      <div className="flex items-center flex-wrap gap-x-1 gap-y-0.5">
-                        {chain.map((u, i) => (
-                          <span key={u!.id} className="flex items-center gap-1">
-                            <span
-                              className={
-                                i === chain.length - 1
-                                  ? "text-foreground text-[13px]"
-                                  : "text-[12px]"
-                              }
-                            >
-                              {u!.name}
-                            </span>
-                            {i < chain.length - 1 && (
-                              <ChevronRight className="h-3 w-3 opacity-40" />
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </td>
+                  {perLevel.map((u, i) => (
+                    <td key={levels[i].type.id} className="px-4 py-3 text-[hsl(var(--ink-muted))]">
+                      {u ? <span className="text-foreground">{u.name}</span> : "—"}
+                    </td>
+                  ))}
                   <td className="px-4 py-3 text-[hsl(var(--ink-muted))]">
                     {manager ? `${manager.first_name} ${manager.last_name}` : "—"}
                   </td>
@@ -155,7 +141,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">
+                <td colSpan={7 + levels.length} className="px-4 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">
                   No matching employees.
                 </td>
               </tr>
