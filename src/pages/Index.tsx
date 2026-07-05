@@ -408,21 +408,8 @@ const Index = () => {
         </Section>
       </div>
 
-      {/* Trusted by */}
-      <div className="py-10 border-y border-black/[0.06] bg-[#fafafa]">
-        <Section>
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-            <span className="text-xs uppercase tracking-wider text-black/40 font-medium shrink-0">Trusted by teams at</span>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-8 gap-y-3">
-              {TRUSTED_BY.map((name) => (
-                <span key={name} className="text-sm font-medium text-black/40 hover:text-black/70 transition-colors" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </div>
+
+
 
       {/* Solution Bento */}
       <div id="solution" className="py-20 md:py-28 bg-white">
