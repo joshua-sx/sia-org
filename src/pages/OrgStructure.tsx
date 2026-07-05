@@ -1,10 +1,13 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, Upload, Settings2, Building2 } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnits, buildTree, OrgUnitTreeNode } from "@/hooks/useOrgUnits";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
 import SetupWizard from "@/components/org/SetupWizard";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
