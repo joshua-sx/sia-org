@@ -21,9 +21,9 @@ import {
   Check,
   ArrowUp,
   Network,
-  TrendingUp,
   CheckCircle2,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────── CONSTANTS ─────────────────────────── */
@@ -115,13 +115,8 @@ const PRICING_FEATURES = [
   "Dedicated onboarding support",
 ];
 
-const FOOTER_COLS = [
-  { heading: "Product", links: [{ label: "Features", href: "#solution" }, { label: "Pricing", href: "#pricing" }, { label: "How It Works", href: "#how" }] },
-  { heading: "Company", links: [{ label: "About", href: "#" }, { label: "Blog", href: "#" }, { label: "Careers", href: "#" }] },
-  { heading: "Legal", links: [{ label: "Privacy", href: "#" }, { label: "Terms", href: "#" }, { label: "Security", href: "#" }] },
-];
 
-const TRUSTED_BY = ["Ministry of Health", "TransCarib Airways", "St. Kitts University", "Port Authority", "Central Bank", "Public Service"];
+
 
 /* ─────────────────────────── HELPERS ─────────────────────────── */
 
@@ -408,21 +403,8 @@ const Index = () => {
         </Section>
       </div>
 
-      {/* Trusted by */}
-      <div className="py-10 border-y border-black/[0.06] bg-[#fafafa]">
-        <Section>
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-            <span className="text-xs uppercase tracking-wider text-black/40 font-medium shrink-0">Trusted by teams at</span>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-8 gap-y-3">
-              {TRUSTED_BY.map((name) => (
-                <span key={name} className="text-sm font-medium text-black/40 hover:text-black/70 transition-colors" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </div>
+
+
 
       {/* Solution Bento */}
       <div id="solution" className="py-20 md:py-28 bg-white">
@@ -523,41 +505,32 @@ const Index = () => {
         </Section>
       </div>
 
-      {/* Trust */}
+      {/* Positioning */}
       <div className="py-20 md:py-28 bg-[#fafafa]">
         <Section>
           <SectionReveal>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-14 max-w-[900px] mx-auto">
-              {[
-                { stat: "100+", label: "Organizations onboarded", color: COLORS.blue },
-                { stat: "3\u00d7", label: "Faster cycle completion", color: COLORS.red },
-                { stat: "0", label: "Spreadsheets needed", color: COLORS.green },
-              ].map((t, i) => (
-                <motion.div key={t.label} custom={i} variants={fadeUp} className="text-center">
-                  <div
-                    className="text-4xl md:text-5xl font-bold tracking-tight mb-2 tabular-nums"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", color: t.color }}
-                  >
-                    {t.stat}
-                  </div>
-                  <div className="text-sm text-black/50">{t.label}</div>
-                </motion.div>
-              ))}
+            <div className={cn(cardBase, "p-8 md:p-12 max-w-[820px] mx-auto text-center")}>
+              <div className="flex justify-center gap-1.5 mb-5">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.red }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.green }} />
+              </div>
+              <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">
+                Built for the Caribbean
+              </span>
+              <h2
+                className="text-[clamp(24px,3vw,36px)] font-bold tracking-[-0.02em] leading-[1.15] mb-4 text-balance"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                Built for the way Caribbean government orgs actually run appraisals.
+              </h2>
+              <p className="text-black/60 leading-relaxed max-w-[620px] mx-auto text-pretty">
+                Designed around the real hierarchies, cycles, and review formats used across ministries, health authorities, and statutory bodies — not adapted from generic HR software.
+              </p>
             </div>
           </SectionReveal>
-          <SectionReveal>
-            <blockquote className={cn(cardBase, "p-8 md:p-10 max-w-[720px] mx-auto text-center")}>
-              <div className="flex justify-center gap-1 mb-4">
-                {[COLORS.blue, COLORS.red, COLORS.yellow, COLORS.green].map((c) => (
-                  <TrendingUp key={c} size={14} style={{ color: c }} />
-                ))}
-              </div>
-              <p className="text-lg md:text-xl leading-relaxed mb-4 text-black/80 text-pretty">
-                “We replaced three tools and cut our review cycle from 12 weeks to 4. SIA just works.”
-              </p>
-              <cite className="text-sm text-black/50 not-italic">— HR Director, Caribbean Government Ministry</cite>
-            </blockquote>
-          </SectionReveal>
+
         </Section>
       </div>
 
@@ -648,10 +621,10 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-12 bg-white border-t border-black/[0.08]">
+      <footer className="py-10 bg-white border-t border-black/[0.08]">
         <Section>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
-            <div className="col-span-2 sm:col-span-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <span className="flex gap-[3px]">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
@@ -663,38 +636,18 @@ const Index = () => {
                   SIA
                 </span>
               </div>
-              <p className="text-sm text-black/50 leading-relaxed">Performance appraisal software for structured organizations.</p>
+              <p className="text-sm text-black/50 leading-relaxed max-w-md">
+                Performance appraisal software for structured organizations.
+              </p>
             </div>
-            {FOOTER_COLS.map((col) => (
-              <div key={col.heading}>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-black/40 mb-3">{col.heading}</h4>
-                <ul className="flex flex-col gap-2">
-                  {col.links.map((link) => (
-                    <li key={link.label}>
-                      <a
-                        href={link.href}
-                        className="text-sm text-black/60 hover:text-black transition-colors"
-                        onClick={(e) => {
-                          if (link.href.startsWith("#")) {
-                            e.preventDefault();
-                            document.querySelector(link.href)?.scrollIntoView({ behavior: "smooth" });
-                          }
-                        }}
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-black/[0.08]">
-            <span className="text-xs text-black/40">© {new Date().getFullYear()} SIA. All rights reserved.</span>
-            <span className="text-xs text-black/40">Built in the Caribbean 🌴</span>
+            <div className="flex flex-col sm:items-end gap-1 text-xs text-black/40">
+              <span>© {new Date().getFullYear()} SIA</span>
+              <span>Built in the Caribbean 🌴</span>
+            </div>
           </div>
         </Section>
       </footer>
+
     </div>
   );
 };
