@@ -200,13 +200,16 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {step === 1
-            ? "This determines the organizational levels available during setup. You can adjust later in settings."
+            ? selectedTemplate === "custom"
+              ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
+              : "This determines the organizational levels available during setup. You can adjust later in settings."
             : step === 2
             ? confirmedLevels.join(" → ")
             : step === 3
             ? "Confirm your organizational hierarchy."
             : ""}
         </p>
+
       </div>
 
       {/* Numbered step indicator */}
