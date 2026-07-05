@@ -77,21 +77,37 @@ export function CycleFormModal({ open, onOpenChange, editing, onSaved }: Props) 
     );
   }, [open, editing]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-fill acknowledgement_due to match final_window_end while it's empty,
+  // so the common case (ack on the last day of final) doesn't require input.
+  const finalEnd = form.watch("final_window_end");
+  useEffect(() => {
+    if (!finalEnd) return;
+    const current = form.getValues("acknowledgement_due");
+    if (!current || current < finalEnd) {
+      form.setValue("acknowledgement_due", finalEnd, { shouldValidate: true });
+    }
+  }, [finalEnd]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const saving = createCycle.isPending || updateCycle.isPending;
   const errors = form.formState.errors;
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    try {
-      const cycle = editing
-        ? await updateCycle.mutateAsync({ id: editing.id, values })
-        : await createCycle.mutateAsync(values);
-      toast.success(editing ? "Cycle updated" : "Cycle created");
-      onOpenChange(false);
-      onSaved?.(cycle);
-    } catch (err) {
-      toast.error(friendlyError(err, "Could not save the cycle"));
-    }
-  });
+  const onSubmit = form.handleSubmit(
+    async (values) => {
+      try {
+        const cycle = editing
+          ? await updateCycle.mutateAsync({ id: editing.id, values })
+          : await createCycle.mutateAsync(values);
+        toast.success(editing ? "Cycle updated" : "Cycle created");
+        onOpenChange(false);
+        onSaved?.(cycle);
+      } catch (err) {
+        toast.error(friendlyError(err, "Could not save the cycle"));
+      }
+    },
+    () => {
+      toast.error("Fix the highlighted fields to continue");
+    },
+  );
 
   const dateField = (name: keyof CycleFormValues, label: string) => (
     <Field label={label} required error={errors[name]?.message}>
