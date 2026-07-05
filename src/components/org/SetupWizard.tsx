@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
@@ -12,6 +13,7 @@ import TreePreview from "./TreePreview";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
+
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Done"];
 const TOTAL_STEPS = 3;
@@ -198,13 +200,16 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {step === 1
-            ? "This determines the organizational levels available during setup. You can adjust later in settings."
+            ? selectedTemplate === "custom"
+              ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
+              : "This determines the organizational levels available during setup. You can adjust later in settings."
             : step === 2
             ? confirmedLevels.join(" → ")
             : step === 3
             ? "Confirm your organizational hierarchy."
             : ""}
         </p>
+
       </div>
 
       {/* Numbered step indicator */}
@@ -249,11 +254,49 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
         <div className="animate-fade-in" key="step-1">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardContent className="pt-6 space-y-6">
-              <TemplateSelector selected={selectedTemplate} onSelect={setSelectedTemplate} />
+              <AnimatePresence initial={false} mode="wait">
+                {selectedTemplate === "custom" ? (
+                  <motion.div
+                    key="custom"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+                    className="space-y-5"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="grid h-8 w-8 place-items-center rounded-lg bg-[hsl(var(--accent-blue)/0.1)]">
+                          <Settings2 className="h-4 w-4 text-[hsl(var(--accent-blue))]" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">Custom hierarchy</p>
+                          <p className="text-[11px] text-muted-foreground">Build your own levels</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedTemplate(null)}
+                        className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline transition-colors"
+                      >
+                        ← Choose a template instead
+                      </button>
+                    </div>
+                    <CustomLevelBuilder levels={customLevels} onChange={setCustomLevels} />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="grid"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+                  >
+                    <TemplateSelector selected={selectedTemplate} onSelect={setSelectedTemplate} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-              {selectedTemplate === "custom" && (
-                <CustomLevelBuilder levels={customLevels} onChange={setCustomLevels} />
-              )}
 
               {/* Footer */}
               <div className="flex items-center justify-between pt-4 border-t border-border">
