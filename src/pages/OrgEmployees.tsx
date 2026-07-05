@@ -13,6 +13,7 @@ import EmployeeTable from "@/components/employees/EmployeeTable";
 import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
 import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModal";
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
+import { PageHead } from "@/components/PageHead";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -93,6 +94,11 @@ const OrgEmployees = () => {
 
   return (
     <>
+      <PageHead
+        title="Employees | SIA"
+        description="Add and manage employees and manager relationships for your organization."
+        path="/org/employees"
+      />
       <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div>

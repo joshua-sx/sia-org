@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { PageHead } from "@/components/PageHead";
 
 /* ─────────────────────────── CONSTANTS ─────────────────────────── */
 
@@ -360,6 +361,11 @@ function HeroBento() {
 const Index = () => {
   return (
     <div className="min-h-screen bg-white text-black antialiased" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      <PageHead
+        title="SIA — Performance appraisals for structured orgs"
+        description="Goal-setting, 360° reviews, and performance analytics for government, aviation, healthcare, and education."
+        path="/"
+      />
       <ScrollProgressBar />
       <Navbar />
       <BackToTop />

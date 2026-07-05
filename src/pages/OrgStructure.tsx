@@ -14,6 +14,7 @@ import UnitDetailPanel from "@/components/org/UnitDetailPanel";
 import AddUnitModal from "@/components/org/AddUnitModal";
 import CsvImportModal from "@/components/org/CsvImportModal";
 import EditLevelsModal from "@/components/org/EditLevelsModal";
+import { PageHead } from "@/components/PageHead";
 
 const OrgStructure = () => {
   const { profile } = useAuth();
@@ -117,6 +118,11 @@ const OrgStructure = () => {
 
   return (
     <>
+      <PageHead
+        title="Organization structure | SIA"
+        description="Build the org hierarchy that powers your appraisal cycles."
+        path="/org/structure"
+      />
       <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>

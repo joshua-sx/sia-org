@@ -1,0 +1,11 @@
+# SIA
+
+> Performance appraisal platform for structured organizations — goal-setting, 360° reviews, and performance analytics for government, aviation, healthcare, and education.
+
+SIA helps HR teams in structured, multi-tier organizations run appraisal cycles: cascade goals down the org chart, collect 360° feedback from managers and peers, and surface performance trends across units.
+
+## Pages
+
+- [Home](/): Product overview, target industries, and key capabilities.
+- [Sign up](/signup): Create an organization workspace.
+- [Sign in](/login): Sign in to an existing workspace.
