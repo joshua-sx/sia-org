@@ -435,13 +435,13 @@ const Index = () => {
       <div className="py-20 md:py-28 bg-white">
         <Section>
           <SectionReveal>
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="grid md:grid-cols-3 gap-8 mb-14 max-w-[900px] mx-auto">
               {[
                 { stat: "100+", label: "Organizations onboarded" },
                 { stat: "3\u00d7", label: "Faster cycle completion" },
                 { stat: "0", label: "Spreadsheets needed" },
               ].map((t, i) => (
-                <motion.div key={t.label} custom={i} variants={fadeUp} className="text-center md:text-left">
+                <motion.div key={t.label} custom={i} variants={fadeUp} className="text-center">
                   <div className="text-4xl md:text-5xl font-bold tracking-tight mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {t.stat}
                   </div>
@@ -451,7 +451,7 @@ const Index = () => {
             </div>
           </SectionReveal>
           <SectionReveal>
-            <blockquote className="bg-[#f6f5f4] rounded-xl p-8 md:p-10 border-l-4 border-foreground">
+            <blockquote className="bg-[#f6f5f4] rounded-xl p-8 md:p-10 max-w-[720px] mx-auto text-center">
               <p className="text-lg md:text-xl leading-relaxed mb-4 italic text-foreground/80">
                 "We replaced three tools and cut our review cycle from 12 weeks to 4. SIA just works."
               </p>
