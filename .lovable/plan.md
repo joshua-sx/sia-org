@@ -1,27 +1,24 @@
-# Apply appraisal migrations
+# Fix "can't create cycle" + drop confusing "draft" wording
 
-The two SQL files already exist under `supabase/migrations/` but have never been executed against the Lovable Cloud database, so `appraisal_cycles`, `cycle_participants`, `goals`, `goal_ratings`, the `submit_assessment_stage` RPC and the window/lock triggers don't exist yet — every `/appraisals` route errors on first query.
+Two things going on. The runtime error `acknowledgement_due — Must be on or after final window end` shows the form's zod validation is firing: the acknowledgement date is before the final-window-end date, so submit is silently rejected. Nothing surfaces to the user because that field is inline-only and `form.handleSubmit` never reaches the `try/catch` that would toast. Separately, "draft" is jargon — every newly created cycle is a draft until launched; the noun adds no information.
 
-## Steps
+## Changes
 
-1. **Submit `20260705120000_appraisal_cycles_schema.sql`** via the migration tool for approval. Creates:
-   - `interim_weight_pct` / `final_weight_pct` columns on `organizations` (30/70 default, CHECK sum=100)
-   - Tables `appraisal_cycles`, `cycle_participants`, `goals`, `goal_ratings` with constraints, indexes, GRANTs, RLS enabled
-   - Helper functions `current_user_role`, `current_user_employee_id`, `cycle_org`, `participant_org`, `goal_participant`
-   - hr_admin manage policies + RESTRICTIVE tenant-isolation policies on all four tables
-   - `updated_at` triggers
+**`src/components/appraisals/CycleFormModal.tsx`**
+- Button label: `Create draft cycle` → `Create cycle` (and keep `Save changes` when editing).
+- Wrap submit in a handler that, on invalid, shows `toast.error("Fix the highlighted fields")` so the user isn't left wondering why the button seems dead. Use `form.handleSubmit(onValid, onInvalid)`.
+- Optional polish: default `acknowledgement_due` to auto-follow `final_window_end` when it's still empty (via a small `useEffect` watching `final_window_end`) so the common case just works. Users can still edit it.
 
-2. **Wait for approval + execution**, then submit `20260705121000_appraisal_policies_rpc.sql`. Adds:
-   - Manager / employee / extra-reviewer role policies
-   - `BEFORE INSERT/UPDATE` window + lock + column-guard triggers on `goals`, `goal_ratings`, `cycle_participants` (raise `SIA_WINDOW_CLOSED`, `SIA_STAGE_LOCKED`, `SIA_COLUMN_FORBIDDEN`)
-   - `submit_assessment_stage(p_participant_id uuid, p_stage text)` SECURITY DEFINER RPC (weight-sum check, all-goals-rated check, stage/overall score, atomic timestamp stamp)
+**`src/pages/AppraisalCycleDetail.tsx`**
+- Line 172: `Delete this draft cycle?` → `Delete this cycle?`
+- Line 175: reword "cycle is a draft" → "cycle hasn't launched yet."
+- Keep the `status === "draft"` logic as-is; that's an internal state name, not user-facing copy.
 
-3. **Address any linter warnings** the tool surfaces after each run (fix ones caused by these migrations; report the rest).
+**Not changed**
+- DB `status` enum stays `draft | active | completed` (matches migrations, RPC guards, and existing `CYCLE_STATUS_LABELS.draft = "Draft"` which is fine as a badge).
+- `CycleStatusBadge` label "Draft" is a legitimate lifecycle badge — kept.
 
-4. **Verify** by loading `/appraisals` as the hr_admin — the list page should render without a Postgres "relation does not exist" error, and the hand-extended `types.ts` entries already line up with the deployed schema.
-
-## Notes
-
-- Two separate calls (per the tool's "no parallel" rule and the natural dependency: policies/triggers/RPC reference the tables from migration 1).
-- No code changes needed — `useAppraisalCycles`, `useGoals`, `useAssessments`, `useCycleParticipants` and the pages are already written against these tables.
-- No data seeding; hr_admin creates the first cycle from `/appraisals` after migrations land.
+## Verification
+- Open the New cycle modal, submit with acknowledgement date before final end → red inline error + toast.
+- Submit with valid dates → cycle created, modal closes.
+- Detail page delete dialog reads "Delete this cycle?".
