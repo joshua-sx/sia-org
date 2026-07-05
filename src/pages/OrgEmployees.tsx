@@ -29,7 +29,7 @@ const OrgEmployees = () => {
   const navigate = useNavigate();
   const { data: employees = [], isLoading, deleteEmployee } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { markSkipped, stepIndexByKey, totalSteps } = useOnboarding();
+  const { markSkipped } = useOnboarding();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
