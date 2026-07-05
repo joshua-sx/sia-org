@@ -153,6 +153,20 @@ export function useOnboarding() {
     else navigate("/dashboard");
   };
 
+  const stepIndexByKey = (key: OnboardingStepKey) => steps.findIndex((s) => s.key === key);
+
+  /** Step immediately after `key` in the flow (regardless of status). */
+  const nextStepAfter = (key: OnboardingStepKey): OnboardingStep | null => {
+    const i = stepIndexByKey(key);
+    return i >= 0 && i < steps.length - 1 ? steps[i + 1] : null;
+  };
+
+  /** Step immediately before `key` in the flow (regardless of status). */
+  const previousStepBefore = (key: OnboardingStepKey): OnboardingStep | null => {
+    const i = stepIndexByKey(key);
+    return i > 0 ? steps[i - 1] : null;
+  };
+
   return {
     steps,
     completedCount,
@@ -163,6 +177,9 @@ export function useOnboarding() {
     markSkipped,
     resume,
     goToNext,
+    nextStepAfter,
+    previousStepBefore,
+    stepIndexByKey,
     saving: updateOrg.isPending,
   };
 }

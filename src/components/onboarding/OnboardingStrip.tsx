@@ -1,63 +1,95 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Check, Minus } from "lucide-react";
-import { useOnboarding, type OnboardingStep } from "@/hooks/useOnboarding";
+import { useOnboarding, type OnboardingStep, type OnboardingStepKey } from "@/hooks/useOnboarding";
+import { useOnboardingContext } from "./OnboardingContext";
 
-const StepDot = ({ step }: { step: OnboardingStep }) => {
-  const { status, icon: Icon, accent } = step;
-
-  if (status === "done") {
-    return (
-      <div
-        className="flex h-8 w-8 items-center justify-center rounded-full"
-        style={{ backgroundColor: "hsl(var(--accent-green))" }}
-      >
-        <Check className="h-4 w-4 text-white" strokeWidth={3} />
-      </div>
-    );
-  }
-
-  if (status === "skipped") {
-    return (
-      <div
-        className="flex h-8 w-8 items-center justify-center rounded-full"
-        style={{ backgroundColor: "hsl(var(--accent-yellow) / 0.18)" }}
-      >
-        <Minus className="h-4 w-4" style={{ color: "hsl(45, 70%, 32%)" }} />
-      </div>
-    );
-  }
-
-  if (status === "current") {
-    return (
-      <div className="relative flex h-8 w-8 items-center justify-center">
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          style={{ backgroundColor: `hsl(var(${accent}) / 0.2)` }}
-          animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.2, 0.6] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <div
-          className="relative flex h-8 w-8 items-center justify-center rounded-full"
-          style={{ backgroundColor: `hsl(var(${accent}) / 0.15)` }}
-        >
-          <Icon className="h-4 w-4" style={{ color: `hsl(var(${accent}))` }} />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[hsl(var(--hairline))] bg-background">
-      <Icon className="h-4 w-4 text-[hsl(var(--ink-subtle))]" />
-    </div>
-  );
+const STEP_HINT: Record<OnboardingStepKey, string> = {
+  account: "Your account is ready.",
+  structure: "Define the levels of your organization and add your first units.",
+  people: "Add the people who'll take part in appraisal cycles.",
+  cycle: "Create your first appraisal cycle to go live.",
 };
 
+function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }) {
+  const { status, label, accent } = step;
+
+  const base =
+    "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-none transition-colors";
+  const textActive = isActive || status === "current";
+
+  let inner;
+  if (status === "done") {
+    inner = (
+      <span
+        className={base}
+        style={{
+          backgroundColor: `hsl(var(--accent-green) / 0.14)`,
+          color: `hsl(var(--accent-green))`,
+        }}
+      >
+        <Check className="h-3 w-3" strokeWidth={3} />
+        {label}
+      </span>
+    );
+  } else if (status === "skipped") {
+    inner = (
+      <span
+        className={base}
+        style={{
+          backgroundColor: `hsl(var(--accent-yellow) / 0.14)`,
+          color: `hsl(45, 55%, 32%)`,
+        }}
+      >
+        <Minus className="h-3 w-3" />
+        {label}
+      </span>
+    );
+  } else if (textActive) {
+    inner = (
+      <span
+        className={base}
+        style={{
+          backgroundColor: `hsl(var(${accent}) / 0.14)`,
+          color: `hsl(var(${accent}))`,
+        }}
+      >
+        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${accent}))` }} />
+        {label}
+      </span>
+    );
+  } else {
+    inner = (
+      <span
+        className={`${base} border border-[hsl(var(--hairline))] text-[hsl(var(--ink-subtle))]`}
+      >
+        {label}
+      </span>
+    );
+  }
+
+  const canClick = step.href && (step.done || step.skipped || status === "current" || isActive);
+  if (canClick) {
+    return (
+      <Link to={step.href!} className="active:scale-[0.97] transition-transform">
+        {inner}
+      </Link>
+    );
+  }
+  return inner;
+}
+
 export function OnboardingStrip({ className }: { className?: string }) {
-  const { steps, isOnboarding, completedCount, totalSteps, markSkipped } = useOnboarding();
+  const { steps, isOnboarding, completedCount, totalSteps, stepIndexByKey } = useOnboarding();
+  const { activeStep } = useOnboardingContext();
 
   if (!isOnboarding) return null;
+
+  const active =
+    (activeStep && steps.find((s) => s.key === activeStep)) ||
+    steps.find((s) => s.status === "current") ||
+    steps[0];
+  const activeIndex = stepIndexByKey(active.key);
+  const hint = STEP_HINT[active.key];
 
   return (
     <div
@@ -66,58 +98,29 @@ export function OnboardingStrip({ className }: { className?: string }) {
         (className ?? "")
       }
     >
-      <div className="mx-auto max-w-5xl px-6 md:px-10 py-4">
+      <div className="mx-auto max-w-5xl px-6 md:px-10 py-3.5">
         <div className="flex items-center justify-between gap-4">
           <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
-            Getting set up · <span className="tabular-nums">{completedCount}/{totalSteps}</span>
+            <span className="tabular-nums">Step {activeIndex + 1} of {totalSteps}</span>
+            <span className="mx-1.5 opacity-40">·</span>
+            <span className="text-foreground font-semibold normal-case tracking-normal">
+              {active.label}
+            </span>
           </p>
-          <button
-            onClick={async () => {
-              // Skip remaining steps at once — sends the user to their dashboard
-              const pending = steps.filter((s) => !s.done && !s.skipped && s.key !== "account");
-              for (const s of pending) await markSkipped(s.key);
-            }}
-            className="text-xs text-[hsl(var(--ink-muted))] hover:text-foreground transition-colors active:scale-[0.96]"
-            style={{ transitionProperty: "color, transform" }}
-          >
-            Skip setup →
-          </button>
+          <p className="text-[11px] text-[hsl(var(--ink-subtle))] tabular-nums">
+            {completedCount}/{totalSteps} complete
+          </p>
         </div>
 
-        <div className="mt-3 flex items-center gap-1">
-          {steps.map((step, i) => {
-            const Inner = (
-              <div className="flex items-center gap-2.5">
-                <StepDot step={step} />
-                <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-foreground leading-tight">{step.label}</p>
-                  <p className="text-[11px] text-[hsl(var(--ink-subtle))] leading-tight capitalize">
-                    {step.status === "current" ? "In progress" : step.status}
-                  </p>
-                </div>
-              </div>
-            );
-            const clickable = step.href && (step.done || step.skipped || step.status === "current");
-            return (
-              <div key={step.key} className="flex flex-1 items-center gap-1">
-                {clickable ? (
-                  <Link
-                    to={step.href!}
-                    className="flex items-center rounded-lg px-2 py-1.5 hover:bg-[hsl(var(--ink-strong)/0.04)] transition-colors"
-                    style={{ transitionProperty: "background-color" }}
-                  >
-                    {Inner}
-                  </Link>
-                ) : (
-                  <div className="flex items-center px-2 py-1.5 opacity-80">{Inner}</div>
-                )}
-                {i < steps.length - 1 && (
-                  <div className="flex-1 h-px bg-[hsl(var(--hairline))]" />
-                )}
-              </div>
-            );
-          })}
+        <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+          {steps.map((step) => (
+            <Segment key={step.key} step={step} isActive={step.key === active.key} />
+          ))}
         </div>
+
+        {hint && (
+          <p className="mt-2 text-xs text-[hsl(var(--ink-muted))]">{hint}</p>
+        )}
       </div>
     </div>
   );
