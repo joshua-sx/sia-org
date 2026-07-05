@@ -37,7 +37,7 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
   const [rows, setRows] = useState<ParsedEmployeeRow[]>([]);
   const [fileName, setFileName] = useState("");
   const [importing, setImporting] = useState(false);
-  const [summary, setSummary] = useState<{ inserted: number; skipped: number } | null>(null);
+  const [summary, setSummary] = useState<{ inserted: number; skipped: number; unresolvedManagers: string[] } | null>(null);
 
   const errorCount = rows.filter((r) => r.errors.length > 0).length;
   const readyCount = rows.length - errorCount;
@@ -97,10 +97,20 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
         phone: r.phone,
         manager_email_pending: r.manager_email,
       }));
-      const { inserted } = await bulkInsert.mutateAsync(payload);
-      setSummary({ inserted: inserted.length, skipped: rows.length - inserted.length });
+      const { inserted, unresolvedManagers } = await bulkInsert.mutateAsync(payload);
+      setSummary({
+        inserted: inserted.length,
+        skipped: rows.length - inserted.length,
+        unresolvedManagers,
+      });
       onImported?.(inserted.length);
-      toast.success(`Imported ${inserted.length} of ${rows.length} rows`);
+      if (unresolvedManagers.length > 0) {
+        toast.warning(
+          `Imported ${inserted.length} of ${rows.length}. ${unresolvedManagers.length} manager email${unresolvedManagers.length === 1 ? "" : "s"} could not be matched.`
+        );
+      } else {
+        toast.success(`Imported ${inserted.length} of ${rows.length} rows`);
+      }
     } catch (err: any) {
       toast.error(err?.message ?? "Import failed");
     } finally {
@@ -140,6 +150,20 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
               <span className="tabular-nums">{summary.inserted}</span> added,{" "}
               <span className="tabular-nums">{summary.skipped}</span> skipped.
             </p>
+            {summary.unresolvedManagers.length > 0 && (
+              <div className="mx-auto mt-4 max-w-md rounded-lg border border-[hsl(45,70%,60%)/0.4] bg-[hsl(45,90%,96%)] px-4 py-3 text-left">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-[hsl(45,70%,28%)]">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {summary.unresolvedManagers.length} manager email
+                  {summary.unresolvedManagers.length === 1 ? "" : "s"} not matched
+                </p>
+                <p className="mt-1 text-xs text-[hsl(45,60%,32%)]">
+                  These employees were imported without a manager. Assign them manually or add the
+                  missing managers first: {summary.unresolvedManagers.slice(0, 5).join(", ")}
+                  {summary.unresolvedManagers.length > 5 ? "…" : ""}
+                </p>
+              </div>
+            )}
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-10">

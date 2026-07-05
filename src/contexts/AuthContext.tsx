@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -50,13 +50,30 @@ export const useAuth = () => useContext(AuthContext);
 const ORG_COLUMNS =
   "id, name, country, industry, setup_complete, structure_complete, people_complete, cycle_complete, structure_skipped, people_skipped, cycle_skipped";
 
+/** Decode a JWT payload and return true if it contains an organization_id claim. */
+function jwtHasOrgClaim(token: string | undefined | null): boolean {
+  if (!token) return false;
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return false;
+    const payload = JSON.parse(
+      atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
+    );
+    return !!payload?.organization_id;
+  } catch {
+    return false;
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
+  // Guard against infinite refresh loops when the JWT hook is disabled at the platform level.
+  const refreshedForUserRef = useRef<string | null>(null);
 
-  const fetchProfileAndOrg = async (userId: string) => {
+  const fetchProfileAndOrg = async (userId: string): Promise<Profile | null> => {
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
@@ -71,7 +88,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq("id", profileData.organization_id)
         .single();
       if (orgData) setOrganization(orgData as Organization);
+      return profileData as Profile;
     }
+    return null;
   };
 
   const refreshOrganization = useCallback(async () => {
@@ -89,19 +108,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (_event, session) => {
         setSession(session);
         if (session?.user) {
-          setTimeout(() => fetchProfileAndOrg(session.user.id), 0);
+          setTimeout(async () => {
+            const p = await fetchProfileAndOrg(session.user.id);
+            // If the user has a profile but the current JWT lacks the
+            // organization_id claim (stale session issued before the profile
+            // existed, or right after signup), force one session refresh so
+            // subsequent RLS-protected inserts don't fail with 42501.
+            if (
+              p?.organization_id &&
+              refreshedForUserRef.current !== session.user.id &&
+              !jwtHasOrgClaim(session.access_token)
+            ) {
+              refreshedForUserRef.current = session.user.id;
+              await supabase.auth.refreshSession();
+            }
+          }, 0);
         } else {
           setProfile(null);
           setOrganization(null);
+          refreshedForUserRef.current = null;
         }
         setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        fetchProfileAndOrg(session.user.id);
+        const p = await fetchProfileAndOrg(session.user.id);
+        if (
+          p?.organization_id &&
+          refreshedForUserRef.current !== session.user.id &&
+          !jwtHasOrgClaim(session.access_token)
+        ) {
+          refreshedForUserRef.current = session.user.id;
+          await supabase.auth.refreshSession();
+        }
       }
       setLoading(false);
     });
@@ -114,6 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(null);
     setProfile(null);
     setOrganization(null);
+    refreshedForUserRef.current = null;
   };
 
   return (
