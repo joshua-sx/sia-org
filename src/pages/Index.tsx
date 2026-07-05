@@ -348,14 +348,14 @@ const Index = () => {
       {/* Solution Bento */}
       <div id="solution" className="py-20 md:py-28 bg-[#f6f5f4]">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               One system for every phase.
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">Goals, reviews, and analytics — connected, not scattered.</p>
+            <p className="text-foreground/60">Goals, reviews, and analytics — connected, not scattered.</p>
           </SectionReveal>
           <div className="grid md:grid-cols-2 gap-6">
             {FEATURES.map((f, i) => (
