@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface Profile {
   id: string;
@@ -17,6 +16,12 @@ interface Organization {
   country: string | null;
   industry: string | null;
   setup_complete: boolean | null;
+  structure_complete: boolean | null;
+  people_complete: boolean | null;
+  cycle_complete: boolean | null;
+  structure_skipped: boolean | null;
+  people_skipped: boolean | null;
+  cycle_skipped: boolean | null;
 }
 
 
@@ -27,6 +32,7 @@ interface AuthContextType {
   organization: Organization | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshOrganization: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -36,9 +42,13 @@ const AuthContext = createContext<AuthContextType>({
   organization: null,
   loading: true,
   signOut: async () => {},
+  refreshOrganization: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
+
+const ORG_COLUMNS =
+  "id, name, country, industry, setup_complete, structure_complete, people_complete, cycle_complete, structure_skipped, people_skipped, cycle_skipped";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -57,19 +67,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(profileData);
       const { data: orgData } = await supabase
         .from("organizations")
-        .select("id, name, country, industry, setup_complete")
+        .select(ORG_COLUMNS)
         .eq("id", profileData.organization_id)
         .single();
-      if (orgData) setOrganization(orgData);
+      if (orgData) setOrganization(orgData as Organization);
     }
   };
+
+  const refreshOrganization = useCallback(async () => {
+    if (!profile) return;
+    const { data } = await supabase
+      .from("organizations")
+      .select(ORG_COLUMNS)
+      .eq("id", profile.organization_id)
+      .single();
+    if (data) setOrganization(data as Organization);
+  }, [profile]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
         if (session?.user) {
-          // Defer profile fetch to avoid deadlocks
           setTimeout(() => fetchProfileAndOrg(session.user.id), 0);
         } else {
           setProfile(null);
@@ -106,6 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         organization,
         loading,
         signOut,
+        refreshOrganization,
       }}
     >
       {children}

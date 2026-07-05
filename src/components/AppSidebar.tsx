@@ -31,7 +31,7 @@ import { BrandMark } from "@/components/BrandMark";
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, accent: "--accent-blue" },
   { title: "Org Structure", url: "/org/structure", icon: Building2, accent: "--accent-green" },
-  { title: "Employees", url: "/org/employees", icon: Users, accent: "--accent-yellow" },
+  { title: "Employees", url: "/org/employees", icon: Users, accent: "--accent-red" },
 ];
 
 export function AppSidebar() {

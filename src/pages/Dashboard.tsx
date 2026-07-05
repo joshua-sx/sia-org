@@ -1,39 +1,27 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  CheckCircle2,
-  Circle,
-  ChevronRight,
-  Building2,
-  Users,
-  CalendarClock,
-  UserCircle2,
-} from "lucide-react";
+import { CheckCircle2, Circle, ChevronRight, CalendarClock, Minus } from "lucide-react";
+import { useOnboarding, type OnboardingStatus } from "@/hooks/useOnboarding";
 
-const ACCENTS = ["--accent-blue", "--accent-red", "--accent-yellow", "--accent-green"] as const;
+const STATUS_LABEL: Record<OnboardingStatus, string> = {
+  done: "Complete",
+  current: "In progress",
+  next: "Not started",
+  skipped: "Skipped",
+  locked: "Locked",
+};
 
 const Dashboard = () => {
   const { profile, organization } = useAuth();
+  const { steps, completedCount, totalSteps, resume, setupComplete } = useOnboarding();
 
-  const checklist = [
-    { label: "Account created", icon: UserCircle2, done: true },
-    {
-      label: "Configure org hierarchy",
-      icon: Building2,
-      done: !!organization?.setup_complete,
-      href: "/org/structure",
-    },
-    { label: "Add employees", icon: Users, done: false, href: "/org/employees" },
-    { label: "Create appraisal cycle", icon: CalendarClock, done: false },
-  ];
-
-  const completed = checklist.filter((c) => c.done).length;
   const firstName = profile?.full_name?.split(" ")[0];
+  const progressPct = Math.round((completedCount / totalSteps) * 100);
 
   return (
-    <div className="px-6 md:px-10 py-10 max-w-4xl">
-      {/* Header row — welcome + org meta chip */}
+    <div className="px-6 md:px-10 py-10 max-w-5xl">
+      {/* Header row */}
       <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-blue))]">
@@ -44,8 +32,21 @@ const Dashboard = () => {
             Welcome back{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-            {completed} of {checklist.length} setup steps complete.
+            {setupComplete
+              ? "You're all set. Ready to run your first appraisal cycle."
+              : (
+                <>
+                  <span className="tabular-nums">{completedCount}</span> of{" "}
+                  <span className="tabular-nums">{totalSteps}</span> setup steps complete.
+                </>
+              )}
           </p>
+          <div className="mt-3 w-56 h-1 rounded-full bg-[hsl(var(--ink-strong)/0.06)] overflow-hidden">
+            <div
+              className="h-full bg-[hsl(var(--accent-green))]"
+              style={{ width: `${progressPct}%`, transition: "width 300ms cubic-bezier(0.2,0,0,1)" }}
+            />
+          </div>
         </div>
 
         {organization && (
@@ -79,39 +80,52 @@ const Dashboard = () => {
           <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
             <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
             <span className="text-xs text-[hsl(var(--ink-muted))] tabular-nums">
-              {completed}/{checklist.length}
+              {completedCount}/{totalSteps}
             </span>
           </div>
           <div className="divide-y divide-[hsl(var(--hairline))]">
-            {checklist.map((item, i) => {
-              const accent = ACCENTS[i % ACCENTS.length];
+            {steps.map((item) => {
               const Icon = item.icon;
+              const showResume = (item.status === "current" || item.status === "skipped") && item.href;
               return (
-                <div key={item.label} className="flex items-center gap-3 px-5 py-3.5">
-                  {/* Icon tile — 10% tint of accent */}
+                <div key={item.key} className="flex items-center gap-3 px-5 py-3.5">
                   <div
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                    style={{ backgroundColor: `hsl(var(${accent}) / 0.1)` }}
+                    style={{ backgroundColor: `hsl(var(${item.accent}) / 0.1)` }}
                   >
-                    <Icon className="h-4 w-4" style={{ color: `hsl(var(${accent}))` }} />
+                    <Icon className="h-4 w-4" style={{ color: `hsl(var(${item.accent}))` }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <span
                       className={`text-sm ${
-                        item.done
-                          ? "text-[hsl(var(--ink-subtle))] line-through"
-                          : "text-foreground"
+                        item.done ? "text-[hsl(var(--ink-subtle))] line-through" : "text-foreground"
                       }`}
                     >
                       {item.label}
                     </span>
+                    <span className="ml-2 text-[11px] text-[hsl(var(--ink-subtle))] capitalize">
+                      · {STATUS_LABEL[item.status]}
+                    </span>
                   </div>
                   {item.done ? (
                     <CheckCircle2 className="h-[18px] w-[18px] text-[hsl(var(--accent-green))]" />
-                  ) : item.href ? (
-                    <Link to={item.href}>
-                      <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs text-[hsl(var(--ink-muted))] hover:text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)]">
-                        Configure <ChevronRight className="h-3 w-3" />
+                  ) : item.skipped ? (
+                    <button
+                      onClick={() => resume(item.key)}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(45,70%,32%)] bg-[hsl(var(--accent-yellow)/0.14)] hover:bg-[hsl(var(--accent-yellow)/0.22)] active:scale-[0.96]"
+                      style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
+                    >
+                      <Minus className="h-3 w-3" /> Resume
+                    </button>
+                  ) : showResume ? (
+                    <Link to={item.href!}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1 text-xs text-[hsl(var(--ink-muted))] hover:text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)] active:scale-[0.96] transition-transform"
+                      >
+                        {item.status === "current" ? "Continue" : "Configure"}
+                        <ChevronRight className="h-3 w-3" />
                       </Button>
                     </Link>
                   ) : (
