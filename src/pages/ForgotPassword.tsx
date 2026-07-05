@@ -33,6 +33,12 @@ const ForgotPassword = () => {
   };
 
   return (
+    <>
+      <PageHead
+        title="Forgot password | SIA"
+        description="Reset your SIA workspace password. We'll send a secure reset link to your email."
+        path="/forgot-password"
+      />
     <AuthShell
       title="Reset your password"
       description={sent ? "We've sent you a reset link" : "Enter your email and we'll send you a link"}
@@ -71,6 +77,7 @@ const ForgotPassword = () => {
         </form>
       )}
     </AuthShell>
+    </>
   );
 };
 

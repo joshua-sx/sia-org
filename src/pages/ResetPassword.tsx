@@ -46,6 +46,12 @@ const ResetPassword = () => {
   };
 
   return (
+    <>
+      <PageHead
+        title="Reset password | SIA"
+        description="Set a new password for your SIA workspace."
+        path="/reset-password"
+      />
     <AuthShell
       title="Set a new password"
       description={ready ? "Choose a strong password you haven't used before" : "Verifying reset link..."}
@@ -76,6 +82,7 @@ const ResetPassword = () => {
         </Button>
       </form>
     </AuthShell>
+    </>
   );
 };
 
