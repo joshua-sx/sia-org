@@ -20,6 +20,9 @@ import {
   GraduationCap,
   Check,
   ArrowUp,
+  Network,
+  TrendingUp,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,12 +30,19 @@ import { cn } from "@/lib/utils";
 
 const EASE = [0.22, 1, 0.36, 1] as any;
 
+const COLORS = {
+  blue: "#4285F4",
+  red: "#EA4335",
+  yellow: "#FBBC05",
+  green: "#34A853",
+} as const;
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 20 },
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.6, ease: EASE },
+    transition: { delay: i * 0.08, duration: 0.55, ease: EASE },
   }),
 };
 
@@ -45,57 +55,59 @@ const NAV_LINKS = [
   { label: "Pricing", href: "#pricing" },
 ];
 
-const PAIN_POINTS = [
-  { num: "01", title: "Scattered spreadsheets", desc: "Appraisal data lives in dozens of files nobody can find." },
-  { num: "02", title: "Missed deadlines", desc: "Cycles drag on because nobody knows who\u2019s done and who hasn\u2019t." },
-  { num: "03", title: "Zero visibility", desc: "Leaders can\u2019t see performance trends across the org." },
-];
-
 const FEATURES = [
   {
     icon: Target,
+    color: COLORS.blue,
     label: "Goal Setting",
     title: "Set goals that connect to outcomes.",
-    desc: "Cascade objectives from org level down to every employee. Track progress in real time.",
-    color: "bg-amber-300",
-    span: "col-span-1 md:col-span-2",
+    desc: "Cascade objectives from org level down to every employee. Track progress in real time across cycles.",
+    span: "md:col-span-2",
   },
   {
     icon: ClipboardCheck,
-    label: "360\u00b0 Reviews",
-    title: "Collect feedback from everyone.",
+    color: COLORS.red,
+    label: "360° Reviews",
+    title: "Feedback from every angle.",
     desc: "Self, peer, and manager reviews in one workflow. Configurable forms per cycle.",
-    color: "bg-rose-400",
-    span: "col-span-1",
+    span: "md:col-span-1",
   },
   {
     icon: BarChart3,
+    color: COLORS.yellow,
     label: "Analytics",
     title: "See the full picture.",
-    desc: "Dashboards, exportable reports, and trend analysis across departments and cycles.",
-    color: "bg-sky-400",
-    span: "col-span-1",
+    desc: "Dashboards, exportable reports, and trend analysis across departments.",
+    span: "md:col-span-1",
+  },
+  {
+    icon: Network,
+    color: COLORS.green,
+    label: "Org Structure",
+    title: "Mirror your real hierarchy.",
+    desc: "Ministries, divisions, teams — configured once, respected everywhere.",
+    span: "md:col-span-2",
   },
 ];
 
 const INDUSTRIES = [
-  { icon: Building2, name: "Government", desc: "Ministries, departments, statutory bodies." },
-  { icon: Plane, name: "Aviation", desc: "Airlines, airport authorities, MROs." },
-  { icon: Heart, name: "Healthcare", desc: "Hospitals, clinics, health authorities." },
-  { icon: GraduationCap, name: "Education", desc: "Universities, school boards, training institutes." },
+  { icon: Building2, color: COLORS.blue, name: "Government", desc: "Ministries, departments, statutory bodies." },
+  { icon: Plane, color: COLORS.red, name: "Aviation", desc: "Airlines, airport authorities, MROs." },
+  { icon: Heart, color: COLORS.yellow, name: "Healthcare", desc: "Hospitals, clinics, health authorities." },
+  { icon: GraduationCap, color: COLORS.green, name: "Education", desc: "Universities, school boards, training institutes." },
 ];
 
 const STEPS = [
-  { num: "1", title: "Define your structure", desc: "Set up your org hierarchy \u2014 ministries, divisions, units." },
-  { num: "2", title: "Configure cycles", desc: "Choose review type, frequency, and participants." },
-  { num: "3", title: "Run appraisals", desc: "Employees and managers complete reviews in-app." },
-  { num: "4", title: "Review & act", desc: "Analyze results, export reports, plan next steps." },
+  { num: "1", color: COLORS.blue, title: "Define your structure", desc: "Set up your org hierarchy — ministries, divisions, units." },
+  { num: "2", color: COLORS.red, title: "Configure cycles", desc: "Choose review type, frequency, and participants." },
+  { num: "3", color: COLORS.yellow, title: "Run appraisals", desc: "Employees and managers complete reviews in-app." },
+  { num: "4", color: COLORS.green, title: "Review & act", desc: "Analyze results, export reports, plan next steps." },
 ];
 
 const PRICING_FEATURES = [
   "Unlimited appraisal cycles",
   "Org structure builder",
-  "360\u00b0 review workflows",
+  "360° review workflows",
   "Goal cascading & tracking",
   "Real-time analytics dashboard",
   "CSV import / export",
@@ -108,6 +120,8 @@ const FOOTER_COLS = [
   { heading: "Company", links: [{ label: "About", href: "#" }, { label: "Blog", href: "#" }, { label: "Careers", href: "#" }] },
   { heading: "Legal", links: [{ label: "Privacy", href: "#" }, { label: "Terms", href: "#" }, { label: "Security", href: "#" }] },
 ];
+
+const TRUSTED_BY = ["Ministry of Health", "TransCarib Airways", "St. Kitts University", "Port Authority", "Central Bank", "Public Service"];
 
 /* ─────────────────────────── HELPERS ─────────────────────────── */
 
@@ -129,12 +143,25 @@ function SectionReveal({ children, className }: { children: React.ReactNode; cla
   );
 }
 
+function IconTile({ icon: Icon, color, size = 36 }: { icon: any; color: string; size?: number }) {
+  return (
+    <div
+      className="flex items-center justify-center rounded-lg"
+      style={{ width: size, height: size, backgroundColor: `${color}1A` /* ~10% */ }}
+    >
+      <Icon size={Math.round(size * 0.5)} style={{ color }} />
+    </div>
+  );
+}
+
+const cardBase = "bg-white border border-black/[0.08] rounded-xl";
+
 /* ─────────────────────────── SCROLL PROGRESS ─────────────────── */
 
 function ScrollProgressBar() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
-  return <motion.div className="fixed top-0 left-0 right-0 h-[2px] bg-[#0075de] origin-left z-[60]" style={{ scaleX }} />;
+  return <motion.div className="fixed top-0 left-0 right-0 h-[2px] origin-left z-[60]" style={{ scaleX, backgroundColor: COLORS.blue }} />;
 }
 
 /* ─────────────────────────── BACK TO TOP ─────────────────────── */
@@ -147,14 +174,14 @@ function BackToTop() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {show && (
         <motion.button
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-md hover:opacity-80 transition-opacity"
+          className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:opacity-80 active:scale-[0.96] transition-[opacity,scale]"
           aria-label="Back to top"
         >
           <ArrowUp size={18} />
@@ -185,26 +212,35 @@ function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        scrolled ? "bg-white/90 backdrop-blur-md border-b border-[rgba(0,0,0,0.1)]" : "bg-transparent"
+        "fixed top-0 inset-x-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
+        scrolled ? "bg-white/85 backdrop-blur-md border-b border-black/[0.08]" : "bg-transparent border-b border-transparent"
       )}
     >
       <nav className="max-w-[1200px] mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
-        <Link to="/" className="text-lg font-bold tracking-tight text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <Link to="/" className="flex items-center gap-1.5 text-lg font-bold tracking-tight text-black" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+          <span className="flex gap-[3px]">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+          </span>
           SIA
         </Link>
         <div className="hidden md:flex items-center gap-6">
           {NAV_LINKS.map((l) => (
-            <button key={l.label} onClick={() => smoothScroll(l.href)} className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+            <button key={l.label} onClick={() => smoothScroll(l.href)} className="text-sm text-black/70 hover:text-black transition-colors">
               {l.label}
             </button>
           ))}
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/login" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+          <Link to="/login" className="text-sm text-black/70 hover:text-black transition-colors">
             Sign in
           </Link>
-          <Link to="/signup" className="text-sm font-medium bg-foreground text-background px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+          <Link
+            to="/signup"
+            className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale]"
+          >
             Get started free
           </Link>
         </div>
@@ -212,25 +248,25 @@ function Navbar() {
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-[rgba(0,0,0,0.1)] overflow-hidden"
+            className="md:hidden bg-white border-b border-black/[0.08] overflow-hidden"
           >
             <div className="px-5 py-4 flex flex-col gap-3">
               {NAV_LINKS.map((l) => (
-                <button key={l.label} onClick={() => smoothScroll(l.href)} className="text-left text-sm text-foreground/70 hover:text-foreground">
+                <button key={l.label} onClick={() => smoothScroll(l.href)} className="text-left text-sm text-black/70 hover:text-black">
                   {l.label}
                 </button>
               ))}
-              <hr className="border-[rgba(0,0,0,0.1)]" />
-              <Link to="/login" className="text-sm text-foreground/70" onClick={() => setMobileOpen(false)}>
+              <hr className="border-black/[0.08]" />
+              <Link to="/login" className="text-sm text-black/70" onClick={() => setMobileOpen(false)}>
                 Sign in
               </Link>
-              <Link to="/signup" className="text-sm font-medium bg-foreground text-background px-4 py-2 rounded-lg text-center" onClick={() => setMobileOpen(false)}>
+              <Link to="/signup" className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg text-center" onClick={() => setMobileOpen(false)}>
                 Get started free
               </Link>
             </div>
@@ -241,34 +277,85 @@ function Navbar() {
   );
 }
 
-/* ─────────────────────────── DASHBOARD MOCKUP ─────────────────── */
+/* ─────────────────────────── HERO BENTO ─────────────────────── */
 
-function DashboardMockup() {
+function HeroBento() {
   return (
-    <div className="w-full max-w-[900px] mx-auto mt-12 md:mt-16">
-      <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[rgba(0,0,0,0.1)]">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-          <span className="ml-3 text-xs text-foreground/40">SIA \u2014 Appraisal Dashboard</span>
+    <div className="mt-14 md:mt-20 grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-4 md:gap-5 md:auto-rows-[180px]">
+      {/* Tile A — Dashboard mock */}
+      <motion.div
+        variants={fadeUp}
+        custom={0}
+        className={cn(cardBase, "md:col-span-4 md:row-span-2 overflow-hidden flex flex-col")}
+      >
+        <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/[0.06]">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+          <span className="ml-3 text-xs text-black/40">SIA — Q3 Appraisal Cycle</span>
         </div>
-        <div className="p-6 md:p-8 grid grid-cols-3 gap-4">
+        <div className="p-5 md:p-7 grid grid-cols-3 gap-5 flex-1">
           {[
-            { label: "Completion Rate", value: "87%", bar: 87 },
-            { label: "Reviews Submitted", value: "342", bar: 68 },
-            { label: "Avg. Rating", value: "4.2", bar: 84 },
+            { label: "Completion", value: "87%", bar: 87, color: COLORS.blue },
+            { label: "Submitted", value: "342", bar: 68, color: COLORS.green },
+            { label: "Avg. Rating", value: "4.2", bar: 84, color: COLORS.yellow },
           ].map((s) => (
             <div key={s.label} className="flex flex-col gap-2">
-              <span className="text-xs text-foreground/50">{s.label}</span>
-              <span className="text-2xl font-bold tracking-tight">{s.value}</span>
-              <div className="w-full h-1.5 bg-[rgba(0,0,0,0.05)] rounded-full overflow-hidden">
-                <div className="h-full bg-[#0075de] rounded-full" style={{ width: `${s.bar}%` }} />
+              <span className="text-[11px] uppercase tracking-wide text-black/40 font-medium">{s.label}</span>
+              <span className="text-3xl font-bold tracking-tight tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                {s.value}
+              </span>
+              <div className="w-full h-1.5 bg-black/[0.05] rounded-full overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${s.bar}%`, backgroundColor: s.color }} />
               </div>
             </div>
           ))}
         </div>
-      </div>
+        {/* fake table rows */}
+        <div className="px-5 md:px-7 pb-6 space-y-2">
+          {[
+            { name: "Engineering", pct: 92, color: COLORS.blue },
+            { name: "Operations", pct: 78, color: COLORS.green },
+            { name: "Customer Success", pct: 64, color: COLORS.yellow },
+          ].map((r) => (
+            <div key={r.name} className="flex items-center gap-4 text-xs">
+              <span className="w-40 text-black/70 truncate">{r.name}</span>
+              <div className="flex-1 h-1 bg-black/[0.05] rounded-full overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${r.pct}%`, backgroundColor: r.color }} />
+              </div>
+              <span className="tabular-nums text-black/50 w-8 text-right">{r.pct}%</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Tile B — Goals cascaded */}
+      <motion.div variants={fadeUp} custom={1} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col justify-between")}>
+        <IconTile icon={Target} color={COLORS.blue} />
+        <div>
+          <div className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            1,284
+          </div>
+          <div className="text-xs text-black/50 mt-1">Goals cascaded this quarter</div>
+        </div>
+      </motion.div>
+
+      {/* Tile C — Review submitted */}
+      <motion.div variants={fadeUp} custom={2} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col gap-3")}>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 size={16} style={{ color: COLORS.green }} />
+          <span className="text-xs font-medium text-black/70">Review submitted</span>
+        </div>
+        <div className="text-sm text-black/60 leading-snug">
+          <span className="font-medium text-black">Priya M.</span> completed her 360° review for Q3
+        </div>
+        <div className="flex gap-1.5 mt-auto">
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ backgroundColor: `${COLORS.green}1A`, color: COLORS.green }}>
+            On time
+          </span>
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-black/[0.05] text-black/60">Manager</span>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -277,98 +364,92 @@ function DashboardMockup() {
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white text-foreground" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-white text-black antialiased" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
       <ScrollProgressBar />
       <Navbar />
       <BackToTop />
 
       {/* Hero */}
-      <div className="pt-28 pb-16 md:pt-36 md:pb-24 bg-[#f6f5f4]">
+      <div className="pt-28 pb-16 md:pt-36 md:pb-24 bg-white">
         <Section>
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[820px] mx-auto text-center">
-            <span className="inline-block text-xs font-medium tracking-wide uppercase text-foreground/50 mb-4">
+            <span className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-black/50 mb-5">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
               Performance management for structured orgs
             </span>
             <h1
-              className="text-[clamp(40px,6vw,72px)] font-bold leading-[1.05] tracking-[-2px] mb-6"
+              className="text-[clamp(40px,6vw,72px)] font-bold leading-[1.02] tracking-[-0.03em] mb-6 text-balance"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Run appraisals that actually work.
             </h1>
-            <p className="text-lg md:text-xl text-foreground/60 max-w-[620px] mx-auto leading-relaxed mb-8">
+            <p className="text-lg md:text-xl text-black/60 max-w-[620px] mx-auto leading-relaxed mb-8 text-pretty">
               One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 bg-foreground text-background font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity text-sm"
+                className="inline-flex items-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
               >
                 Get started free <ArrowRight size={16} />
               </Link>
               <button
                 onClick={() => document.querySelector("#how")?.scrollIntoView({ behavior: "smooth" })}
-                className="text-sm text-[#0075de] font-medium hover:underline inline-flex items-center gap-1"
+                className="text-sm text-black/70 hover:text-black font-medium inline-flex items-center gap-1 transition-colors"
               >
                 See how it works →
               </button>
             </div>
           </motion.div>
-          <DashboardMockup />
+
+          <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } }}>
+            <HeroBento />
+          </motion.div>
         </Section>
       </div>
 
-      {/* Problem */}
-      <div className="py-20 md:py-28 bg-white">
+      {/* Trusted by */}
+      <div className="py-10 border-y border-black/[0.06] bg-[#fafafa]">
         <Section>
-          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
-            <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Still using spreadsheets?
-            </h2>
-            <p className="text-foreground/60">
-              Most orgs run appraisals with tools that weren't built for the job.
-            </p>
-          </SectionReveal>
-          <div className="grid md:grid-cols-3 gap-6">
-            {PAIN_POINTS.map((p, i) => (
-              <SectionReveal key={p.num}>
-                <motion.div custom={i} variants={fadeUp} className="flex flex-col gap-3">
-                  <span className="text-xs font-mono text-foreground/30">{p.num}</span>
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="text-sm text-foreground/60 leading-relaxed">{p.desc}</p>
-                </motion.div>
-              </SectionReveal>
-            ))}
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+            <span className="text-xs uppercase tracking-wider text-black/40 font-medium shrink-0">Trusted by teams at</span>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-8 gap-y-3">
+              {TRUSTED_BY.map((name) => (
+                <span key={name} className="text-sm font-medium text-black/40 hover:text-black/70 transition-colors" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {name}
+                </span>
+              ))}
+            </div>
           </div>
         </Section>
       </div>
 
       {/* Solution Bento */}
-      <div id="solution" className="py-20 md:py-28 bg-[#f6f5f4]">
+      <div id="solution" className="py-20 md:py-28 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
+            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Product</span>
             <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
+              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               One system for every phase.
             </h2>
-            <p className="text-foreground/60">Goals, reviews, and analytics — connected, not scattered.</p>
+            <p className="text-black/60 text-pretty">Goals, reviews, analytics, and structure — connected, not scattered.</p>
           </SectionReveal>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
               <SectionReveal key={f.label} className={f.span}>
-                <motion.div custom={i} variants={fadeUp} className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] overflow-hidden h-full flex flex-col">
-                  <div className={cn("h-2 w-full", f.color)} />
-                  <div className="p-6 flex flex-col gap-3 flex-1">
-                    <div className="flex items-center gap-2 text-xs text-foreground/50 font-medium uppercase tracking-wide">
-                      <f.icon size={14} />
+                <motion.div custom={i} variants={fadeUp} className={cn(cardBase, "p-6 h-full flex flex-col gap-4")}>
+                  <IconTile icon={f.icon} color={f.color} />
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[11px] uppercase tracking-wide font-medium" style={{ color: f.color }}>
                       {f.label}
-                    </div>
-                    <h3 className="text-xl font-semibold tracking-tight">{f.title}</h3>
-                    <p className="text-sm text-foreground/60 leading-relaxed">{f.desc}</p>
+                    </span>
+                    <h3 className="text-xl font-semibold tracking-tight text-balance" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {f.title}
+                    </h3>
+                    <p className="text-sm text-black/60 leading-relaxed text-pretty">{f.desc}</p>
                   </div>
                 </motion.div>
               </SectionReveal>
@@ -378,24 +459,29 @@ const Index = () => {
       </div>
 
       {/* Who It's For */}
-      <div id="who" className="py-20 md:py-28 bg-white">
+      <div id="who" className="py-20 md:py-28 bg-[#fafafa]">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
+            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">For</span>
             <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
+              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Built for structured organizations.
             </h2>
-            <p className="text-foreground/60">SIA works wherever performance reviews follow a formal structure.</p>
+            <p className="text-black/60 text-pretty">SIA works wherever performance reviews follow a formal structure.</p>
           </SectionReveal>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
             {INDUSTRIES.map((ind, i) => (
               <SectionReveal key={ind.name}>
-                <motion.div custom={i} variants={fadeUp} className="bg-[#f6f5f4] rounded-xl p-6 flex flex-col gap-3 h-full">
-                  <ind.icon size={24} className="text-foreground/70" />
-                  <h3 className="font-semibold">{ind.name}</h3>
-                  <p className="text-sm text-foreground/50 leading-relaxed">{ind.desc}</p>
+                <motion.div custom={i} variants={fadeUp} className={cn(cardBase, "p-6 flex flex-col gap-4 h-full")}>
+                  <IconTile icon={ind.icon} color={ind.color} />
+                  <div>
+                    <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {ind.name}
+                    </h3>
+                    <p className="text-sm text-black/50 leading-relaxed mt-1">{ind.desc}</p>
+                  </div>
                 </motion.div>
               </SectionReveal>
             ))}
@@ -404,26 +490,32 @@ const Index = () => {
       </div>
 
       {/* How It Works */}
-      <div id="how" className="py-20 md:py-28 bg-[#f6f5f4]">
+      <div id="how" className="py-20 md:py-28 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
+            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">How it works</span>
             <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
+              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Up and running in four steps.
             </h2>
-            <p className="text-foreground/60">From account creation to your first cycle in under an hour.</p>
+            <p className="text-black/60 text-pretty">From account creation to your first cycle in under an hour.</p>
           </SectionReveal>
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {STEPS.map((s, i) => (
               <SectionReveal key={s.num}>
                 <motion.div custom={i} variants={fadeUp} className="flex flex-col items-center text-center gap-3">
-                  <span className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-bold">
+                  <span
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white tabular-nums"
+                    style={{ backgroundColor: s.color, fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
                     {s.num}
                   </span>
-                  <h3 className="font-semibold">{s.title}</h3>
-                  <p className="text-sm text-foreground/50 leading-relaxed">{s.desc}</p>
+                  <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {s.title}
+                  </h3>
+                  <p className="text-sm text-black/50 leading-relaxed">{s.desc}</p>
                 </motion.div>
               </SectionReveal>
             ))}
@@ -432,69 +524,86 @@ const Index = () => {
       </div>
 
       {/* Trust */}
-      <div className="py-20 md:py-28 bg-white">
+      <div className="py-20 md:py-28 bg-[#fafafa]">
         <Section>
           <SectionReveal>
-            <div className="grid md:grid-cols-3 gap-8 mb-14 max-w-[900px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-14 max-w-[900px] mx-auto">
               {[
-                { stat: "100+", label: "Organizations onboarded" },
-                { stat: "3\u00d7", label: "Faster cycle completion" },
-                { stat: "0", label: "Spreadsheets needed" },
+                { stat: "100+", label: "Organizations onboarded", color: COLORS.blue },
+                { stat: "3\u00d7", label: "Faster cycle completion", color: COLORS.red },
+                { stat: "0", label: "Spreadsheets needed", color: COLORS.green },
               ].map((t, i) => (
                 <motion.div key={t.label} custom={i} variants={fadeUp} className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold tracking-tight mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <div
+                    className="text-4xl md:text-5xl font-bold tracking-tight mb-2 tabular-nums"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif", color: t.color }}
+                  >
                     {t.stat}
                   </div>
-                  <div className="text-sm text-foreground/50">{t.label}</div>
+                  <div className="text-sm text-black/50">{t.label}</div>
                 </motion.div>
               ))}
             </div>
           </SectionReveal>
           <SectionReveal>
-            <blockquote className="bg-[#f6f5f4] rounded-xl p-8 md:p-10 max-w-[720px] mx-auto text-center">
-              <p className="text-lg md:text-xl leading-relaxed mb-4 italic text-foreground/80">
-                "We replaced three tools and cut our review cycle from 12 weeks to 4. SIA just works."
+            <blockquote className={cn(cardBase, "p-8 md:p-10 max-w-[720px] mx-auto text-center")}>
+              <div className="flex justify-center gap-1 mb-4">
+                {[COLORS.blue, COLORS.red, COLORS.yellow, COLORS.green].map((c) => (
+                  <TrendingUp key={c} size={14} style={{ color: c }} />
+                ))}
+              </div>
+              <p className="text-lg md:text-xl leading-relaxed mb-4 text-black/80 text-pretty">
+                “We replaced three tools and cut our review cycle from 12 weeks to 4. SIA just works.”
               </p>
-              <cite className="text-sm text-foreground/50 not-italic">{"\u2014"} HR Director, Caribbean Government Ministry</cite>
+              <cite className="text-sm text-black/50 not-italic">— HR Director, Caribbean Government Ministry</cite>
             </blockquote>
           </SectionReveal>
         </Section>
       </div>
 
       {/* Pricing */}
-      <div id="pricing" className="py-20 md:py-28 bg-[#f6f5f4]">
+      <div id="pricing" className="py-20 md:py-28 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
+            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Pricing</span>
             <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
+              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Simple, transparent pricing.
             </h2>
-            <p className="text-foreground/60">One plan. Everything included. Scale as you grow.</p>
+            <p className="text-black/60 text-pretty">One plan. Everything included. Scale as you grow.</p>
           </SectionReveal>
           <SectionReveal>
-            <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] p-8 md:p-10 max-w-[520px] mx-auto">
+            <div className={cn(cardBase, "p-8 md:p-10 max-w-[520px] mx-auto")}>
               <div className="mb-6">
-                <span className="text-xs font-medium uppercase tracking-wide text-foreground/50">Enterprise</span>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-4xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <div className="flex items-center gap-2">
+                  <span className="flex gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+                  </span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-black/50">Enterprise</span>
+                </div>
+                <div className="flex items-baseline gap-1 mt-3">
+                  <span className="text-5xl font-bold tracking-tight tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     $6
                   </span>
-                  <span className="text-foreground/50 text-sm">/ employee / month</span>
+                  <span className="text-black/50 text-sm">/ employee / month</span>
                 </div>
               </div>
               <ul className="flex flex-col gap-3 mb-8">
                 {PRICING_FEATURES.map((f) => (
                   <li key={f} className="flex items-start gap-2.5 text-sm">
-                    <Check size={16} className="mt-0.5 text-emerald-500 shrink-0" />
-                    <span>{f}</span>
+                    <Check size={16} className="mt-0.5 shrink-0" style={{ color: COLORS.green }} />
+                    <span className="text-black/80">{f}</span>
                   </li>
                 ))}
               </ul>
               <Link
                 to="/signup"
-                className="w-full inline-flex items-center justify-center gap-2 bg-foreground text-background font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity text-sm"
+                className="w-full inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
               >
                 Get started free <ArrowRight size={16} />
               </Link>
@@ -504,21 +613,33 @@ const Index = () => {
       </div>
 
       {/* Final CTA */}
-      <div className="py-20 md:py-28 bg-foreground">
+      <div className="py-20 md:py-28 bg-black">
         <Section className="text-center">
           <SectionReveal>
             <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4 text-background"
+              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-white text-balance"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Your next cycle starts here.
+              Your next{" "}
+              <span className="relative inline-block">
+                cycle
+                <svg
+                  aria-hidden
+                  viewBox="0 0 100 10"
+                  preserveAspectRatio="none"
+                  className="absolute left-0 right-0 -bottom-1 w-full h-2"
+                >
+                  <path d="M0,6 Q50,10 100,4" fill="none" stroke={COLORS.blue} strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </span>{" "}
+              starts here.
             </h2>
-            <p className="text-background/60 max-w-[440px] mx-auto mb-8">
+            <p className="text-white/60 max-w-[480px] mx-auto mb-8 text-pretty">
               Set up your org structure, configure your first cycle, and run appraisals that matter.
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 bg-background text-foreground font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity text-sm"
+              className="inline-flex items-center gap-2 bg-white text-black font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
             >
               Get started free <ArrowRight size={16} />
             </Link>
@@ -527,26 +648,32 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-12 bg-white border-t border-[rgba(0,0,0,0.1)]">
+      <footer className="py-12 bg-white border-t border-black/[0.08]">
         <Section>
-          <div className="grid sm:grid-cols-4 gap-8 mb-10">
-            <div>
-              <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                SIA
-              </span>
-              <p className="text-sm text-foreground/50 mt-2 leading-relaxed">
-                Performance appraisal software for structured organizations.
-              </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
+            <div className="col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="flex gap-[3px]">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+                </span>
+                <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  SIA
+                </span>
+              </div>
+              <p className="text-sm text-black/50 leading-relaxed">Performance appraisal software for structured organizations.</p>
             </div>
             {FOOTER_COLS.map((col) => (
               <div key={col.heading}>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground/40 mb-3">{col.heading}</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-black/40 mb-3">{col.heading}</h4>
                 <ul className="flex flex-col gap-2">
                   {col.links.map((link) => (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+                        className="text-sm text-black/60 hover:text-black transition-colors"
                         onClick={(e) => {
                           if (link.href.startsWith("#")) {
                             e.preventDefault();
@@ -562,9 +689,9 @@ const Index = () => {
               </div>
             ))}
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[rgba(0,0,0,0.1)]">
-            <span className="text-xs text-foreground/40">&copy; {new Date().getFullYear()} SIA. All rights reserved.</span>
-            <span className="text-xs text-foreground/40">Built in the Caribbean 🌴</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-black/[0.08]">
+            <span className="text-xs text-black/40">© {new Date().getFullYear()} SIA. All rights reserved.</span>
+            <span className="text-xs text-black/40">Built in the Caribbean 🌴</span>
           </div>
         </Section>
       </footer>
