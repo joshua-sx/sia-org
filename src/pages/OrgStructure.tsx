@@ -65,9 +65,9 @@ const OrgStructure = () => {
     return (
       <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-[rgba(0,0,0,0.95)]">Access restricted</h1>
-          <p className="mt-2 text-sm text-[#615d59]">This area is for HR Administrators only.</p>
-          <Button asChild variant="ghost" className="mt-6 gap-2 text-[#615d59]">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-[Space_Grotesk]">Access restricted</h1>
+          <p className="mt-2 text-sm text-[hsl(var(--ink-muted))]">This area is for HR Administrators only.</p>
+          <Button asChild variant="ghost" className="mt-6 gap-2 text-[hsl(var(--ink-muted))]">
             <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
           </Button>
         </div>
@@ -82,27 +82,31 @@ const OrgStructure = () => {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-[#615d59]">Loading…</p>
+        <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 p-6 md:p-10">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 px-6 md:px-10 py-10">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-[28px] font-bold tracking-[-0.5px] text-[rgba(0,0,0,0.95)] font-[Space_Grotesk]">
+          <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-green))]" />
+            Structure
+          </p>
+          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk]">
             Organization Structure
           </h1>
-          <p className="mt-1 text-sm text-[#615d59]">
+          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
             {sortedTypes.map((t) => t.name).join(" → ")}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)} className="border-[rgba(0,0,0,0.1)]">
+          <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
             <Settings2 className="mr-1 h-3 w-3" /> Edit levels
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowCsv(true)} className="border-[rgba(0,0,0,0.1)]">
+          <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
             <Upload className="mr-1 h-3 w-3" /> Import CSV
           </Button>
           <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
@@ -112,28 +116,31 @@ const OrgStructure = () => {
       </div>
 
       {units.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center gap-4 text-center">
-          <Building2 className="h-12 w-12 text-[#a39e98]" />
-          <div>
-            <h2 className="text-lg font-semibold text-[rgba(0,0,0,0.95)]">Your hierarchy is configured</h2>
-            <p className="text-sm text-[#615d59]">
-              Add your first {topLevelType?.name ?? "unit"}.
-            </p>
+        <div className="mt-10 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+          <div
+            className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
+            style={{ backgroundColor: "hsl(var(--accent-green) / 0.12)" }}
+          >
+            <Building2 className="h-6 w-6" style={{ color: "hsl(var(--accent-green))" }} />
           </div>
-          <Button onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>
+          <h2 className="text-base font-semibold text-foreground">Your hierarchy is configured</h2>
+          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+            Add your first {topLevelType?.name ?? "unit"}.
+          </p>
+          <Button className="mt-6" onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>
             <Plus className="mr-1 h-4 w-4" /> Add {topLevelType?.name ?? "unit"}
           </Button>
         </div>
       ) : (
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="rounded-xl border border-[rgba(0,0,0,0.1)] bg-white p-4">
+          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <OrgTree nodes={tree} selectedId={selectedId} onSelect={(n) => setSelectedId(n.id)} />
           </div>
-          <div className="rounded-xl border border-[rgba(0,0,0,0.1)] bg-white p-5">
+          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             {selectedNode ? (
               <UnitDetailPanel node={selectedNode} onAddChild={handleAddChild} />
             ) : (
-              <p className="text-sm text-[#615d59]">Select a unit to view details.</p>
+              <p className="text-sm text-[hsl(var(--ink-muted))]">Select a unit to view details.</p>
             )}
           </div>
         </div>
@@ -147,3 +154,4 @@ const OrgStructure = () => {
 };
 
 export default OrgStructure;
+
