@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnits, buildTree, OrgUnitTreeNode } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
+import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import SetupWizard from "@/components/org/SetupWizard";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
@@ -18,7 +18,7 @@ import EditLevelsModal from "@/components/org/EditLevelsModal";
 const OrgStructure = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const { markComplete } = useOnboarding();
+  const { markComplete, stepIndexByKey, totalSteps } = useOnboarding();
   const { data: unitTypes = [], isLoading: loadingTypes, createTypes } = useOrgUnitTypes();
   const { data: units = [], isLoading: loadingUnits, addUnit } = useOrgUnits();
 
@@ -34,6 +34,15 @@ const OrgStructure = () => {
   const loading = loadingTypes || loadingUnits;
   const hasTypes = unitTypes.length > 0;
   const showWizard = !loading && !hasTypes && !wizardDone;
+  const stepIndex = stepIndexByKey("structure");
+
+  useStepReadiness(
+    "structure",
+    hasTypes && units.length > 0,
+    hasTypes && units.length > 0
+      ? `${units.length} unit${units.length === 1 ? "" : "s"} added — ready to continue.`
+      : "Configure your levels and add at least one unit to continue."
+  );
 
   const typeMap = useMemo(() => {
     const m: Record<string, { name: string; level: number }> = {};
@@ -108,16 +117,15 @@ const OrgStructure = () => {
 
   return (
     <>
-      <OnboardingStrip />
       <div className="flex-1 px-6 md:px-10 py-10">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))]">
+          <p className="mb-2 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--accent-green))]">
             <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-green))]" />
-            Structure
+            Step {stepIndex + 1} of {totalSteps} · Structure
           </p>
           <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk]">
-            Organization Structure
+            Organization structure
           </h1>
           <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
             {sortedTypes.map((t) => t.name).join(" → ")}
