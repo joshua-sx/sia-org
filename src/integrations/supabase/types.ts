@@ -511,7 +511,47 @@ export type Database = {
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
       cycle_org: { Args: { p_cycle_id: string }; Returns: string }
       goal_participant: { Args: { p_goal_id: string }; Returns: string }
+      is_employee_of_participant: {
+        Args: { p_participant_id: string }
+        Returns: boolean
+      }
+      is_extra_reviewer_of_participant: {
+        Args: { p_participant_id: string }
+        Returns: boolean
+      }
+      is_manager_of_participant: {
+        Args: { p_participant_id: string }
+        Returns: boolean
+      }
+      participant_final_submitted: {
+        Args: { p_participant_id: string }
+        Returns: boolean
+      }
       participant_org: { Args: { p_participant_id: string }; Returns: string }
+      submit_assessment_stage: {
+        Args: { p_participant_id: string; p_stage: string }
+        Returns: {
+          acknowledged_at: string | null
+          created_at: string
+          cycle_id: string
+          employee_id: string
+          extra_reviewer_id: string | null
+          final_score: number | null
+          final_submitted_at: string | null
+          id: string
+          interim_score: number | null
+          interim_submitted_at: string | null
+          manager_id: string
+          overall_score: number | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cycle_participants"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       text2ltree: { Args: { "": string }; Returns: unknown }
     }
     Enums: {
