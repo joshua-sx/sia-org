@@ -16,6 +16,11 @@ export const EMPLOYMENT_STATUS_LABELS: Record<(typeof EMPLOYMENT_STATUSES)[numbe
   terminated: "Terminated",
 };
 
+/**
+ * Form-visible fields only. start_date, end_date, location, notes are kept
+ * nullable in the DB but hidden from the setup flow — they'll live on a later
+ * "Employment details" edit view.
+ */
 export const employeeFormSchema = z.object({
   first_name: z.string().trim().min(1, "First name is required").max(80),
   last_name: z.string().trim().min(1, "Last name is required").max(80),
@@ -26,11 +31,7 @@ export const employeeFormSchema = z.object({
   manager_id: z.string().uuid().nullable().optional(),
   employment_type: z.enum(EMPLOYMENT_TYPES),
   employment_status: z.enum(EMPLOYMENT_STATUSES),
-  start_date: z.string().optional().or(z.literal("")),
-  end_date: z.string().optional().or(z.literal("")),
-  location: z.string().trim().max(120).optional().or(z.literal("")),
   phone: z.string().trim().max(40).optional().or(z.literal("")),
-  notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 export type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
@@ -46,15 +47,11 @@ export function emptyEmployeeForm(): EmployeeFormValues {
     manager_id: null,
     employment_type: "full_time",
     employment_status: "active",
-    start_date: "",
-    end_date: "",
-    location: "",
     phone: "",
-    notes: "",
   };
 }
 
-/** Clean form -> DB payload (empty strings become null). */
+/** Form -> DB payload. Deferred fields are always null on this flow. */
 export function toDbPayload(v: EmployeeFormValues) {
   const clean = (s?: string | null) => (s && s.trim() ? s.trim() : null);
   return {
@@ -67,10 +64,10 @@ export function toDbPayload(v: EmployeeFormValues) {
     manager_id: v.manager_id || null,
     employment_type: v.employment_type,
     employment_status: v.employment_status,
-    start_date: clean(v.start_date),
-    end_date: clean(v.end_date),
-    location: clean(v.location),
     phone: clean(v.phone),
-    notes: clean(v.notes),
+    start_date: null,
+    end_date: null,
+    location: null,
+    notes: null,
   };
 }
