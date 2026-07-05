@@ -111,3 +111,15 @@ export function windowState(start: string, end: string, today = todayISO()): Win
 export function formatWindow(start: string, end: string): string {
   return `${start} → ${end}`;
 }
+
+/**
+ * Whether the employee may acknowledge their review right now. Mirrors the
+ * guard_participant_writes trigger (20260705121000_appraisal_policies_rpc.sql):
+ * requires an overall score, no prior acknowledgement, and an active cycle.
+ */
+export function canAcknowledge(participant: {
+  overall_score: number | null;
+  acknowledged_at: string | null;
+}): boolean {
+  return participant.overall_score != null && participant.acknowledged_at == null;
+}
