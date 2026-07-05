@@ -36,6 +36,8 @@ const TreeNode = ({
         {hasChildren ? (
           <button
             className="p-0.5"
+            aria-label={open ? "Collapse unit" : "Expand unit"}
+            aria-expanded={open}
             onClick={(e) => {
               e.stopPropagation();
               setOpen(!open);
