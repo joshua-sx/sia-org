@@ -14,6 +14,8 @@ import OrgStructure from "./pages/OrgStructure";
 import OrgEmployees from "./pages/OrgEmployees";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
