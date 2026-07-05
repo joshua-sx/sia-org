@@ -285,7 +285,7 @@ const Index = () => {
       {/* Hero */}
       <div className="pt-28 pb-16 md:pt-36 md:pb-24 bg-[#f6f5f4]">
         <Section>
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[800px]">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[820px] mx-auto text-center">
             <span className="inline-block text-xs font-medium tracking-wide uppercase text-foreground/50 mb-4">
               Performance management for structured orgs
             </span>
@@ -295,10 +295,10 @@ const Index = () => {
             >
               Run appraisals that actually work.
             </h1>
-            <p className="text-lg md:text-xl text-foreground/60 max-w-[560px] leading-relaxed mb-8">
+            <p className="text-lg md:text-xl text-foreground/60 max-w-[620px] mx-auto leading-relaxed mb-8">
               One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
                 to="/signup"
                 className="inline-flex items-center gap-2 bg-foreground text-background font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity text-sm"
@@ -320,14 +320,14 @@ const Index = () => {
       {/* Problem */}
       <div className="py-20 md:py-28 bg-white">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Still using spreadsheets?
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">
+            <p className="text-foreground/60">
               Most orgs run appraisals with tools that weren't built for the job.
             </p>
           </SectionReveal>
@@ -348,14 +348,14 @@ const Index = () => {
       {/* Solution Bento */}
       <div id="solution" className="py-20 md:py-28 bg-[#f6f5f4]">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               One system for every phase.
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">Goals, reviews, and analytics — connected, not scattered.</p>
+            <p className="text-foreground/60">Goals, reviews, and analytics — connected, not scattered.</p>
           </SectionReveal>
           <div className="grid md:grid-cols-2 gap-6">
             {FEATURES.map((f, i) => (
@@ -380,14 +380,14 @@ const Index = () => {
       {/* Who It's For */}
       <div id="who" className="py-20 md:py-28 bg-white">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Built for structured organizations.
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">SIA works wherever performance reviews follow a formal structure.</p>
+            <p className="text-foreground/60">SIA works wherever performance reviews follow a formal structure.</p>
           </SectionReveal>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {INDUSTRIES.map((ind, i) => (
@@ -406,18 +406,19 @@ const Index = () => {
       {/* How It Works */}
       <div id="how" className="py-20 md:py-28 bg-[#f6f5f4]">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Up and running in four steps.
             </h2>
+            <p className="text-foreground/60">From account creation to your first cycle in under an hour.</p>
           </SectionReveal>
-          <div className="grid md:grid-cols-4 gap-6 mt-12">
+          <div className="grid md:grid-cols-4 gap-6">
             {STEPS.map((s, i) => (
               <SectionReveal key={s.num}>
-                <motion.div custom={i} variants={fadeUp} className="flex flex-col gap-3">
+                <motion.div custom={i} variants={fadeUp} className="flex flex-col items-center text-center gap-3">
                   <span className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-bold">
                     {s.num}
                   </span>
@@ -434,13 +435,13 @@ const Index = () => {
       <div className="py-20 md:py-28 bg-white">
         <Section>
           <SectionReveal>
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="grid md:grid-cols-3 gap-8 mb-14 max-w-[900px] mx-auto">
               {[
                 { stat: "100+", label: "Organizations onboarded" },
                 { stat: "3\u00d7", label: "Faster cycle completion" },
                 { stat: "0", label: "Spreadsheets needed" },
               ].map((t, i) => (
-                <motion.div key={t.label} custom={i} variants={fadeUp} className="text-center md:text-left">
+                <motion.div key={t.label} custom={i} variants={fadeUp} className="text-center">
                   <div className="text-4xl md:text-5xl font-bold tracking-tight mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {t.stat}
                   </div>
@@ -450,7 +451,7 @@ const Index = () => {
             </div>
           </SectionReveal>
           <SectionReveal>
-            <blockquote className="bg-[#f6f5f4] rounded-xl p-8 md:p-10 border-l-4 border-foreground">
+            <blockquote className="bg-[#f6f5f4] rounded-xl p-8 md:p-10 max-w-[720px] mx-auto text-center">
               <p className="text-lg md:text-xl leading-relaxed mb-4 italic text-foreground/80">
                 "We replaced three tools and cut our review cycle from 12 weeks to 4. SIA just works."
               </p>
@@ -463,17 +464,17 @@ const Index = () => {
       {/* Pricing */}
       <div id="pricing" className="py-20 md:py-28 bg-[#f6f5f4]">
         <Section>
-          <SectionReveal>
+          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <h2
               className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-1.5px] leading-[1.1] mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Simple, transparent pricing.
             </h2>
-            <p className="text-foreground/60 max-w-[500px] mb-12">One plan. Everything included. Scale as you grow.</p>
+            <p className="text-foreground/60">One plan. Everything included. Scale as you grow.</p>
           </SectionReveal>
           <SectionReveal>
-            <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] p-8 md:p-10 max-w-[520px]">
+            <div className="bg-white rounded-xl border border-[rgba(0,0,0,0.1)] p-8 md:p-10 max-w-[520px] mx-auto">
               <div className="mb-6">
                 <span className="text-xs font-medium uppercase tracking-wide text-foreground/50">Enterprise</span>
                 <div className="flex items-baseline gap-1 mt-2">
