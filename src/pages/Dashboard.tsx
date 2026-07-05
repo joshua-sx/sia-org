@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { PageHead } from "@/components/PageHead";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -210,6 +211,12 @@ function LaunchOnboardingView() {
   };
 
   return (
+    <>
+      <PageHead
+        title="Dashboard | SIA"
+        description="Track appraisal setup progress and manage your SIA workspace."
+        path="/dashboard"
+      />
     <div className="px-6 md:px-10 py-10 md:py-14 max-w-6xl">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* MAIN */}
