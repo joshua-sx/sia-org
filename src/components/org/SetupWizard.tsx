@@ -478,10 +478,10 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
 
                   <div className="space-y-2">
                     <h2 className="text-xl font-bold text-foreground font-[Space_Grotesk]">
-                      Organization structure ready
+                      Structure ready
                     </h2>
                     <p className="text-sm text-muted-foreground max-w-sm">
-                      Your hierarchy is configured and ready to use.
+                      Your hierarchy is saved. Next, add the people who work inside it.
                     </p>
                   </div>
 
