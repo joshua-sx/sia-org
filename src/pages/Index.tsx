@@ -626,10 +626,10 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-12 bg-white border-t border-black/[0.08]">
+      <footer className="py-10 bg-white border-t border-black/[0.08]">
         <Section>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
-            <div className="col-span-2 sm:col-span-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <span className="flex gap-[3px]">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
@@ -641,38 +641,18 @@ const Index = () => {
                   SIA
                 </span>
               </div>
-              <p className="text-sm text-black/50 leading-relaxed">Performance appraisal software for structured organizations.</p>
+              <p className="text-sm text-black/50 leading-relaxed max-w-md">
+                Performance appraisal software for structured organizations.
+              </p>
             </div>
-            {FOOTER_COLS.map((col) => (
-              <div key={col.heading}>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-black/40 mb-3">{col.heading}</h4>
-                <ul className="flex flex-col gap-2">
-                  {col.links.map((link) => (
-                    <li key={link.label}>
-                      <a
-                        href={link.href}
-                        className="text-sm text-black/60 hover:text-black transition-colors"
-                        onClick={(e) => {
-                          if (link.href.startsWith("#")) {
-                            e.preventDefault();
-                            document.querySelector(link.href)?.scrollIntoView({ behavior: "smooth" });
-                          }
-                        }}
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-black/[0.08]">
-            <span className="text-xs text-black/40">© {new Date().getFullYear()} SIA. All rights reserved.</span>
-            <span className="text-xs text-black/40">Built in the Caribbean 🌴</span>
+            <div className="flex flex-col sm:items-end gap-1 text-xs text-black/40">
+              <span>© {new Date().getFullYear()} SIA</span>
+              <span>Built in the Caribbean 🌴</span>
+            </div>
           </div>
         </Section>
       </footer>
+
     </div>
   );
 };
