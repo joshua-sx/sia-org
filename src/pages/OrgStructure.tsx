@@ -34,7 +34,7 @@ const OrgStructure = () => {
   const loading = loadingTypes || loadingUnits;
   const hasTypes = unitTypes.length > 0;
   const showWizard = !loading && !hasTypes && !wizardDone;
-  const stepIndex = stepIndexByKey("structure");
+  
 
   useStepReadiness(
     "structure",
