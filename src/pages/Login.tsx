@@ -113,6 +113,7 @@ const Login = () => {
         Sign in with Google
       </Button>
     </AuthShell>
+    </>
   );
 };
 
