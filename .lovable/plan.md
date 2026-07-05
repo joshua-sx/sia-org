@@ -1,70 +1,107 @@
-## Coherent onboarding flow
+## Redesign the onboarding Dashboard page
 
-Right now onboarding lives as a passive strip above three unrelated pages. There's no per-step frame telling the user where they are, no explicit "Complete step" action, and the only global action ("Skip setup") is a small link in the top-right that skips everything. The fix is to introduce a shared onboarding shell that wraps every setup page so the user always sees: which step, why it matters, what "done" means, and what the primary/secondary/skip actions do.
+Today `/dashboard` shows a generic "Welcome back" header, a progress bar, a checklist card, and a small "Appraisal cycle" tile. During onboarding — especially at the final step, when Structure and People are already done — this reads as an admin dashboard, not a "you're almost there" moment. The uploaded reference shows exactly what it should feel like instead: a single, confident hero that names the last remaining step, a clear primary CTA, a right-hand "what you'll configure" outline, a workspace summary with live counts, and a small "setup completed" recap at the bottom.
 
-### 1. Redesign the top strip → progress header
+This plan restructures `src/pages/Dashboard.tsx` into that layout while onboarding is active. When onboarding is complete, the page keeps its existing dashboard behavior (out of scope for visual overhaul here).
 
-Rework `OnboardingStrip.tsx`:
-- Left: step counter "Step 2 of 4 · People" (bold current step name).
-- Center: 4 pill segments (Account / Structure / People / Launch), each colored by state — done (green fill + check), current (accent fill + label), upcoming (hairline outline), skipped (muted with dash). Clickable when done/skipped/current.
-- Right: **remove** the "Skip setup →" link entirely. Skipping is now a per-step action inside the footer bar (see §3), never a bulk global escape.
-- Under the segments, a single-line contextual sentence: "Add at least one employee to complete this step. You can add more later." Text comes from a `stepCopy` map keyed by `OnboardingStepKey`.
+### 1. Split the page into two states
 
-### 2. Standardize page titles
+Inside `Dashboard.tsx`, branch on `setupComplete` from `useOnboarding()`:
 
-Each onboarding page shows the same title structure so context is unmistakable:
-- Eyebrow: `STEP 2 · PEOPLE` (accent-colored, matches the segment color).
-- H1: the page's own title ("Employees", "Organization structure", "First appraisal cycle").
-- Subtitle: one sentence explaining the outcome ("These are the people who'll take part in appraisal cycles.").
+- `setupComplete === false` → render the new **Launch onboarding view** (below).
+- `setupComplete === true` → keep the current layout as-is (post-onboarding home).
 
-Applied consistently on `OrgStructure.tsx`, `OrgEmployees.tsx`, and the future cycle page. Existing per-page toolbars (Import CSV / Add employee etc.) stay where they are.
+The new view only renders inside `AppLayout`, so it inherits the existing `OnboardingStrip` header and `OnboardingFooter` — no changes needed there.
 
-### 3. New shared `OnboardingFooter` (sticky action bar)
+### 2. New Launch onboarding view layout
 
-A sticky bar at the bottom of every onboarding page, rendered by a new component `src/components/onboarding/OnboardingFooter.tsx`. It reads the current step from `useOnboarding` and shows:
+A two-column layout on `md+`, single column on mobile. Max width `max-w-6xl`, generous vertical padding.
 
 ```text
-┌───────────────────────────────────────────────────────────────────┐
-│  ← Back to Structure         [ Skip this step ]  [ Complete step → ] │
-└───────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────┬───────────────────────┐
+│ Setup                                       │ What you'll configure │
+│                                             │ 1  Review type ...    │
+│ You're one step away                        │ 2  Participants ...   │
+│ from launching reviews                      │ 3  Rating scale ...   │
+│                                             │ 4  Review settings    │
+│ Your organization profile, structure, and   │ 5  Final confirmation │
+│ employee data are ready. Create your first  ├───────────────────────┤
+│ appraisal cycle to define how reviews run.  │ Workspace summary     │
+│                                             │  N     N     N        │
+│ ┌───────────────────────────────────────┐   │ Employees Depts Mgrs  │
+│ │  [icon]  Create your first cycle      │   ├───────────────────────┤
+│ │          Choose timeline, participants│   │ Organization          │
+│ │          ...                          │   │ {org.name}            │
+│ │                                       │   │ Industry · Region     │
+│ │          [ Create First Cycle ]       │   │ [ Edit details ]      │
+│ │  🛡  No invitations will be sent...   │   └───────────────────────┘
+│ └───────────────────────────────────────┘   │
+│                                             │
+│ Setup completed                             │
+│ ✓ Account   ✓ Structure   ✓ People          │
+└─────────────────────────────────────────────┴───────────────────────┘
 ```
 
-- **Back**: goes to the previous step's `href` if it exists, otherwise hidden.
-- **Skip this step** (ghost, muted): opens a small confirm popover ("You can come back to this later — it won't block cycles you've already set up.") then calls `markSkipped(currentStep)` and navigates to the next step.
-- **Complete step** (primary): enabled only when the step's completion condition is met (see §4). On click: calls `markComplete(currentStep)` → toast "People step complete" → navigate to the next incomplete step, or to `/dashboard` if this was the last one.
-- Left of the actions: a small readiness hint. If not ready: "Add at least 1 employee to continue." If ready: "1 employee added · ready to continue." Uses `tabular-nums`.
+#### Left column (main)
 
-### 4. Explicit per-step readiness
+- **Eyebrow**: small `Setup` label in accent blue (matches the existing "Overview" chip style).
+- **H1**: dynamic — pulled from a small map keyed off the next incomplete step. For the common "only cycle left" case: `You're one step away from launching reviews`. If earlier steps remain (e.g. user opened Dashboard mid-flow), swap to a headline for that step, e.g. `Add your team to keep things moving` for `people`, `Shape your organization` for `structure`. All use `text-balance`, Space Grotesk, tight tracking `-1px` at large size.
+- **Subhead**: 1–2 sentences of contextual copy from the same map, muted color.
+- **Primary CTA card**: rounded-xl border card with:
+  - Left circular icon in accent-blue-tint (`CalendarClock` for cycle, `Users` for people, `Building2` for structure — reuse existing lucide icons already imported by `useOnboarding`).
+  - Right side: bold title + one-line description + a full-width primary Button. Label = `Create First Appraisal Cycle` (for cycle step) / `Add employees` / `Set up structure`. On click, navigates to that step's `href` (or a placeholder toast for `cycle` since the cycle page doesn't exist yet — reuses the existing "coming soon" pattern).
+  - Below the button, a subtle reassurance row with a `ShieldCheck` icon: `No employee invitations will be sent until you confirm launch.`
+- **"Setup completed" recap**: below the CTA card, small heading + a horizontal row of chip-pills for each step whose `done === true`, each showing a green check + label. This gives the "look how far you've come" reinforcement from the reference.
 
-Extend `useOnboarding.ts` with a `readiness` object computed from live data (pass counts in from each page via a new `useStepReadiness(key, { count })` helper, or read from existing hooks — simpler: each page calls a new `setStepReady(key, boolean, hint)` on a lightweight context). Concretely:
+#### Right column (aside, `md:w-[320px]`)
 
-- `structure`: ready when `unitTypes.length > 0 && units.length > 0`.
-- `people`: ready when `employees.length >= 1`.
-- `cycle`: ready when at least one cycle draft exists (placeholder for now — always false until that page exists).
+Three stacked cards, matching the existing card token (`rounded-xl border bg-surface-raised shadow-[...]`):
 
-The footer's "Complete step" button reads readiness from context. This removes the current auto-mark-on-first-employee behavior in `OrgEmployees.tsx` — completion becomes an explicit user action so the user always knows *they* finished the step.
+1. **What you'll configure** — only shown when the next step is `cycle`. Numbered list of the 5 cycle sub-steps: `Review type and timeline`, `Participants and managers`, `Rating scale and forms`, `Review settings`, `Final launch confirmation`. Numbers are outlined circles in accent blue, labels in foreground. Purely informational preview of what the cycle wizard will ask.
+2. **Workspace summary** — three-column mini-stats card with live counts. Each stat has an icon (`Users`, `Building2`, `UserCog`) above a `text-2xl font-semibold tabular-nums` number and a small label underneath (`Employees imported`, `Departments created`, `Managers assigned`). Counts come from:
+   - Employees: `useEmployees()` length.
+   - Departments/Units: `useOrgUnits()` length (label matches whichever unit-type name is most common, but keep "Departments" as a safe default label to match the reference — a future refinement can pluralize dynamically).
+   - Managers: number of employees whose `id` appears as `manager_id` on any other employee (computed client-side from the same employees list).
+3. **Organization** — restructured version of the existing org card: `Organization` eyebrow, org name as heading, an inline row with `Industry: X` and `Region: Y` icons + values, and an `Edit details` ghost button (links to `/settings` if it exists, otherwise disabled with a tooltip — check the router to confirm; if no route, hide the button rather than 404).
 
-### 5. Kill the auto-advance + banner ambiguity
+### 3. Copy map for the "one step away" state
 
-Remove `showJustAddedBanner` from `OrgEmployees.tsx` and the auto `markComplete("people")` effect. The new footer replaces both: after the first employee is added, the readiness hint flips to "1 employee added · ready to continue" and the primary button lights up. The user chooses when to move on, so "am I still on People?" stops being a question.
+New local const inside `Dashboard.tsx`:
 
-### 6. Completion → dashboard handoff
+```ts
+const LAUNCH_COPY: Record<OnboardingStepKey, {
+  headline: string;
+  subhead: string;
+  ctaTitle: string;
+  ctaBody: string;
+  ctaLabel: string;
+}> = {
+  structure: { ... "Shape your organization" ... },
+  people:    { ... "Add your team" ... },
+  cycle:     {
+    headline: "You're one step away from launching reviews",
+    subhead:  "Your organization profile, structure, and employee data are ready. Create your first appraisal cycle to define how reviews will run.",
+    ctaTitle: "Create your first appraisal cycle",
+    ctaBody:  "Choose the review timeline, participants, managers, rating scale, forms, and launch settings. You'll review everything before invitations are sent.",
+    ctaLabel: "Create First Appraisal Cycle",
+  },
+  account:   { ... falls through — should not normally hit this state ... },
+};
+```
 
-When the last step is completed, navigate to `/dashboard` and show a one-time success toast "Setup complete — welcome to SIA." The onboarding strip and footer stop rendering because `isOnboarding` flips to false (already handled by `useOnboarding`).
+Selection: use `steps.find(s => s.status === "current")` (from `useOnboarding`) as the driver.
+
+### 4. Reuse existing tokens — no new colors
+
+All colors are existing CSS vars: `--accent-blue`, `--accent-green`, `--hairline`, `--ink-*`, `--surface-raised`. Concentric radius rules from the interfaces skill: outer card `rounded-2xl`, inner icon `rounded-xl`, buttons `rounded-md`. Tabular-nums on every number. `text-wrap: balance` on the H1. Scale-on-press (`active:scale-[0.96]`) on the primary CTA.
 
 ### Files touched
 
-- `src/components/onboarding/OnboardingStrip.tsx` — redesign (segments + contextual sentence, remove global skip).
-- `src/components/onboarding/OnboardingFooter.tsx` — new sticky footer component.
-- `src/components/onboarding/OnboardingContext.tsx` — new tiny React context so pages can register readiness for the footer to read.
-- `src/hooks/useOnboarding.ts` — add `nextStep`, `previousStep`, and readiness plumbing; keep DB shape untouched.
-- `src/pages/OrgEmployees.tsx` — adopt standard title block, mount `OnboardingFooter`, remove auto-complete effect and the "just added" banner, register readiness.
-- `src/pages/OrgStructure.tsx` — adopt standard title block, mount `OnboardingFooter`, register readiness.
-- `src/components/AppLayout.tsx` — wrap onboarding pages in `OnboardingProvider` so the footer/strip share state.
+- `src/pages/Dashboard.tsx` — full refactor of the onboarding branch; keep the post-onboarding branch unchanged.
 
 ### Out of scope
 
-- No DB schema changes (the existing `*_complete` / `*_skipped` columns are enough).
-- No changes to the setup wizard on the structure page — only the wrapper chrome around it.
-- No new cycle page yet — the footer just shows the placeholder readiness for that step when we get there.
-- No visual redesign of individual tables/forms — this is chrome only.
+- No changes to `OnboardingStrip`, `OnboardingFooter`, `AppLayout`, `useOnboarding`, or any hook.
+- No new cycle wizard page — CTA still routes to the existing placeholder behavior.
+- No DB, RLS, or schema changes.
+- No global settings/edit-org page changes; `Edit details` links to whatever exists today or hides if none.
