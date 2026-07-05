@@ -170,7 +170,8 @@ const OrgStructure = () => {
       <AddUnitModal open={showAdd} onOpenChange={setShowAdd} unitTypes={unitTypes} units={units} preselectedParent={addParent} preselectedTypeId={addTypeId} />
       <CsvImportModal open={showCsv} onOpenChange={setShowCsv} unitTypes={unitTypes} units={units} />
       <EditLevelsModal open={showEditLevels} onOpenChange={setShowEditLevels} unitTypes={unitTypes} hasUnits={units.length > 0} />
-    </div>
+      </div>
+    </>
   );
 };
 
