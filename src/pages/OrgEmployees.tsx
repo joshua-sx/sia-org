@@ -11,7 +11,7 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
 import EmployeeEmptyState from "@/components/employees/EmployeeEmptyState";
 import EmployeeTable from "@/components/employees/EmployeeTable";
-import EmployeeFormDrawer from "@/components/employees/EmployeeFormDrawer";
+import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
 import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModal";
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import {
