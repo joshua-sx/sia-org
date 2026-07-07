@@ -22,6 +22,10 @@ import {
   ArrowUp,
   Network,
   CheckCircle2,
+  Sparkles,
+  Twitter,
+  Linkedin,
+  Github,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
