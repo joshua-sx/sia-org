@@ -663,7 +663,7 @@ const Index = () => {
               </ul>
               <Link
                 to="/signup"
-                className="w-full inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
+                className="w-full inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
               >
                 Get started free <ArrowRight size={16} />
               </Link>
@@ -699,7 +699,7 @@ const Index = () => {
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 bg-white text-black font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
+              className="inline-flex items-center gap-2 bg-white text-black font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
             >
               Get started free <ArrowRight size={16} />
             </Link>
