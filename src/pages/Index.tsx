@@ -436,7 +436,7 @@ const Index = () => {
 
 
       {/* Solution Bento */}
-      <div id="solution" className="py-20 md:py-28 bg-white">
+      <div id="solution" className="py-24 md:py-32 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Product</span>
@@ -470,7 +470,7 @@ const Index = () => {
       </div>
 
       {/* Who It's For */}
-      <div id="who" className="py-20 md:py-28 bg-[#fafafa]">
+      <div id="who" className="py-24 md:py-32 bg-[#fafafa]">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">For</span>
@@ -501,7 +501,7 @@ const Index = () => {
       </div>
 
       {/* How It Works */}
-      <div id="how" className="py-20 md:py-28 bg-white">
+      <div id="how" className="py-24 md:py-32 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">How it works</span>
@@ -535,7 +535,7 @@ const Index = () => {
       </div>
 
       {/* Positioning */}
-      <div className="py-20 md:py-28 bg-[#fafafa]">
+      <div className="py-24 md:py-32 bg-[#fafafa]">
         <Section>
           <SectionReveal>
             <div className={cn(cardBase, "p-8 md:p-12 max-w-[820px] mx-auto text-center")}>
@@ -564,7 +564,7 @@ const Index = () => {
       </div>
 
       {/* Pricing */}
-      <div id="pricing" className="py-20 md:py-28 bg-white">
+      <div id="pricing" className="py-24 md:py-32 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Pricing</span>
@@ -615,7 +615,7 @@ const Index = () => {
       </div>
 
       {/* Final CTA */}
-      <div className="py-20 md:py-28 bg-black">
+      <div className="py-24 md:py-32 bg-black">
         <Section className="text-center">
           <SectionReveal>
             <h2
