@@ -258,7 +258,7 @@ function Navbar() {
           </Link>
           <Link
             to="/signup"
-            className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale]"
+            className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
           >
             Get started free
           </Link>
