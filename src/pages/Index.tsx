@@ -534,6 +534,64 @@ const Index = () => {
         </Section>
       </div>
 
+      {/* Ask Sia (AI teaser) */}
+      <div id="ask-sia" className="py-24 md:py-32 bg-white">
+        <Section>
+          <SectionReveal className="text-center max-w-[720px] mx-auto mb-12">
+            <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wide font-medium text-black/50 mb-4">
+              <Sparkles size={12} style={{ color: COLORS.blue }} />
+              Coming soon — Sia AI
+            </span>
+            <h2
+              className="text-[clamp(34px,5vw,60px)] leading-[1.05] tracking-[-0.02em] mb-5 text-balance font-normal"
+              style={{ fontFamily: SERIF }}
+            >
+              Ask Sia what's happening in your cycle.
+            </h2>
+            <p className="text-black/60 leading-relaxed text-pretty max-w-[560px] mx-auto">
+              Turn goals, reviews, feedback, and structure into answers your leadership team can act on.
+            </p>
+          </SectionReveal>
+
+          <SectionReveal className="max-w-[820px] mx-auto">
+            <div className="rounded-[28px] border border-black/[0.08] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_60px_-20px_rgba(0,0,0,0.12)] p-5 md:p-6">
+              <div className="min-h-[104px] flex items-start">
+                <p className="text-base md:text-lg text-black/35 leading-relaxed">
+                  Ask about appraisal progress, team performance, overdue reviews, or goal outcomes…
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-3">
+                <span className="inline-flex items-center gap-1.5 text-xs text-black/40">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+                  <span className="ml-1">Sia AI · Preview</span>
+                </span>
+                <button
+                  type="button"
+                  aria-label="Ask Sia"
+                  className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 active:scale-[0.96] transition-[opacity,scale]"
+                >
+                  <ArrowUp size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2.5 mt-6">
+              {AI_QUICK_ACTIONS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  className="text-sm text-black/70 hover:text-black bg-white border border-black/[0.1] hover:border-black/[0.24] px-4 py-2 rounded-full transition-colors"
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </SectionReveal>
+        </Section>
+      </div>
+
       {/* Positioning */}
       <div className="py-24 md:py-32 bg-[#fafafa]">
         <Section>
