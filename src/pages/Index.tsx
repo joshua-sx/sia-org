@@ -708,11 +708,44 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-10 bg-white border-t border-black/[0.08]">
-        <Section>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
+      <footer className="bg-black text-white">
+        <Section className="pt-20 md:pt-28 pb-10">
+          {/* Editorial tagline */}
+          <div className="max-w-[820px] mb-16 md:mb-24">
+            <h2
+              className="text-[clamp(36px,5.5vw,68px)] leading-[1.05] tracking-[-0.01em] text-balance"
+              style={{ fontFamily: SERIF }}
+            >
+              Structured reviews.
+              <br />
+              <em className="italic text-white/70">Smarter organizations.</em>
+            </h2>
+          </div>
+
+          {/* Link columns */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 mb-16">
+            {FOOTER_COLUMNS.map((col) => (
+              <div key={col.heading}>
+                <h3 className="text-sm font-semibold text-white mb-4 tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {col.heading}
+                </h3>
+                <ul className="flex flex-col gap-3">
+                  {col.links.map((link) => (
+                    <li key={link}>
+                      <a href="#" className="text-sm text-white/55 hover:text-white transition-colors">
+                        {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom row */}
+          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div className="max-w-sm">
+              <div className="flex items-center gap-2 mb-3">
                 <span className="flex gap-[3px]">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
@@ -723,13 +756,21 @@ const Index = () => {
                   SIA
                 </span>
               </div>
-              <p className="text-sm text-black/50 leading-relaxed max-w-md">
-                Performance appraisal software for structured organizations.
+              <p className="text-sm text-white/50 leading-relaxed">
+                Performance appraisal software for structured organizations. Built in the Caribbean.
               </p>
             </div>
-            <div className="flex flex-col sm:items-end gap-1 text-xs text-black/40">
-              <span>© {new Date().getFullYear()} SIA</span>
-              <span>Built in the Caribbean 🌴</span>
+            <div className="flex flex-col md:items-end gap-4">
+              <div className="flex items-center gap-4 text-white/50">
+                <a href="#" aria-label="Twitter" className="hover:text-white transition-colors"><Twitter size={16} /></a>
+                <a href="#" aria-label="LinkedIn" className="hover:text-white transition-colors"><Linkedin size={16} /></a>
+                <a href="#" aria-label="GitHub" className="hover:text-white transition-colors"><Github size={16} /></a>
+              </div>
+              <div className="flex items-center gap-5 text-xs text-white/40">
+                <span>© {new Date().getFullYear()} SIA</span>
+                <a href="#" className="hover:text-white/80 transition-colors">Privacy</a>
+                <a href="#" className="hover:text-white/80 transition-colors">Terms</a>
+              </div>
             </div>
           </div>
         </Section>
