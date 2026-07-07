@@ -285,7 +285,7 @@ function Navbar() {
               <Link to="/login" className="text-sm text-black/70" onClick={() => setMobileOpen(false)}>
                 Sign in
               </Link>
-              <Link to="/signup" className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg text-center" onClick={() => setMobileOpen(false)}>
+              <Link to="/signup" className="text-sm font-medium bg-black text-white px-5 py-2.5 rounded-full text-center" onClick={() => setMobileOpen(false)}>
                 Get started free
               </Link>
             </div>
