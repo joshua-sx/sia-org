@@ -22,6 +22,10 @@ import {
   ArrowUp,
   Network,
   CheckCircle2,
+  Sparkles,
+  Twitter,
+  Linkedin,
+  Github,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -115,6 +119,25 @@ const PRICING_FEATURES = [
   "Role-based access control",
   "Dedicated onboarding support",
 ];
+
+const AI_QUICK_ACTIONS = [
+  "Summarize this cycle",
+  "Find overdue reviews",
+  "Compare departments",
+  "Draft feedback",
+];
+
+const FOOTER_COLUMNS: { heading: string; links: string[] }[] = [
+  { heading: "Product", links: ["Features", "Reviews", "Goals", "Analytics", "Pricing"] },
+  { heading: "Solutions", links: ["Government", "Aviation", "Healthcare", "Education"] },
+  { heading: "Resources", links: ["Blog", "Help Center", "Templates", "Security"] },
+  { heading: "Company", links: ["About", "Contact", "Privacy", "Terms"] },
+];
+
+const SERIF = "'Instrument Serif', 'Times New Roman', serif";
+
+
+
 
 
 
@@ -235,7 +258,7 @@ function Navbar() {
           </Link>
           <Link
             to="/signup"
-            className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale]"
+            className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
           >
             Get started free
           </Link>
@@ -262,7 +285,7 @@ function Navbar() {
               <Link to="/login" className="text-sm text-black/70" onClick={() => setMobileOpen(false)}>
                 Sign in
               </Link>
-              <Link to="/signup" className="text-sm font-medium bg-black text-white px-4 py-2 rounded-lg text-center" onClick={() => setMobileOpen(false)}>
+              <Link to="/signup" className="text-sm font-medium bg-black text-white px-5 py-2.5 rounded-full text-center" onClick={() => setMobileOpen(false)}>
                 Get started free
               </Link>
             </div>
@@ -371,34 +394,34 @@ const Index = () => {
       <BackToTop />
 
       {/* Hero */}
-      <div className="pt-28 pb-16 md:pt-36 md:pb-24 bg-white">
+      <div className="pt-32 pb-20 md:pt-44 md:pb-32 bg-white">
         <Section>
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[820px] mx-auto text-center">
-            <span className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-black/50 mb-5">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[860px] mx-auto text-center">
+            <span className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-black/50 mb-6">
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
               Performance management for structured orgs
             </span>
             <h1
-              className="text-[clamp(40px,6vw,72px)] font-bold leading-[1.02] tracking-[-0.03em] mb-6 text-balance"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="text-[clamp(44px,6.5vw,78px)] leading-[1.02] tracking-[-0.02em] mb-7 text-balance font-normal"
+              style={{ fontFamily: SERIF }}
             >
-              Run appraisals that actually work.
+              Run appraisals that <em className="italic">actually</em> work.
             </h1>
-            <p className="text-lg md:text-xl text-black/60 max-w-[620px] mx-auto leading-relaxed mb-8 text-pretty">
+            <p className="text-lg md:text-xl text-black/60 max-w-[640px] mx-auto leading-relaxed mb-10 text-pretty">
               One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
+                className="inline-flex items-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm shadow-[0_1px_2px_rgba(0,0,0,0.08),0_8px_24px_-12px_rgba(0,0,0,0.25)]"
               >
                 Get started free <ArrowRight size={16} />
               </Link>
               <button
                 onClick={() => document.querySelector("#how")?.scrollIntoView({ behavior: "smooth" })}
-                className="text-sm text-black/70 hover:text-black font-medium inline-flex items-center gap-1 transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-black/80 hover:text-black bg-white border border-black/[0.12] hover:border-black/[0.24] px-6 py-3 rounded-full transition-colors"
               >
-                See how it works →
+                See how it works
               </button>
             </div>
           </motion.div>
@@ -413,7 +436,7 @@ const Index = () => {
 
 
       {/* Solution Bento */}
-      <div id="solution" className="py-20 md:py-28 bg-white">
+      <div id="solution" className="py-24 md:py-32 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Product</span>
@@ -447,7 +470,7 @@ const Index = () => {
       </div>
 
       {/* Who It's For */}
-      <div id="who" className="py-20 md:py-28 bg-[#fafafa]">
+      <div id="who" className="py-24 md:py-32 bg-[#fafafa]">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">For</span>
@@ -478,7 +501,7 @@ const Index = () => {
       </div>
 
       {/* How It Works */}
-      <div id="how" className="py-20 md:py-28 bg-white">
+      <div id="how" className="py-24 md:py-32 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">How it works</span>
@@ -511,8 +534,66 @@ const Index = () => {
         </Section>
       </div>
 
+      {/* Ask Sia (AI teaser) */}
+      <div id="ask-sia" className="py-24 md:py-32 bg-white">
+        <Section>
+          <SectionReveal className="text-center max-w-[720px] mx-auto mb-12">
+            <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wide font-medium text-black/50 mb-4">
+              <Sparkles size={12} style={{ color: COLORS.blue }} />
+              Coming soon — Sia AI
+            </span>
+            <h2
+              className="text-[clamp(34px,5vw,60px)] leading-[1.05] tracking-[-0.02em] mb-5 text-balance font-normal"
+              style={{ fontFamily: SERIF }}
+            >
+              Ask Sia what's happening in your cycle.
+            </h2>
+            <p className="text-black/60 leading-relaxed text-pretty max-w-[560px] mx-auto">
+              Turn goals, reviews, feedback, and structure into answers your leadership team can act on.
+            </p>
+          </SectionReveal>
+
+          <SectionReveal className="max-w-[820px] mx-auto">
+            <div className="rounded-[28px] border border-black/[0.08] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_60px_-20px_rgba(0,0,0,0.12)] p-5 md:p-6">
+              <div className="min-h-[104px] flex items-start">
+                <p className="text-base md:text-lg text-black/35 leading-relaxed">
+                  Ask about appraisal progress, team performance, overdue reviews, or goal outcomes…
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-3">
+                <span className="inline-flex items-center gap-1.5 text-xs text-black/40">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+                  <span className="ml-1">Sia AI · Preview</span>
+                </span>
+                <button
+                  type="button"
+                  aria-label="Ask Sia"
+                  className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 active:scale-[0.96] transition-[opacity,scale]"
+                >
+                  <ArrowUp size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2.5 mt-6">
+              {AI_QUICK_ACTIONS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  className="text-sm text-black/70 hover:text-black bg-white border border-black/[0.1] hover:border-black/[0.24] px-4 py-2 rounded-full transition-colors"
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </SectionReveal>
+        </Section>
+      </div>
+
       {/* Positioning */}
-      <div className="py-20 md:py-28 bg-[#fafafa]">
+      <div className="py-24 md:py-32 bg-[#fafafa]">
         <Section>
           <SectionReveal>
             <div className={cn(cardBase, "p-8 md:p-12 max-w-[820px] mx-auto text-center")}>
@@ -541,7 +622,7 @@ const Index = () => {
       </div>
 
       {/* Pricing */}
-      <div id="pricing" className="py-20 md:py-28 bg-white">
+      <div id="pricing" className="py-24 md:py-32 bg-white">
         <Section>
           <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
             <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Pricing</span>
@@ -582,7 +663,7 @@ const Index = () => {
               </ul>
               <Link
                 to="/signup"
-                className="w-full inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
+                className="w-full inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
               >
                 Get started free <ArrowRight size={16} />
               </Link>
@@ -592,7 +673,7 @@ const Index = () => {
       </div>
 
       {/* Final CTA */}
-      <div className="py-20 md:py-28 bg-black">
+      <div className="py-24 md:py-32 bg-black">
         <Section className="text-center">
           <SectionReveal>
             <h2
@@ -618,7 +699,7 @@ const Index = () => {
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 bg-white text-black font-medium px-6 py-3 rounded-lg hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
+              className="inline-flex items-center gap-2 bg-white text-black font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
             >
               Get started free <ArrowRight size={16} />
             </Link>
@@ -627,11 +708,44 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="py-10 bg-white border-t border-black/[0.08]">
-        <Section>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
+      <footer className="bg-black text-white">
+        <Section className="pt-20 md:pt-28 pb-10">
+          {/* Editorial tagline */}
+          <div className="max-w-[820px] mb-16 md:mb-24">
+            <h2
+              className="text-[clamp(36px,5.5vw,68px)] leading-[1.05] tracking-[-0.01em] text-balance"
+              style={{ fontFamily: SERIF }}
+            >
+              Structured reviews.
+              <br />
+              <em className="italic text-white/70">Smarter organizations.</em>
+            </h2>
+          </div>
+
+          {/* Link columns */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 mb-16">
+            {FOOTER_COLUMNS.map((col) => (
+              <div key={col.heading}>
+                <h3 className="text-sm font-semibold text-white mb-4 tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {col.heading}
+                </h3>
+                <ul className="flex flex-col gap-3">
+                  {col.links.map((link) => (
+                    <li key={link}>
+                      <a href="#" className="text-sm text-white/55 hover:text-white transition-colors">
+                        {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom row */}
+          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div className="max-w-sm">
+              <div className="flex items-center gap-2 mb-3">
                 <span className="flex gap-[3px]">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
@@ -642,13 +756,21 @@ const Index = () => {
                   SIA
                 </span>
               </div>
-              <p className="text-sm text-black/50 leading-relaxed max-w-md">
-                Performance appraisal software for structured organizations.
+              <p className="text-sm text-white/50 leading-relaxed">
+                Performance appraisal software for structured organizations. Built in the Caribbean.
               </p>
             </div>
-            <div className="flex flex-col sm:items-end gap-1 text-xs text-black/40">
-              <span>© {new Date().getFullYear()} SIA</span>
-              <span>Built in the Caribbean 🌴</span>
+            <div className="flex flex-col md:items-end gap-4">
+              <div className="flex items-center gap-4 text-white/50">
+                <a href="#" aria-label="Twitter" className="hover:text-white transition-colors"><Twitter size={16} /></a>
+                <a href="#" aria-label="LinkedIn" className="hover:text-white transition-colors"><Linkedin size={16} /></a>
+                <a href="#" aria-label="GitHub" className="hover:text-white transition-colors"><Github size={16} /></a>
+              </div>
+              <div className="flex items-center gap-5 text-xs text-white/40">
+                <span>© {new Date().getFullYear()} SIA</span>
+                <a href="#" className="hover:text-white/80 transition-colors">Privacy</a>
+                <a href="#" className="hover:text-white/80 transition-colors">Terms</a>
+              </div>
             </div>
           </div>
         </Section>
