@@ -134,7 +134,7 @@ const FOOTER_COLUMNS: { heading: string; links: string[] }[] = [
   { heading: "Company", links: ["About", "Contact", "Privacy", "Terms"] },
 ];
 
-const SERIF = "'Instrument Serif', 'Times New Roman', serif";
+const GROTESK = "'Space Grotesk', system-ui, sans-serif";
 
 
 
@@ -402,10 +402,10 @@ const Index = () => {
               Performance management for structured orgs
             </span>
             <h1
-              className="text-[clamp(44px,6.5vw,78px)] leading-[1.02] tracking-[-0.02em] mb-7 text-balance font-normal"
-              style={{ fontFamily: SERIF }}
+              className="text-[clamp(44px,6.5vw,78px)] leading-[1.02] tracking-[-0.03em] mb-7 text-balance font-semibold"
+              style={{ fontFamily: GROTESK }}
             >
-              Run appraisals that <em className="italic">actually</em> work.
+              Run appraisals that actually work.
             </h1>
             <p className="text-lg md:text-xl text-black/60 max-w-[640px] mx-auto leading-relaxed mb-10 text-pretty">
               One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
@@ -543,8 +543,8 @@ const Index = () => {
               Coming soon — Sia AI
             </span>
             <h2
-              className="text-[clamp(34px,5vw,60px)] leading-[1.05] tracking-[-0.02em] mb-5 text-balance font-normal"
-              style={{ fontFamily: SERIF }}
+              className="text-[clamp(34px,5vw,60px)] leading-[1.05] tracking-[-0.03em] mb-5 text-balance font-semibold"
+              style={{ fontFamily: GROTESK }}
             >
               Ask Sia what's happening in your cycle.
             </h2>
@@ -713,12 +713,12 @@ const Index = () => {
           {/* Editorial tagline */}
           <div className="max-w-[820px] mb-16 md:mb-24">
             <h2
-              className="text-[clamp(36px,5.5vw,68px)] leading-[1.05] tracking-[-0.01em] text-balance"
-              style={{ fontFamily: SERIF }}
+              className="text-[clamp(36px,5.5vw,68px)] leading-[1.05] tracking-[-0.03em] text-balance font-semibold"
+              style={{ fontFamily: GROTESK }}
             >
               Structured reviews.
               <br />
-              <em className="italic text-white/70">Smarter organizations.</em>
+              <span className="text-white/60">Smarter organizations.</span>
             </h2>
           </div>
 
