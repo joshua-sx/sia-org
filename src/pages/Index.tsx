@@ -120,6 +120,25 @@ const PRICING_FEATURES = [
   "Dedicated onboarding support",
 ];
 
+const AI_QUICK_ACTIONS = [
+  "Summarize this cycle",
+  "Find overdue reviews",
+  "Compare departments",
+  "Draft feedback",
+];
+
+const FOOTER_COLUMNS: { heading: string; links: string[] }[] = [
+  { heading: "Product", links: ["Features", "Reviews", "Goals", "Analytics", "Pricing"] },
+  { heading: "Solutions", links: ["Government", "Aviation", "Healthcare", "Education"] },
+  { heading: "Resources", links: ["Blog", "Help Center", "Templates", "Security"] },
+  { heading: "Company", links: ["About", "Contact", "Privacy", "Terms"] },
+];
+
+const SERIF = "'Instrument Serif', 'Times New Roman', serif";
+
+
+
+
 
 
 
