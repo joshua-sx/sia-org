@@ -28,6 +28,57 @@ const STATUS_COLORS: Record<Employee["employment_status"], string> = {
   terminated: "--accent-red",
 };
 
+function EmployeeStatusBadge({ status }: { status: Employee["employment_status"] }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium"
+      style={{
+        backgroundColor: `hsl(var(${STATUS_COLORS[status]}) / 0.12)`,
+        color: `hsl(var(${STATUS_COLORS[status]}))`,
+      }}
+    >
+      <span
+        className="h-1.5 w-1.5 rounded-full"
+        style={{ backgroundColor: `hsl(var(${STATUS_COLORS[status]}))` }}
+      />
+      {EMPLOYMENT_STATUS_LABELS[status]}
+    </span>
+  );
+}
+
+function EmployeeActions({
+  employee,
+  onEdit,
+  onDelete,
+}: {
+  employee: Employee;
+  onEdit: (e: Employee) => void;
+  onDelete: (e: Employee) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          aria-label={`Actions for ${employee.first_name} ${employee.last_name}`}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onEdit(employee)}>
+          <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem className="text-destructive" onClick={() => onDelete(employee)}>
+          <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
   const [q, setQ] = useState("");
   const { data: units = [] } = useOrgUnits();
@@ -68,7 +119,49 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="md:hidden divide-y divide-[hsl(var(--hairline))]">
+        {filtered.map((e) => {
+          const manager = e.manager_id ? managerById[e.manager_id] : null;
+          const perLevel = unitsByLevel(e.org_unit_id, ancestry, levels);
+          const orgPath = perLevel
+            .filter(Boolean)
+            .map((u) => u!.name)
+            .join(" · ");
+
+          return (
+            <div key={e.id} className="p-4 space-y-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground truncate">
+                    {e.first_name} {e.last_name}
+                  </p>
+                  <p className="text-sm text-[hsl(var(--ink-muted))] truncate">{e.email}</p>
+                </div>
+                <EmployeeActions employee={e} onEdit={onEdit} onDelete={onDelete} />
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <EmployeeStatusBadge status={e.employment_status} />
+                {e.job_title && (
+                  <span className="text-[hsl(var(--ink-muted))]">{e.job_title}</span>
+                )}
+              </div>
+              {orgPath && (
+                <p className="text-xs text-[hsl(var(--ink-muted))]">{orgPath}</p>
+              )}
+              {manager && (
+                <p className="text-xs text-[hsl(var(--ink-muted))]">
+                  Manager: {manager.first_name} {manager.last_name}
+                </p>
+              )}
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <p className="px-4 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">No matching employees.</p>
+        )}
+      </div>
+
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[hsl(var(--hairline))] text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
@@ -106,41 +199,10 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
                     {manager ? `${manager.first_name} ${manager.last_name}` : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                      style={{
-                        backgroundColor: `hsl(var(${STATUS_COLORS[e.employment_status]}) / 0.12)`,
-                        color: `hsl(var(${STATUS_COLORS[e.employment_status]}))`,
-                      }}
-                    >
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: `hsl(var(${STATUS_COLORS[e.employment_status]}))` }}
-                      />
-                      {EMPLOYMENT_STATUS_LABELS[e.employment_status]}
-                    </span>
+                    <EmployeeStatusBadge status={e.employment_status} />
                   </td>
                   <td className="px-2 py-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          aria-label={`Actions for ${e.first_name} ${e.last_name}`}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(e)}>
-                          <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => onDelete(e)}>
-                          <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <EmployeeActions employee={e} onEdit={onEdit} onDelete={onDelete} />
                   </td>
                 </tr>
               );
