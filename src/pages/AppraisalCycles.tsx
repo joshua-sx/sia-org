@@ -8,11 +8,12 @@ import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { formatWindow } from "@/lib/cycleSchema";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const AppraisalCycles = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const { data: cycles = [], isLoading } = useAppraisalCycles();
+  const { data: cycles = [], isLoading, isError, error, refetch } = useAppraisalCycles();
   const [formOpen, setFormOpen] = useState(false);
 
   const isHr = profile?.role === "hr_admin";
@@ -45,7 +46,12 @@ const AppraisalCycles = () => {
 
       <div className="mt-6">
         {isLoading ? (
-          <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+          <QueryLoading label="Loading appraisal cycles" />
+        ) : isError ? (
+          <QueryError
+            message={error instanceof Error ? error.message : undefined}
+            onRetry={() => void refetch()}
+          />
         ) : cycles.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-14 text-center">
             <CalendarClock className="mx-auto h-8 w-8 text-[hsl(var(--accent-yellow))]" />

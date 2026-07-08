@@ -7,14 +7,25 @@ import { useEmployees } from "@/hooks/useEmployees";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantGoalsCard from "@/components/appraisals/ParticipantGoalsCard";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 import { windowState, formatWindow } from "@/lib/cycleSchema";
 
 const MyGoals = () => {
   const { profile } = useAuth();
-  const { activeCycle, isLoading: cyclesLoading } = useAppraisalCycles();
-  const { data: participants = [], isLoading: participantsLoading } = useCycleParticipants(
-    activeCycle?.id,
-  );
+  const {
+    activeCycle,
+    isLoading: cyclesLoading,
+    isError: cyclesError,
+    error: cyclesErr,
+    refetch: refetchCycles,
+  } = useAppraisalCycles();
+  const {
+    data: participants = [],
+    isLoading: participantsLoading,
+    isError: participantsError,
+    error: participantsErr,
+    refetch: refetchParticipants,
+  } = useCycleParticipants(activeCycle?.id);
   const { data: employees = [] } = useEmployees();
   const { myEmployee } = useMyEmployee();
 
@@ -45,7 +56,15 @@ const MyGoals = () => {
     : null;
   const canEdit = !!activeCycle && goalWindow === "open";
 
-  const loading = cyclesLoading || (activeCycle && participantsLoading);
+  const loading = cyclesLoading || (!!activeCycle && participantsLoading);
+  const loadError = cyclesError || (!!activeCycle && participantsError);
+  const loadErrorMessage =
+    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
+    (participantsErr instanceof Error ? participantsErr.message : undefined);
+  const retryLoad = () => {
+    void refetchCycles();
+    if (activeCycle) void refetchParticipants();
+  };
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
@@ -69,7 +88,9 @@ const MyGoals = () => {
 
       <div className="mt-6 space-y-6">
         {loading ? (
-          <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+          <QueryLoading label="Loading team goals" />
+        ) : loadError ? (
+          <QueryError message={loadErrorMessage} onRetry={retryLoad} />
         ) : !activeCycle ? (
           <EmptyNote text="There's no active appraisal cycle right now." />
         ) : !isHr && !myEmployee ? (

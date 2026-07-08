@@ -59,6 +59,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search people…"
+            aria-label="Search people"
             className="h-9 pl-9 text-sm"
           />
         </div>
@@ -122,7 +123,12 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
                   <td className="px-2 py-3">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          aria-label={`Actions for ${e.first_name} ${e.last_name}`}
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>

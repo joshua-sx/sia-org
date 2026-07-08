@@ -80,6 +80,8 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
+                      aria-label={collapsed ? item.title : undefined}
+                      title={collapsed ? item.title : undefined}
                       className={
                         collapsed
                           ? "group relative flex h-9 w-9 items-center justify-center rounded-md text-[hsl(var(--ink-muted))] transition-colors hover:bg-[hsl(var(--ink-strong)/0.05)] hover:text-foreground"

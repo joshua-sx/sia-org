@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Upload, Download, AlertTriangle } from "lucide-react";
+import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
@@ -14,6 +14,7 @@ import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
 import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModal";
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +29,14 @@ import {
 const OrgEmployees = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const { data: employees = [], isLoading, deleteEmployee } = useEmployees();
+  const {
+    data: employees = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    deleteEmployee,
+  } = useEmployees();
   const { data: units = [] } = useOrgUnits();
   const { markSkipped } = useOnboarding();
 
@@ -64,7 +72,13 @@ const OrgEmployees = () => {
   if (profile && profile.role !== "hr_admin") {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-[hsl(var(--ink-muted))]">HR admins only.</p>
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-[Space_Grotesk]">Access restricted</h1>
+          <p className="mt-2 text-sm text-[hsl(var(--ink-muted))]">This area is for HR Administrators only.</p>
+          <Button asChild variant="ghost" className="mt-6 gap-2 text-[hsl(var(--ink-muted))]">
+            <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -143,7 +157,12 @@ const OrgEmployees = () => {
 
         <div className="mt-8">
           {isLoading ? (
-            <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+            <QueryLoading label="Loading employees" />
+          ) : isError ? (
+            <QueryError
+              message={error instanceof Error ? error.message : undefined}
+              onRetry={() => void refetch()}
+            />
           ) : empty ? (
             <EmployeeEmptyState
               onImport={() => setImportOpen(true)}

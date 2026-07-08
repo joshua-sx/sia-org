@@ -8,32 +8,80 @@ import { useGoals } from "@/hooks/useGoals";
 import { useAssessments } from "@/hooks/useAssessments";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 import { formatScore } from "@/lib/scoring";
 import { RATING_LABELS } from "@/lib/assessmentSchema";
 import { STAGE_LABELS, canAcknowledge, type Stage } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 
 const MyReview = () => {
-  const { activeCycle, isLoading: cycleLoading } = useAppraisalCycles();
-  const { myEmployee, isLoading: employeeLoading } = useMyEmployee();
-  const { data: participants = [], isLoading: participantsLoading } = useCycleParticipants(
-    activeCycle?.id,
-  );
+  const {
+    activeCycle,
+    isLoading: cycleLoading,
+    isError: cycleError,
+    error: cycleErr,
+    refetch: refetchCycles,
+  } = useAppraisalCycles();
+  const {
+    myEmployee,
+    isLoading: employeeLoading,
+    isError: employeeError,
+    error: employeeErr,
+    refetch: refetchEmployee,
+  } = useMyEmployee();
+  const {
+    data: participants = [],
+    isLoading: participantsLoading,
+    isError: participantsError,
+    error: participantsErr,
+    refetch: refetchParticipants,
+  } = useCycleParticipants(activeCycle?.id);
 
   const myParticipant = myEmployee
     ? participants.find((p) => p.employee_id === myEmployee.id) ?? null
     : null;
 
-  const { data: goals = [], isLoading: goalsLoading } = useGoals(myParticipant?.id);
+  const {
+    data: goals = [],
+    isLoading: goalsLoading,
+    isError: goalsError,
+    error: goalsErr,
+    refetch: refetchGoals,
+  } = useGoals(myParticipant?.id);
   const goalIds = useMemo(() => goals.map((g) => g.id), [goals]);
-  const { data: ratings = [], isLoading: ratingsLoading } = useAssessments(
-    myParticipant?.id,
-    goalIds,
-  );
+  const {
+    data: ratings = [],
+    isLoading: ratingsLoading,
+    isError: ratingsError,
+    error: ratingsErr,
+    refetch: refetchRatings,
+  } = useAssessments(myParticipant?.id, goalIds);
   const { acknowledge: acknowledgeMutation } = useCycleParticipants(activeCycle?.id);
 
+  const detailLoading =
+    !!myParticipant && (goalsLoading || (goalIds.length > 0 && ratingsLoading));
   const loading =
-    cycleLoading || employeeLoading || (activeCycle && participantsLoading) || goalsLoading || ratingsLoading;
+    cycleLoading || employeeLoading || (!!activeCycle && participantsLoading) || detailLoading;
+  const loadError =
+    cycleError ||
+    employeeError ||
+    (!!activeCycle && participantsError) ||
+    (!!myParticipant && (goalsError || (goalIds.length > 0 && ratingsError)));
+  const loadErrorMessage =
+    (cycleErr instanceof Error ? cycleErr.message : undefined) ??
+    (employeeErr instanceof Error ? employeeErr.message : undefined) ??
+    (participantsErr instanceof Error ? participantsErr.message : undefined) ??
+    (goalsErr instanceof Error ? goalsErr.message : undefined) ??
+    (ratingsErr instanceof Error ? ratingsErr.message : undefined);
+  const retryLoad = () => {
+    void refetchCycles();
+    void refetchEmployee();
+    if (activeCycle) void refetchParticipants();
+    if (myParticipant) {
+      void refetchGoals();
+      if (goalIds.length > 0) void refetchRatings();
+    }
+  };
 
   const finalRevealed = !!myParticipant?.final_submitted_at;
 
@@ -63,7 +111,9 @@ const MyReview = () => {
 
       <div className="mt-6">
         {loading ? (
-          <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+          <QueryLoading label="Loading your review" />
+        ) : loadError ? (
+          <QueryError message={loadErrorMessage} onRetry={retryLoad} />
         ) : !activeCycle ? (
           <EmptyNote text="There's no active appraisal cycle right now." />
         ) : !myEmployee ? (

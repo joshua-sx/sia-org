@@ -15,6 +15,7 @@
     --hairline: 0 0% 0% / 0.08;
 
     --ink: 0 0% 6%;
+    --ink-strong: 0 0% 6%;
     --ink-muted: 28 6% 37%;
     --ink-subtle: 30 6% 60%;
 
@@ -68,6 +69,8 @@
   .dark {
     --background: 220 25% 7%;
     --foreground: 210 20% 98%;
+
+    --ink-strong: 210 20% 98%;
 
     --card: 220 25% 10%;
     --card-foreground: 210 20% 98%;
@@ -158,4 +161,12 @@
   --x: 35px;
   --y: -35px;
   animation: confetti-particle 0.8s 0.1s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-burst::before,
+  .confetti-burst::after {
+    animation: none;
+    opacity: 0;
+  }
 }
