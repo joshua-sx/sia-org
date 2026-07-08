@@ -11,7 +11,7 @@ export function HeroBento() {
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-          <span className="ml-3 text-xs text-black/40">SIA — Q3 Appraisal Cycle</span>
+          <span className="ml-3 text-xs text-black/60">SIA — Q3 Appraisal Cycle</span>
         </div>
         <div className="p-5 md:p-7 grid grid-cols-3 gap-5 flex-1">
           {[
@@ -20,7 +20,7 @@ export function HeroBento() {
             { label: "Avg. Rating", value: "4.2", bar: 84, color: COLORS.yellow },
           ].map((s) => (
             <div key={s.label} className="flex flex-col gap-2">
-              <span className="text-[11px] uppercase tracking-wide text-black/40 font-medium">{s.label}</span>
+              <span className="text-[11px] uppercase tracking-wide text-black/60 font-medium">{s.label}</span>
               <span className="text-3xl font-bold tracking-tight tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 {s.value}
               </span>

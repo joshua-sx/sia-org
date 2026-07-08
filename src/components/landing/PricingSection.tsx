@@ -132,7 +132,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
                   {plan.ctaText}
                 </Link>
               )}
-              <span className="text-xs text-black/40 text-center underline decoration-dotted underline-offset-4">
+              <span className="text-xs text-black/60 text-center underline decoration-dotted underline-offset-4">
                 {plan.infoText}
               </span>
             </div>
@@ -140,7 +140,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
         </div>
 
         <div className="p-6 pt-8 flex flex-col gap-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-black/40">What's included</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-black/60">What's included</p>
           <div className="flex flex-col gap-2.5">
             {plan.features.map((feature) => (
               <FeatureItem key={feature} text={feature} />
