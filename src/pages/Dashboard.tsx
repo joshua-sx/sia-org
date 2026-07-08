@@ -207,7 +207,7 @@ function LaunchOnboardingView() {
       navigate("/appraisals");
       return;
     }
-    if (current.href) window.location.assign(current.href);
+    if (current.href) navigate(current.href);
   };
 
   return (
