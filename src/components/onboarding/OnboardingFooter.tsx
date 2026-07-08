@@ -97,7 +97,7 @@ export function OnboardingFooter() {
         </div>
 
         <div className="flex items-center gap-2">
-          {!isAlreadyDone && (
+          {!isAlreadyDone && activeStep !== "structure" && (
             <Popover open={skipOpen} onOpenChange={setSkipOpen}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-xs text-[hsl(var(--ink-subtle))] hover:text-[hsl(var(--ink-muted))]">

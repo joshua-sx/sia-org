@@ -97,8 +97,10 @@ export function useOnboarding() {
   ];
 
   const completedCount = steps.filter((s) => s.done).length;
-  const setupComplete = structureDone && peopleDone && cycleDone;
-  const isOnboarding = !setupComplete && !!organization;
+  // Only Structure is required. People and Launch are optional follow-ups
+  // that can be completed later from the dashboard checklist.
+  const setupComplete = structureDone;
+  const isOnboarding = !structureDone && !!organization;
 
   type OrgPatch = Partial<{
     structure_complete: boolean;

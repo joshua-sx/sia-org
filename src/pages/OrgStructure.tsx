@@ -139,7 +139,7 @@ const OrgStructure = () => {
             toast.error(e?.message ?? "Could not mark step complete");
           }
           setWizardDone(true);
-          navigate("/org/employees");
+          navigate("/dashboard");
         }}
         createTypes={createTypes}
         addUnit={addUnit}
