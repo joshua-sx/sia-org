@@ -71,7 +71,7 @@ export function LandingSections() {
                     <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {ind.name}
                     </h3>
-                    <p className="text-sm text-black/50 leading-relaxed mt-1">{ind.desc}</p>
+                    <p className="text-sm text-black/65 leading-relaxed mt-1">{ind.desc}</p>
                   </div>
                 </FadeBlock>
               </SectionReveal>
@@ -105,7 +105,7 @@ export function LandingSections() {
                   <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {s.title}
                   </h3>
-                  <p className="text-sm text-black/50 leading-relaxed">{s.desc}</p>
+                  <p className="text-sm text-black/65 leading-relaxed">{s.desc}</p>
                 </FadeBlock>
               </SectionReveal>
             ))}
@@ -139,7 +139,7 @@ export function LandingSections() {
                 </p>
               </div>
               <div className="flex items-center justify-between pt-3">
-                <span className="inline-flex items-center gap-1.5 text-xs text-black/40">
+                <span className="inline-flex items-center gap-1.5 text-xs text-black/60">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
                   <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
@@ -166,7 +166,7 @@ export function LandingSections() {
                   disabled
                   aria-disabled="true"
                   title="Coming soon"
-                  className="text-sm text-black/40 bg-white border border-black/[0.08] px-4 py-2 rounded-full cursor-not-allowed"
+                  className="text-sm text-black/60 bg-white border border-black/[0.08] px-4 py-2 rounded-full cursor-not-allowed"
                 >
                   {a}
                 </button>
@@ -293,7 +293,7 @@ export function LandingFooter() {
                 SIA
               </span>
             </div>
-            <p className="text-sm text-white/50 leading-relaxed">
+            <p className="text-sm text-white/70 leading-relaxed">
               Performance appraisal software for structured organizations. Built in the Caribbean.
             </p>
           </div>
@@ -303,7 +303,7 @@ export function LandingFooter() {
               <span aria-label="LinkedIn (coming soon)" title="Coming soon"><Linkedin size={16} /></span>
               <span aria-label="GitHub (coming soon)" title="Coming soon"><Github size={16} /></span>
             </div>
-            <div className="flex items-center gap-5 text-xs text-white/40">
+            <div className="flex items-center gap-5 text-xs text-white/60">
               <span>© {new Date().getFullYear()} SIA</span>
               <span className="text-white/35">Privacy</span>
               <span className="text-white/35">Terms</span>

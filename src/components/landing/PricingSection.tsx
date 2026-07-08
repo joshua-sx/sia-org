@@ -81,7 +81,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
             <h3 className="text-2xl font-bold tracking-tight mb-2" style={{ fontFamily: GROTESK }}>
               {plan.name}
             </h3>
-            <p className="text-sm text-black/50 leading-relaxed tracking-tight">{plan.description}</p>
+            <p className="text-sm text-black/65 leading-relaxed tracking-tight">{plan.description}</p>
           </div>
 
           <div className="flex flex-col gap-4 mt-auto">
@@ -108,7 +108,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
                       </motion.span>
                     </AnimatePresence>
                   </div>
-                  <span className="text-sm text-black/50">/ employee / mo</span>
+                  <span className="text-sm text-black/65">/ employee / mo</span>
                 </>
               )}
             </div>
@@ -132,7 +132,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
                   {plan.ctaText}
                 </Link>
               )}
-              <span className="text-xs text-black/40 text-center underline decoration-dotted underline-offset-4">
+              <span className="text-xs text-black/60 text-center underline decoration-dotted underline-offset-4">
                 {plan.infoText}
               </span>
             </div>
@@ -140,7 +140,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
         </div>
 
         <div className="p-6 pt-8 flex flex-col gap-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-black/40">What's included</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-black/60">What's included</p>
           <div className="flex flex-col gap-2.5">
             {plan.features.map((feature) => (
               <FeatureItem key={feature} text={feature} />
