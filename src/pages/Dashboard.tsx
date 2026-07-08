@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Circle,
   ChevronRight,
-  CalendarClock,
   Minus,
   Users,
   Building2,
@@ -17,7 +16,12 @@ import {
   Globe2,
   Briefcase,
 } from "lucide-react";
-import { useOnboarding, type OnboardingStatus, type OnboardingStepKey } from "@/hooks/useOnboarding";
+import {
+  useOnboarding,
+  type OnboardingStatus,
+  type OnboardingStep,
+  type OnboardingStepKey,
+} from "@/hooks/useOnboarding";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 
@@ -81,13 +85,6 @@ const CYCLE_SUBSTEPS = [
   "Review settings",
   "Final launch confirmation",
 ];
-
-const STEP_ICON: Record<OnboardingStepKey, typeof CalendarClock> = {
-  account: CheckCircle2,
-  structure: Building2,
-  people: Users,
-  cycle: CalendarClock,
-};
 
 const Dashboard = () => {
   const { profile, organization } = useAuth();
@@ -192,7 +189,6 @@ function LaunchOnboardingView() {
 
   const current = steps.find((s) => s.status === "current") ?? steps.find((s) => !s.done) ?? steps[steps.length - 1];
   const copy = LAUNCH_COPY[current.key];
-  const CtaIcon = STEP_ICON[current.key];
   const doneSteps = steps.filter((s) => s.done);
 
   const employeeCount = employees.data?.length ?? 0;
@@ -233,27 +229,22 @@ function LaunchOnboardingView() {
 
           {/* CTA card — the focal element of this view */}
           <div className="mt-8 rounded-2xl border border-[hsl(var(--accent-blue)/0.18)] bg-[hsl(var(--surface-raised))] p-6 md:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-18px_rgba(0,0,0,0.16)] ring-1 ring-[hsl(var(--accent-blue)/0.05)]">
-            <div className="flex flex-col md:flex-row gap-5 md:gap-6 md:items-start">
-              <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl"
-                style={{ backgroundColor: "hsl(var(--accent-blue) / 0.1)" }}
+            {/* Signature: the setup pipeline being assembled */}
+            <SetupPipeline steps={steps} currentKey={current.key} />
+
+            <div className="mt-7 border-t border-[hsl(var(--hairline))] pt-6">
+              <h2 className="text-xl font-semibold text-foreground tracking-[-0.3px]">{copy.ctaTitle}</h2>
+              <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] leading-relaxed max-w-[46ch]">{copy.ctaBody}</p>
+              <Button
+                onClick={handleCta}
+                className="mt-6 h-12 px-7 text-[15px] font-medium active:scale-[0.98]"
+                style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
               >
-                <CtaIcon className="h-6 w-6" style={{ color: "hsl(var(--accent-blue))" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-semibold text-foreground tracking-[-0.3px]">{copy.ctaTitle}</h2>
-                <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] leading-relaxed max-w-[46ch]">{copy.ctaBody}</p>
-                <Button
-                  onClick={handleCta}
-                  className="mt-6 h-12 px-7 text-[15px] font-medium active:scale-[0.98]"
-                  style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
-                >
-                  {copy.ctaLabel}
-                </Button>
-                <div className="mt-4 flex items-center gap-2 text-xs text-[hsl(var(--ink-subtle))]">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>No employee invitations will be sent until you confirm launch.</span>
-                </div>
+                {copy.ctaLabel}
+              </Button>
+              <div className="mt-4 flex items-center gap-2 text-xs text-[hsl(var(--ink-subtle))]">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>No employee invitations will be sent until you confirm launch.</span>
               </div>
             </div>
           </div>
@@ -342,6 +333,74 @@ function LaunchOnboardingView() {
       </div>
     </div>
     </>
+  );
+}
+
+function SetupPipeline({
+  steps,
+  currentKey,
+}: {
+  steps: OnboardingStep[];
+  currentKey: OnboardingStepKey;
+}) {
+  return (
+    <ol className="flex items-start" aria-label="Setup progress">
+      {steps.map((step, i) => {
+        const Icon = step.icon;
+        const isCurrent = step.key === currentKey;
+        const isDone = step.done;
+        const nodeStyle = isDone
+          ? {
+              backgroundColor: "hsl(var(--accent-green) / 0.14)",
+              color: "hsl(var(--accent-green))",
+            }
+          : isCurrent
+          ? {
+              backgroundColor: `hsl(var(${step.accent}) / 0.14)`,
+              color: `hsl(var(${step.accent}))`,
+              boxShadow: `0 0 0 2px hsl(var(${step.accent}) / 0.35)`,
+            }
+          : {
+              color: "hsl(var(--ink-subtle))",
+              border: "1px solid hsl(var(--hairline))",
+            };
+        return (
+          <li key={step.key} className="contents">
+            <div className="flex w-16 shrink-0 flex-col items-center gap-2">
+              <span
+                className="flex h-10 w-10 items-center justify-center rounded-full"
+                style={{ ...nodeStyle, transitionProperty: "background-color, box-shadow, color", transitionDuration: "200ms" }}
+              >
+                {isDone ? (
+                  <Check className="h-4 w-4" strokeWidth={3} />
+                ) : (
+                  <Icon className="h-[18px] w-[18px]" />
+                )}
+              </span>
+              <span
+                className={
+                  "text-[11px] font-medium leading-none " +
+                  (isCurrent ? "text-foreground" : "text-[hsl(var(--ink-subtle))]")
+                }
+              >
+                {step.label}
+              </span>
+            </div>
+            {i < steps.length - 1 && (
+              <span
+                className="mt-5 h-[2px] flex-1 rounded-full"
+                style={{
+                  backgroundColor: step.done
+                    ? "hsl(var(--accent-green) / 0.5)"
+                    : "hsl(var(--hairline))",
+                }}
+                aria-hidden
+              />
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
