@@ -143,35 +143,60 @@ const AccordionBuilder = ({ levels, units, onUnitsChange }: AccordionBuilderProp
     return (
       <div key={path.join("-")} className="animate-fade-in">
         {/* Node header */}
-        <div
-          className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 cursor-pointer transition-all hover:shadow-sm ${
-            node.expanded ? colors.border + " " + colors.bg : "border-border bg-card"
-          }`}
-          onClick={() => hasChildren && toggleNode(path)}
-        >
-          {hasChildren && (
-            <ChevronRight
-              className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
-                node.expanded ? "rotate-90" : ""
-              }`}
-            />
-          )}
-          {!hasChildren && <CornerDownRight className="h-3.5 w-3.5 text-muted-foreground" />}
-          <LevelDot levelIndex={depth} />
-          <span className="text-sm font-medium text-foreground flex-1">{node.name}</span>
-          <span className="text-xs text-muted-foreground">{levels[depth]}</span>
-          {node.children.length > 0 && (
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
-              {node.children.length}
-            </Badge>
-          )}
-          <button
-            onClick={(e) => { e.stopPropagation(); removeNode(path); }}
-            className="text-muted-foreground hover:text-destructive transition-colors opacity-40 hover:opacity-100"
+        {hasChildren ? (
+          <div
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 transition-all hover:shadow-sm ${
+              node.expanded ? colors.border + " " + colors.bg : "border-border bg-card"
+            }`}
           >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => toggleNode(path)}
+              aria-expanded={node.expanded}
+              className="flex min-w-0 flex-1 items-center gap-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded-md"
+            >
+              <ChevronRight
+                className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${
+                  node.expanded ? "rotate-90" : ""
+                }`}
+                aria-hidden
+              />
+              <LevelDot levelIndex={depth} />
+              <span className="text-sm font-medium text-foreground flex-1 truncate">{node.name}</span>
+              <span className="text-xs text-muted-foreground">{levels[depth]}</span>
+              {node.children.length > 0 && (
+                <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                  {node.children.length}
+                </Badge>
+              )}
+            </button>
+            <button
+              type="button"
+              aria-label={`Remove ${node.name}`}
+              onClick={() => removeNode(path)}
+              className="shrink-0 text-muted-foreground hover:text-destructive transition-colors opacity-40 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 rounded-lg border px-3 py-2.5 border-border bg-card">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <CornerDownRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+              <LevelDot levelIndex={depth} />
+              <span className="text-sm font-medium text-foreground flex-1 truncate">{node.name}</span>
+              <span className="text-xs text-muted-foreground">{levels[depth]}</span>
+            </div>
+            <button
+              type="button"
+              aria-label={`Remove ${node.name}`}
+              onClick={() => removeNode(path)}
+              className="shrink-0 text-muted-foreground hover:text-destructive transition-colors opacity-40 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* Children */}
         {hasChildren && node.expanded && (

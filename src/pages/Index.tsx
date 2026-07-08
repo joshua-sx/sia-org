@@ -263,13 +263,20 @@ function Navbar() {
             Get started free
           </Link>
         </div>
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
+        <button
+          className="md:hidden"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          aria-controls="landing-mobile-nav"
+        >
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
       <AnimatePresence initial={false}>
         {mobileOpen && (
           <motion.div
+            id="landing-mobile-nav"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
