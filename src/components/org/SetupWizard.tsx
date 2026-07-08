@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
@@ -34,7 +34,6 @@ interface SetupWizardProps {
 
 const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -120,10 +119,8 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
         await persistNodes(units, 0, null);
       }
     } catch (err: any) {
-      toast({
-        title: "Error saving structure",
+      toast.error("Error saving structure", {
         description: err?.message || "Something went wrong. Please try again.",
-        variant: "destructive",
       });
       setStep(3);
       setSaving(false);
