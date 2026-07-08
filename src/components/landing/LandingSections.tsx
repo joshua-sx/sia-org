@@ -71,7 +71,7 @@ export function LandingSections() {
                     <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {ind.name}
                     </h3>
-                    <p className="text-sm text-black/50 leading-relaxed mt-1">{ind.desc}</p>
+                    <p className="text-sm text-black/65 leading-relaxed mt-1">{ind.desc}</p>
                   </div>
                 </FadeBlock>
               </SectionReveal>
@@ -105,7 +105,7 @@ export function LandingSections() {
                   <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {s.title}
                   </h3>
-                  <p className="text-sm text-black/50 leading-relaxed">{s.desc}</p>
+                  <p className="text-sm text-black/65 leading-relaxed">{s.desc}</p>
                 </FadeBlock>
               </SectionReveal>
             ))}
@@ -293,7 +293,7 @@ export function LandingFooter() {
                 SIA
               </span>
             </div>
-            <p className="text-sm text-white/50 leading-relaxed">
+            <p className="text-sm text-white/70 leading-relaxed">
               Performance appraisal software for structured organizations. Built in the Caribbean.
             </p>
           </div>

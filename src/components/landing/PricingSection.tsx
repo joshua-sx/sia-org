@@ -81,7 +81,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
             <h3 className="text-2xl font-bold tracking-tight mb-2" style={{ fontFamily: GROTESK }}>
               {plan.name}
             </h3>
-            <p className="text-sm text-black/50 leading-relaxed tracking-tight">{plan.description}</p>
+            <p className="text-sm text-black/65 leading-relaxed tracking-tight">{plan.description}</p>
           </div>
 
           <div className="flex flex-col gap-4 mt-auto">
@@ -108,7 +108,7 @@ function PricingCard({ plan, isYearly }: { plan: PricingPlan; isYearly: boolean 
                       </motion.span>
                     </AnimatePresence>
                   </div>
-                  <span className="text-sm text-black/50">/ employee / mo</span>
+                  <span className="text-sm text-black/65">/ employee / mo</span>
                 </>
               )}
             </div>
