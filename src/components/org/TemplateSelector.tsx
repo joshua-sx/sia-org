@@ -10,21 +10,14 @@ export interface HierarchyTemplate {
   isCustom?: boolean;
 }
 
-const LEVEL_COLORS = [
-  "bg-primary",
-  "bg-green-500",
-  "bg-violet-500",
-  "bg-amber-500",
-  "bg-rose-500",
-];
+const LEVEL_ACCENT_VARS = [
+  "--accent-blue",
+  "--accent-green",
+  "--accent-yellow",
+  "--accent-red",
+] as const;
 
-const LEVEL_TEXT_COLORS = [
-  "text-primary",
-  "text-green-500",
-  "text-violet-500",
-  "text-amber-500",
-  "text-rose-500",
-];
+const accentColor = (i: number) => `hsl(var(${LEVEL_ACCENT_VARS[i % LEVEL_ACCENT_VARS.length]}))`;
 
 export const TEMPLATES: HierarchyTemplate[] = [
   { key: "government", label: "Government", desc: "Public sector hierarchy", icon: Landmark, levels: ["Ministry", "Agency", "Bureau", "Unit"] },
@@ -90,8 +83,11 @@ const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTempl
               {i > 0 && (
                 <span className="text-[10px] text-muted-foreground/50 font-mono leading-none">└</span>
               )}
-              <div className={`h-1.5 w-1.5 rounded-full ${LEVEL_COLORS[i % LEVEL_COLORS.length]}`} />
-              <span className={`text-[11px] font-medium ${active ? LEVEL_TEXT_COLORS[i % LEVEL_TEXT_COLORS.length] : "text-muted-foreground"}`}>
+              <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: accentColor(i) }} />
+              <span
+                className={`text-[11px] font-medium ${active ? "" : "text-muted-foreground"}`}
+                style={active ? { color: accentColor(i) } : undefined}
+              >
                 {level}
               </span>
             </div>
