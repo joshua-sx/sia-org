@@ -20,6 +20,7 @@ import {
 } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
+import { useEmployees } from "@/hooks/useEmployees";
 
 interface Props {
   open: boolean;
