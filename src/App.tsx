@@ -22,6 +22,7 @@ import OAuthConsent from "./pages/OAuthConsent";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import CompleteSignup from "./pages/CompleteSignup";
+import BlogPerformanceManagementExamples from "./pages/BlogPerformanceManagementExamples";
 
 const queryClient = new QueryClient();
 
