@@ -129,11 +129,46 @@ const AI_QUICK_ACTIONS = [
   "Draft feedback",
 ];
 
-const FOOTER_COLUMNS: { heading: string; links: string[] }[] = [
-  { heading: "Product", links: ["Features", "Reviews", "Goals", "Analytics", "Pricing"] },
-  { heading: "Solutions", links: ["Government", "Aviation", "Healthcare", "Education"] },
-  { heading: "Resources", links: ["Blog", "Help Center", "Templates", "Security"] },
-  { heading: "Company", links: ["About", "Contact", "Privacy", "Terms"] },
+type FooterLink = { label: string; href?: string };
+
+const FOOTER_COLUMNS: { heading: string; links: FooterLink[] }[] = [
+  {
+    heading: "Product",
+    links: [
+      { label: "Features", href: "#solution" },
+      { label: "Reviews", href: "#how" },
+      { label: "Goals", href: "#solution" },
+      { label: "Analytics", href: "#solution" },
+      { label: "Pricing", href: "#pricing" },
+    ],
+  },
+  {
+    heading: "Solutions",
+    links: [
+      { label: "Government", href: "#who" },
+      { label: "Aviation", href: "#who" },
+      { label: "Healthcare", href: "#who" },
+      { label: "Education", href: "#who" },
+    ],
+  },
+  {
+    heading: "Resources",
+    links: [
+      { label: "Blog" },
+      { label: "Help Center" },
+      { label: "Templates" },
+      { label: "Security" },
+    ],
+  },
+  {
+    heading: "Company",
+    links: [
+      { label: "About", href: "#who" },
+      { label: "Contact" },
+      { label: "Privacy" },
+      { label: "Terms" },
+    ],
+  },
 ];
 
 const GROTESK = "'Space Grotesk', system-ui, sans-serif";
@@ -689,8 +724,11 @@ const Index = () => {
                 </span>
                 <button
                   type="button"
-                  aria-label="Ask Sia"
-                  className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 active:scale-[0.96] transition-[opacity,scale]"
+                  disabled
+                  aria-disabled="true"
+                  aria-label="Ask Sia (coming soon)"
+                  title="Coming soon"
+                  className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center opacity-50 cursor-not-allowed"
                 >
                   <ArrowUp size={16} />
                 </button>
@@ -701,7 +739,10 @@ const Index = () => {
                 <button
                   key={a}
                   type="button"
-                  className="text-sm text-black/70 hover:text-black bg-white border border-black/[0.1] hover:border-black/[0.24] px-4 py-2 rounded-full transition-colors"
+                  disabled
+                  aria-disabled="true"
+                  title="Coming soon"
+                  className="text-sm text-black/40 bg-white border border-black/[0.08] px-4 py-2 rounded-full cursor-not-allowed"
                 >
                   {a}
                 </button>
@@ -850,10 +891,14 @@ const Index = () => {
                 </h3>
                 <ul className="flex flex-col gap-3">
                   {col.links.map((link) => (
-                    <li key={link}>
-                      <a href="#" className="text-sm text-white/55 hover:text-white transition-colors">
-                        {link}
-                      </a>
+                    <li key={link.label}>
+                      {link.href ? (
+                        <a href={link.href} className="text-sm text-white/55 hover:text-white transition-colors">
+                          {link.label}
+                        </a>
+                      ) : (
+                        <span className="text-sm text-white/35">{link.label}</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -880,15 +925,15 @@ const Index = () => {
               </p>
             </div>
             <div className="flex flex-col md:items-end gap-4">
-              <div className="flex items-center gap-4 text-white/50">
-                <a href="#" aria-label="Twitter" className="hover:text-white transition-colors"><Twitter size={16} /></a>
-                <a href="#" aria-label="LinkedIn" className="hover:text-white transition-colors"><Linkedin size={16} /></a>
-                <a href="#" aria-label="GitHub" className="hover:text-white transition-colors"><Github size={16} /></a>
+              <div className="flex items-center gap-4 text-white/35">
+                <span aria-label="Twitter (coming soon)" title="Coming soon"><Twitter size={16} /></span>
+                <span aria-label="LinkedIn (coming soon)" title="Coming soon"><Linkedin size={16} /></span>
+                <span aria-label="GitHub (coming soon)" title="Coming soon"><Github size={16} /></span>
               </div>
               <div className="flex items-center gap-5 text-xs text-white/40">
                 <span>© {new Date().getFullYear()} SIA</span>
-                <a href="#" className="hover:text-white/80 transition-colors">Privacy</a>
-                <a href="#" className="hover:text-white/80 transition-colors">Terms</a>
+                <span className="text-white/35">Privacy</span>
+                <span className="text-white/35">Terms</span>
               </div>
             </div>
           </div>
