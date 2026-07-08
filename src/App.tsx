@@ -22,6 +22,7 @@ import OAuthConsent from "./pages/OAuthConsent";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import CompleteSignup from "./pages/CompleteSignup";
+import BlogPerformanceManagementExamples from "./pages/BlogPerformanceManagementExamples";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
+            <Route path="/blog/performance-management-examples" element={<BlogPerformanceManagementExamples />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
