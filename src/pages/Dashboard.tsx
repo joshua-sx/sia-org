@@ -231,8 +231,8 @@ function LaunchOnboardingView() {
             {copy.subhead}
           </p>
 
-          {/* CTA card */}
-          <div className="mt-8 rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-6 md:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)]">
+          {/* CTA card — the focal element of this view */}
+          <div className="mt-8 rounded-2xl border border-[hsl(var(--accent-blue)/0.18)] bg-[hsl(var(--surface-raised))] p-6 md:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-18px_rgba(0,0,0,0.16)] ring-1 ring-[hsl(var(--accent-blue)/0.05)]">
             <div className="flex flex-col md:flex-row gap-5 md:gap-6 md:items-start">
               <div
                 className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl"
@@ -241,11 +241,11 @@ function LaunchOnboardingView() {
                 <CtaIcon className="h-6 w-6" style={{ color: "hsl(var(--accent-blue))" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-semibold text-foreground tracking-[-0.2px]">{copy.ctaTitle}</h2>
-                <p className="mt-1.5 text-sm text-[hsl(var(--ink-muted))] leading-relaxed">{copy.ctaBody}</p>
+                <h2 className="text-xl font-semibold text-foreground tracking-[-0.3px]">{copy.ctaTitle}</h2>
+                <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] leading-relaxed max-w-[46ch]">{copy.ctaBody}</p>
                 <Button
                   onClick={handleCta}
-                  className="mt-5 h-11 px-6 text-sm font-medium active:scale-[0.98]"
+                  className="mt-6 h-12 px-7 text-[15px] font-medium active:scale-[0.98]"
                   style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
                 >
                   {copy.ctaLabel}
@@ -277,10 +277,10 @@ function LaunchOnboardingView() {
           )}
         </div>
 
-        {/* ASIDE */}
+        {/* ASIDE — supporting context, deliberately flat so the hero leads */}
         <aside className="flex flex-col gap-4">
           {current.key === "cycle" && (
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
               <h3 className="text-sm font-semibold text-foreground">What you'll configure</h3>
               <ol className="mt-4 space-y-3">
                 {CYCLE_SUBSTEPS.map((label, i) => (
@@ -301,7 +301,7 @@ function LaunchOnboardingView() {
             </div>
           )}
 
-          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
             <h3 className="text-sm font-semibold text-foreground">Workspace summary</h3>
             <div className="mt-4 grid grid-cols-3 gap-2">
               <SummaryStat icon={Users} value={employeeCount} label="Employees imported" />
@@ -311,9 +311,9 @@ function LaunchOnboardingView() {
           </div>
 
           {organization && (
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
               <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Organization</p>
-              <p className="mt-1 text-lg font-semibold text-foreground tracking-[-0.2px] truncate">
+              <p className="mt-1 text-base font-semibold text-foreground tracking-[-0.2px] truncate">
                 {organization.name}
               </p>
               <div className="mt-3 space-y-1.5 text-xs text-[hsl(var(--ink-muted))]">
