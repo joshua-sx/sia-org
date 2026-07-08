@@ -122,6 +122,9 @@ const OrgEmployees = () => {
             <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
               Import a CSV or add people manually. No invitations are sent during setup.
             </p>
+            <p className="mt-2 text-xs text-[hsl(var(--ink-subtle))]">
+              Optional during setup — you can skip and come back any time. Appraisal cycles require at least one employee.
+            </p>
           </div>
 
           {showAttention && (
