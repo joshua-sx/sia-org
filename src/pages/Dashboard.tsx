@@ -24,6 +24,7 @@ import {
 } from "@/hooks/useOnboarding";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { DashboardAppraisalCard } from "@/components/appraisals/DashboardAppraisalCard";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
@@ -123,6 +124,8 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      <DashboardAppraisalCard className="mt-8" />
 
       <div className="mt-8 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">

@@ -38,6 +38,8 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
+import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
+import { cycleTrackerSteps } from "@/lib/trackerSteps";
 import { formatWindow, todayISO, windowState } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -137,6 +139,8 @@ const AppraisalCycleDetail = () => {
       </div>
 
       <AppraisalsTabs />
+
+      {cycle.status !== "draft" && <CycleProgressTracker cycle={cycle} />}
 
       <WindowsSummary cycle={cycle} />
 
@@ -422,6 +426,45 @@ function PanelNotice({ text }: { text: string }) {
   );
 }
 
+/** Summed goal weights per participant — shared by the tracker and the completion panel (react-query dedupes the key). */
+function useCycleGoalWeights(cycleId: string, participantIds: string[]) {
+  return useQuery({
+    queryKey: ["cycle_goal_progress", cycleId, participantIds.length],
+    queryFn: async () => {
+      if (participantIds.length === 0) return [] as Array<{ participant_id: string; weight: number }>;
+      const { data, error } = await supabase
+        .from("goals")
+        .select("participant_id, weight")
+        .in("participant_id", participantIds);
+      if (error) throw error;
+      return (data ?? []) as Array<{ participant_id: string; weight: number }>;
+    },
+    enabled: participantIds.length > 0,
+  });
+}
+
+/**
+ * Phase-level cycle tracker. On completed cycles it persists as the all-done
+ * audit view.
+ */
+function CycleProgressTracker({ cycle }: { cycle: { id: string; status: "draft" | "active" | "completed" } }) {
+  const { data: participants = [], isLoading } = useCycleParticipants(cycle.id);
+  const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
+  const { data: goalWeights = [] } = useCycleGoalWeights(cycle.id, participantIds);
+
+  if (isLoading) return null;
+
+  return (
+    <div className="mt-6">
+      <ProgressTracker
+        title="Cycle progress"
+        steps={cycleTrackerSteps(cycle, participants, goalWeights)}
+        defaultOpen
+      />
+    </div>
+  );
+}
+
 function ProgressPanel({
   cycleId,
   acknowledgementDue,
@@ -445,52 +488,20 @@ function ProgressPanel({
     refetch,
   } = useCycleParticipants(cycleId);
 
-  const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
-  const { data: goalWeights = [] } = useQuery({
-    queryKey: ["cycle_goal_progress", cycleId, participantIds.length],
-    queryFn: async () => {
-      if (participantIds.length === 0) return [] as Array<{ participant_id: string; weight: number }>;
-      const { data, error } = await supabase
-        .from("goals")
-        .select("participant_id, weight")
-        .in("participant_id", participantIds);
-      if (error) throw error;
-      return (data ?? []) as Array<{ participant_id: string; weight: number }>;
-    },
-    enabled: participantIds.length > 0,
-  });
-
-  const weightByParticipant = useMemo(() => {
-    const m = new Map<string, number>();
-    goalWeights.forEach((g) => m.set(g.participant_id, (m.get(g.participant_id) ?? 0) + g.weight));
-    return m;
-  }, [goalWeights]);
-
   // Terminated participants are shown frozen and excluded from denominators.
   const active = participants.filter((p) => p.employee.employment_status !== "terminated");
   const frozen = participants.length - active.length;
 
-  const goalsReady = active.filter((p) => weightByParticipant.get(p.id) === 100).length;
-  const interimDone = active.filter((p) => !!p.interim_submitted_at).length;
-  const finalDone = active.filter((p) => !!p.final_submitted_at).length;
   const acknowledged = active.filter((p) => !!p.acknowledged_at).length;
-
   const allAcknowledged = active.length > 0 && acknowledged === active.length;
   const duePassed = todayISO() > acknowledgementDue;
   const canComplete = status === "active" && (duePassed || allAcknowledged);
 
-  const stages = [
-    { label: "Goals set (100%)", count: goalsReady },
-    { label: "Interim submitted", count: interimDone },
-    { label: "Final submitted", count: finalDone },
-    { label: "Acknowledged", count: acknowledged },
-  ];
-
   return (
     <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Cycle progress</h2>
+          <h2 className="text-sm font-semibold text-foreground">Completion</h2>
           <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
             <span className="tabular-nums">{active.length}</span> participants
             {frozen > 0 && <> · {frozen} frozen (terminated)</>}
@@ -504,30 +515,21 @@ function ProgressPanel({
         )}
       </div>
       {isHr && status === "active" && !canComplete && (
-        <PanelNotice text="Completing unlocks once the acknowledgement due date has passed or every participant has acknowledged." />
-      )}
-      {isLoading ? (
-        <div className="px-5 py-6">
-          <QueryLoading label="Loading cycle progress" rows={4} />
+        <div className="border-t border-[hsl(var(--hairline))] [&>div]:border-b-0">
+          <PanelNotice text="Completing unlocks once the acknowledgement due date has passed or every participant has acknowledged." />
         </div>
-      ) : isError ? (
-        <div className="px-5 py-6">
+      )}
+      {isLoading && (
+        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
+          <QueryLoading label="Loading cycle progress" rows={2} />
+        </div>
+      )}
+      {isError && (
+        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
           <QueryError
             message={error instanceof Error ? error.message : undefined}
             onRetry={() => void refetch()}
           />
-        </div>
-      ) : (
-        <div className="grid gap-px sm:grid-cols-4 bg-[hsl(var(--hairline))]">
-          {stages.map((s) => (
-            <div key={s.label} className="bg-[hsl(var(--surface-raised))] px-5 py-4">
-              <p className="text-2xl font-semibold tabular-nums text-foreground leading-none">
-                {s.count}
-                <span className="text-sm font-normal text-[hsl(var(--ink-subtle))]">/{active.length}</span>
-              </p>
-              <p className="mt-1.5 text-[11px] text-[hsl(var(--ink-subtle))] leading-tight">{s.label}</p>
-            </div>
-          ))}
         </div>
       )}
     </div>

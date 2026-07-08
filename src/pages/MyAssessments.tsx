@@ -103,7 +103,13 @@ const MyAssessments = () => {
                         </h3>
                       )}
                       {group.rows.map((p) => (
-                        <ParticipantAssessmentCard key={p.id} participant={p} cycle={activeCycle} mode="manager" />
+                        <ParticipantAssessmentCard
+                          key={p.id}
+                          participant={p}
+                          cycle={activeCycle}
+                          mode="manager"
+                          detailHref={`/appraisals/assessments/${p.id}`}
+                        />
                       ))}
                     </div>
                   ))}
@@ -116,7 +122,13 @@ const MyAssessments = () => {
                 <h2 className="text-sm font-semibold text-foreground">As extra reviewer</h2>
                 <div className="space-y-4">
                   {reviewerLane.map((p) => (
-                    <ParticipantAssessmentCard key={p.id} participant={p} cycle={activeCycle} mode="reviewer" />
+                    <ParticipantAssessmentCard
+                      key={p.id}
+                      participant={p}
+                      cycle={activeCycle}
+                      mode="reviewer"
+                      detailHref={`/appraisals/assessments/${p.id}`}
+                    />
                   ))}
                 </div>
               </section>
