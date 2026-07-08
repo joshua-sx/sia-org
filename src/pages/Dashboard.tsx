@@ -127,7 +127,7 @@ const Dashboard = () => {
       <div className="mt-8 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
           <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
-          <span className="text-xs text-[hsl(var(--ink-muted))] tabular-nums">
+          <span className="inline-flex items-center rounded-full bg-[hsl(var(--accent-green)/0.12)] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--accent-green))] tabular-nums">
             {completedCount}/{totalSteps}
           </span>
         </div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
                   <Icon className="h-4 w-4" style={{ color: `hsl(var(${item.accent}))` }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className={`text-sm ${item.done ? "text-[hsl(var(--ink-subtle))] line-through" : "text-foreground"}`}>
+                  <span className={`text-sm ${item.done ? "text-[hsl(var(--ink-muted))]" : "font-medium text-foreground"}`}>
                     {item.label}
                   </span>
                   <span className="ml-2 text-[11px] text-[hsl(var(--ink-subtle))] capitalize">
