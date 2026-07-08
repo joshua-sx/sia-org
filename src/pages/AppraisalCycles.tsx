@@ -49,9 +49,19 @@ const AppraisalCycles = () => {
           </p>
         </div>
         {isHr && (
-          <Button onClick={() => setFormOpen(true)} className="shrink-0">
-            <Plus className="mr-1.5 h-4 w-4" /> New cycle
-          </Button>
+          hasEmployees ? newCycleBtn : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0} className="shrink-0">{newCycleBtn}</span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  Add employees before creating a cycle.{" "}
+                  <Link to="/org/employees" className="underline">Go to Employees</Link>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
         )}
       </div>
 
@@ -75,9 +85,15 @@ const AppraisalCycles = () => {
                 : "Your HR team hasn't created a cycle yet. Check back soon."}
             </p>
             {isHr && (
-              <Button className="mt-5" onClick={() => setFormOpen(true)}>
+              <Button className="mt-5" onClick={() => setFormOpen(true)} disabled={!hasEmployees}>
                 <Plus className="mr-1.5 h-4 w-4" /> Create first cycle
               </Button>
+            )}
+            {isHr && !hasEmployees && (
+              <p className="mt-3 text-xs text-[hsl(var(--ink-muted))]">
+                You need at least one employee first.{" "}
+                <Link to="/org/employees" className="underline">Add employees</Link>
+              </p>
             )}
           </div>
         ) : (
