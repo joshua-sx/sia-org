@@ -162,3 +162,11 @@
   --y: -35px;
   animation: confetti-particle 0.8s 0.1s ease-out forwards;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-burst::before,
+  .confetti-burst::after {
+    animation: none;
+    opacity: 0;
+  }
+}

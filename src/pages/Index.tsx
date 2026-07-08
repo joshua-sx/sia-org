@@ -6,6 +6,7 @@ import {
   useScroll,
   useSpring,
   AnimatePresence,
+  useReducedMotion,
 } from "framer-motion";
 import {
   ArrowRight,
@@ -30,6 +31,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { PageHead } from "@/components/PageHead";
+import { staticFadeVariants } from "@/hooks/useReducedMotion";
 
 /* ─────────────────────────── CONSTANTS ─────────────────────────── */
 
@@ -153,10 +155,21 @@ function Section({ children, className, id }: { children: React.ReactNode; class
 }
 
 function SectionReveal({ children, className }: { children: React.ReactNode; className?: string }) {
+  const reduceMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+  const variants = reduceMotion ? staticFadeVariants : fadeUp;
+
+  if (reduceMotion) {
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <motion.div ref={ref} initial="hidden" animate={inView ? "visible" : "hidden"} variants={fadeUp} className={className}>
+    <motion.div ref={ref} initial="hidden" animate={inView ? "visible" : "hidden"} variants={variants} className={className}>
       {children}
     </motion.div>
   );
@@ -178,20 +191,40 @@ const cardBase = "bg-white border border-black/[0.08] rounded-xl";
 /* ─────────────────────────── SCROLL PROGRESS ─────────────────── */
 
 function ScrollProgressBar() {
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+
+  if (reduceMotion) {
+    return null;
+  }
+
   return <motion.div className="fixed top-0 left-0 right-0 h-[2px] origin-left z-[60]" style={{ scaleX, backgroundColor: COLORS.blue }} />;
 }
 
 /* ─────────────────────────── BACK TO TOP ─────────────────────── */
 
 function BackToTop() {
+  const reduceMotion = useReducedMotion();
   const [show, setShow] = useState(false);
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 600);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  if (reduceMotion) {
+    return show ? (
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}
+        className="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:opacity-80 active:scale-[0.96] transition-[opacity,scale]"
+        aria-label="Back to top"
+      >
+        <ArrowUp size={18} />
+      </button>
+    ) : null;
+  }
+
   return (
     <AnimatePresence initial={false}>
       {show && (
@@ -213,6 +246,7 @@ function BackToTop() {
 /* ─────────────────────────── NAVBAR ─────────────────────────── */
 
 function Navbar() {
+  const reduceMotion = useReducedMotion();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -273,6 +307,29 @@ function Navbar() {
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
+      {reduceMotion ? (
+        mobileOpen && (
+          <div
+            id="landing-mobile-nav"
+            className="md:hidden bg-white border-b border-black/[0.08] overflow-hidden"
+          >
+            <div className="px-5 py-4 flex flex-col gap-3">
+              {NAV_LINKS.map((l) => (
+                <button key={l.label} onClick={() => smoothScroll(l.href)} className="text-left text-sm text-black/70 hover:text-black">
+                  {l.label}
+                </button>
+              ))}
+              <hr className="border-black/[0.08]" />
+              <Link to="/login" className="text-sm text-black/70" onClick={() => setMobileOpen(false)}>
+                Sign in
+              </Link>
+              <Link to="/signup" className="text-sm font-medium bg-black text-white px-5 py-2.5 rounded-full text-center" onClick={() => setMobileOpen(false)}>
+                Get started free
+              </Link>
+            </div>
+          </div>
+        )
+      ) : (
       <AnimatePresence initial={false}>
         {mobileOpen && (
           <motion.div
@@ -299,7 +356,28 @@ function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </header>
+  );
+}
+
+function FadeBlock({
+  children,
+  className,
+  custom,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  custom?: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+  return (
+    <motion.div variants={fadeUp} custom={custom} className={className}>
+      {children}
+    </motion.div>
   );
 }
 
@@ -309,11 +387,7 @@ function HeroBento() {
   return (
     <div className="mt-14 md:mt-20 grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-4 md:gap-5 md:auto-rows-[180px]">
       {/* Tile A — Dashboard mock */}
-      <motion.div
-        variants={fadeUp}
-        custom={0}
-        className={cn(cardBase, "md:col-span-4 md:row-span-2 overflow-hidden flex flex-col")}
-      >
+      <FadeBlock custom={0} className={cn(cardBase, "md:col-span-4 md:row-span-2 overflow-hidden flex flex-col")}>
         <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/[0.06]">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
@@ -353,10 +427,10 @@ function HeroBento() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </FadeBlock>
 
       {/* Tile B — Goals cascaded */}
-      <motion.div variants={fadeUp} custom={1} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col justify-between")}>
+      <FadeBlock custom={1} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col justify-between")}>
         <IconTile icon={Target} color={COLORS.blue} />
         <div>
           <div className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -364,10 +438,10 @@ function HeroBento() {
           </div>
           <div className="text-xs text-black/50 mt-1">Goals cascaded this quarter</div>
         </div>
-      </motion.div>
+      </FadeBlock>
 
       {/* Tile C — Review submitted */}
-      <motion.div variants={fadeUp} custom={2} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col gap-3")}>
+      <FadeBlock custom={2} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col gap-3")}>
         <div className="flex items-center gap-2">
           <CheckCircle2 size={16} style={{ color: COLORS.green }} />
           <span className="text-xs font-medium text-black/70">Review submitted</span>
@@ -381,7 +455,7 @@ function HeroBento() {
           </span>
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-black/[0.05] text-black/60">Manager</span>
         </div>
-      </motion.div>
+      </FadeBlock>
     </div>
   );
 }
@@ -389,6 +463,8 @@ function HeroBento() {
 /* ─────────────────────────── LANDING PAGE ─────────────────────── */
 
 const Index = () => {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="min-h-screen bg-white text-black antialiased" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
       <PageHead
@@ -403,6 +479,37 @@ const Index = () => {
       {/* Hero */}
       <div className="pt-32 pb-20 md:pt-44 md:pb-32 bg-white">
         <Section>
+          {reduceMotion ? (
+            <div className="max-w-[860px] mx-auto text-center">
+              <span className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-black/50 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                Performance management for structured orgs
+              </span>
+              <h1
+                className="text-[clamp(44px,6.5vw,78px)] leading-[1.02] tracking-[-0.03em] mb-7 text-balance font-semibold"
+                style={{ fontFamily: GROTESK }}
+              >
+                Run appraisals that actually work.
+              </h1>
+              <p className="text-lg md:text-xl text-black/60 max-w-[640px] mx-auto leading-relaxed mb-10 text-pretty">
+                One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm shadow-[0_1px_2px_rgba(0,0,0,0.08),0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+                >
+                  Get started free <ArrowRight size={16} />
+                </Link>
+                <button
+                  onClick={() => document.querySelector("#how")?.scrollIntoView({ behavior: "auto" })}
+                  className="inline-flex items-center gap-2 text-sm font-medium text-black/80 hover:text-black bg-white border border-black/[0.12] hover:border-black/[0.24] px-6 py-3 rounded-full transition-colors"
+                >
+                  See how it works
+                </button>
+              </div>
+            </div>
+          ) : (
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[860px] mx-auto text-center">
             <span className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-black/50 mb-6">
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
@@ -432,10 +539,15 @@ const Index = () => {
               </button>
             </div>
           </motion.div>
+          )}
 
+          {reduceMotion ? (
+            <HeroBento />
+          ) : (
           <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } }}>
             <HeroBento />
           </motion.div>
+          )}
         </Section>
       </div>
 
@@ -458,7 +570,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
               <SectionReveal key={f.label} className={f.span}>
-                <motion.div custom={i} variants={fadeUp} className={cn(cardBase, "p-6 h-full flex flex-col gap-4")}>
+                <FadeBlock custom={i} className={cn(cardBase, "p-6 h-full flex flex-col gap-4")}>
                   <IconTile icon={f.icon} color={f.color} />
                   <div className="flex flex-col gap-2">
                     <span className="text-[11px] uppercase tracking-wide font-medium" style={{ color: f.color }}>
@@ -469,7 +581,7 @@ const Index = () => {
                     </h3>
                     <p className="text-sm text-black/60 leading-relaxed text-pretty">{f.desc}</p>
                   </div>
-                </motion.div>
+                </FadeBlock>
               </SectionReveal>
             ))}
           </div>
@@ -492,7 +604,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
             {INDUSTRIES.map((ind, i) => (
               <SectionReveal key={ind.name}>
-                <motion.div custom={i} variants={fadeUp} className={cn(cardBase, "p-6 flex flex-col gap-4 h-full")}>
+                <FadeBlock custom={i} className={cn(cardBase, "p-6 flex flex-col gap-4 h-full")}>
                   <IconTile icon={ind.icon} color={ind.color} />
                   <div>
                     <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -500,7 +612,7 @@ const Index = () => {
                     </h3>
                     <p className="text-sm text-black/50 leading-relaxed mt-1">{ind.desc}</p>
                   </div>
-                </motion.div>
+                </FadeBlock>
               </SectionReveal>
             ))}
           </div>
@@ -523,7 +635,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {STEPS.map((s, i) => (
               <SectionReveal key={s.num}>
-                <motion.div custom={i} variants={fadeUp} className="flex flex-col items-center text-center gap-3">
+                <FadeBlock custom={i} className="flex flex-col items-center text-center gap-3">
                   <span
                     className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white tabular-nums"
                     style={{ backgroundColor: s.color, fontFamily: "'Space Grotesk', sans-serif" }}
@@ -534,7 +646,7 @@ const Index = () => {
                     {s.title}
                   </h3>
                   <p className="text-sm text-black/50 leading-relaxed">{s.desc}</p>
-                </motion.div>
+                </FadeBlock>
               </SectionReveal>
             ))}
           </div>

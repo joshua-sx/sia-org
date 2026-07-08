@@ -13,6 +13,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider>
       <OnboardingProvider>
         <div className="min-h-screen flex w-full bg-[hsl(var(--surface))]">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[hsl(var(--surface-raised))] focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-[0_1px_2px_rgba(0,0,0,0.08)] focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            Skip to main content
+          </a>
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0">
             <header className="h-12 flex items-center gap-3 border-b border-[hsl(var(--hairline))] bg-[hsl(var(--surface))]/80 backdrop-blur px-4 shrink-0">
@@ -22,7 +28,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <span>Live</span>
               </div>
             </header>
-            <main className="flex-1 overflow-auto flex flex-col">
+            <main id="main-content" className="flex-1 overflow-auto flex flex-col">
               <OnboardingStrip />
               <div className="flex-1">{children}</div>
               <OnboardingFooter />
