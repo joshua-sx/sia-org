@@ -6,6 +6,7 @@ import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCyclePar
 import { useMyEmployee } from "@/hooks/useMyEmployee";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantAssessmentCard from "@/components/appraisals/ParticipantAssessmentCard";
+import { ParticipantAssessmentRow } from "@/components/appraisals/ParticipantAssessmentRow";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const MyAssessments = () => {
@@ -103,7 +104,7 @@ const MyAssessments = () => {
                         </h3>
                       )}
                       {group.rows.map((p) => (
-                        <ParticipantAssessmentCard key={p.id} participant={p} cycle={activeCycle} mode="manager" />
+                        <ParticipantAssessmentRow key={p.id} participant={p} cycle={activeCycle} />
                       ))}
                     </div>
                   ))}

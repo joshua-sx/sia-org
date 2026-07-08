@@ -38,6 +38,8 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
+import { ProgressTracker } from "@/components/ProgressTracker";
+import { getHrCycleSteps } from "@/lib/appraisalProgress";
 import { formatWindow, todayISO, windowState } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -479,18 +481,20 @@ function ProgressPanel({
   const duePassed = todayISO() > acknowledgementDue;
   const canComplete = status === "active" && (duePassed || allAcknowledged);
 
-  const stages = [
-    { label: "Goals set (100%)", count: goalsReady },
-    { label: "Interim submitted", count: interimDone },
-    { label: "Final submitted", count: finalDone },
-    { label: "Acknowledged", count: acknowledged },
-  ];
+  const trackerSteps = getHrCycleSteps({
+    active: active.length,
+    goalsReady,
+    interimDone,
+    finalDone,
+    acknowledged,
+    cycleStatus: status,
+  });
 
   return (
     <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Cycle progress</h2>
+          <h2 className="text-sm font-semibold text-foreground">Progress</h2>
           <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
             <span className="tabular-nums">{active.length}</span> participants
             {frozen > 0 && <> · {frozen} frozen (terminated)</>}
@@ -518,16 +522,12 @@ function ProgressPanel({
           />
         </div>
       ) : (
-        <div className="grid gap-px sm:grid-cols-4 bg-[hsl(var(--hairline))]">
-          {stages.map((s) => (
-            <div key={s.label} className="bg-[hsl(var(--surface-raised))] px-5 py-4">
-              <p className="text-2xl font-semibold tabular-nums text-foreground leading-none">
-                {s.count}
-                <span className="text-sm font-normal text-[hsl(var(--ink-subtle))]">/{active.length}</span>
-              </p>
-              <p className="mt-1.5 text-[11px] text-[hsl(var(--ink-subtle))] leading-tight">{s.label}</p>
-            </div>
-          ))}
+        <div className="p-5">
+          <ProgressTracker
+            title="Cycle progress"
+            steps={trackerSteps}
+            defaultOpen={status === "active"}
+          />
         </div>
       )}
     </div>

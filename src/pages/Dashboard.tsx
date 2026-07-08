@@ -24,6 +24,12 @@ import {
 } from "@/hooks/useOnboarding";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
+import { useCycleParticipants } from "@/hooks/useCycleParticipants";
+import { useGoals } from "@/hooks/useGoals";
+import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { ProgressTracker } from "@/components/ProgressTracker";
+import { getEmployeeAppraisalSteps } from "@/lib/appraisalProgress";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
@@ -90,6 +96,23 @@ const Dashboard = () => {
   const { profile, organization } = useAuth();
   const { steps, completedCount, totalSteps, resume, setupComplete } = useOnboarding();
 
+  // Employee-facing appraisal status. Hooks must run unconditionally, so they
+  // sit above the onboarding early-return even though the tracker only renders
+  // for non-admins who participate in the active cycle.
+  const isEmployeeView = profile?.role !== "hr_admin";
+  const { activeCycle } = useAppraisalCycles();
+  const { myEmployee } = useMyEmployee();
+  const { data: participants = [] } = useCycleParticipants(activeCycle?.id);
+  const myParticipant = myEmployee
+    ? participants.find((p) => p.employee_id === myEmployee.id) ?? null
+    : null;
+  const { data: goals = [] } = useGoals(myParticipant?.id);
+  const employeeSteps = myParticipant
+    ? getEmployeeAppraisalSteps({ goals, participant: myParticipant })
+    : [];
+  const employeeComplete =
+    employeeSteps.length > 0 && employeeSteps.every((s) => s.status === "done");
+
   if (!setupComplete) {
     return <LaunchOnboardingView />;
   }
@@ -123,6 +146,16 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {isEmployeeView && myParticipant && (
+        <div className="mt-8 max-w-[560px]">
+          <ProgressTracker
+            title="Your appraisal"
+            steps={employeeSteps}
+            defaultOpen={!employeeComplete}
+          />
+        </div>
+      )}
 
       <div className="mt-8 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
