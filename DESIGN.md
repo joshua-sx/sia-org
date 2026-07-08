@@ -1,4 +1,23 @@
-# Design System Inspired by Notion
+# Design System
+
+> ## Two surfaces, two languages (read first)
+>
+> SIA has two distinct UI surfaces, and they intentionally differ:
+>
+> 1. **Marketing / landing** (`src/components/landing/*`) — the Notion-inspired
+>    language documented in the rest of this file: warm neutrals, whisper borders,
+>    a single blue accent for CTAs.
+> 2. **Product app** (dashboard, onboarding, appraisals — everything behind auth) —
+>    a warm off-white canvas with an intentional **four-accent role-coding system**
+>    (`--accent-blue/red/yellow/green`), Space Grotesk headings + DM Sans body.
+>    The accents are wayfinding, not decoration: each onboarding step and its
+>    matching sidebar destination owns one hue.
+>
+> The app palette is the source of truth in `src/index.css` and is documented in
+> `.interface-design/system.md`. Earlier drafts of this file described a single
+> `#0075de` accent for the whole product; that was drift. The product app uses the
+> multi-accent system deliberately. The Notion sections below still govern the
+> marketing surface.
 
 ## 1. Visual Theme & Atmosphere
 
