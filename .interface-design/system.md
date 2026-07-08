@@ -84,13 +84,34 @@ never size alone.
 
 ## Component patterns
 
-_(Filled in as phases land — record values worth remembering, not one-offs.)_
+Recorded values worth remembering (not one-offs or prop variations).
 
-- Aside card — `rounded-xl border border-[hsl(var(--hairline))]
-  bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]`.
-- (Phase 2) Setup CTA card — TBD.
-- (Phase 2) Pipeline indicator — TBD.
-- (Phase 4) Onboarding step pill — TBD.
+- **Setup CTA card** (dashboard hero focal element) — `rounded-2xl` ·
+  `border border-[hsl(var(--accent-blue)/0.18)]` · `ring-1
+  ring-[hsl(var(--accent-blue)/0.05)]` · `p-6 md:p-8` · elevation
+  `shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-18px_rgba(0,0,0,0.16)]`.
+  Title 20px/600, body max 46ch, primary button h-12 px-7 15px/500. It is the
+  ONLY elevated surface on the view; everything else is flat.
+- **Setup pipeline** (signature) — horizontal `<ol>` of 40px round nodes joined by
+  2px connectors, driven by `useOnboarding().steps`. Node states: done = green
+  tint + check; current = own accent tint + `0 0 0 2px accent/0.35` ring + step
+  icon; upcoming = hairline border + `--ink-subtle` icon. Connector = green/0.5
+  when the preceding step is done, else hairline. Labels 11px/500, current in
+  foreground else subtle.
+- **Onboarding step pill** (persistent strip) — `rounded-full px-2.5 py-1
+  11px/500`, one leading glyph per state mirroring the pipeline (done check /
+  current step-icon + `0 0 0 1px accent/0.3` ring / skipped minus / upcoming muted
+  step-icon). Shares the pipeline's state vocabulary, not its geometry.
+- **Aside card** (flat supporting context) — `rounded-xl border
+  border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5`, no shadow.
+- **Checklist row** — 14px label; actionable rows `font-medium` foreground, done
+  rows `--ink-muted` (no strikethrough — the green check carries "done"). Header
+  count is a green pill (`accent-green/0.12` bg, 11px/500, tabular-nums).
+- **Skipped-yellow text** — always `hsl(45,55%,32%)` on `accent-yellow/0.14`
+  (strip pill, dashboard resume button). One value, used everywhere.
+- **StepSuccess** — 64px green-tint check circle; eyebrow 11px uppercase
+  tracking-0.14em; title 26px/600 Space Grotesk tracking-0.4px. Entrance motion
+  drops movement under `prefers-reduced-motion`, keeps opacity fade.
 
 ## Checks before showing (skill discipline)
 

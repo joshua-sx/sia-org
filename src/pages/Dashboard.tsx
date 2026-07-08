@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Circle,
   ChevronRight,
-  CalendarClock,
   Minus,
   Users,
   Building2,
@@ -17,7 +16,12 @@ import {
   Globe2,
   Briefcase,
 } from "lucide-react";
-import { useOnboarding, type OnboardingStatus, type OnboardingStepKey } from "@/hooks/useOnboarding";
+import {
+  useOnboarding,
+  type OnboardingStatus,
+  type OnboardingStep,
+  type OnboardingStepKey,
+} from "@/hooks/useOnboarding";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 
@@ -82,13 +86,6 @@ const CYCLE_SUBSTEPS = [
   "Final launch confirmation",
 ];
 
-const STEP_ICON: Record<OnboardingStepKey, typeof CalendarClock> = {
-  account: CheckCircle2,
-  structure: Building2,
-  people: Users,
-  cycle: CalendarClock,
-};
-
 const Dashboard = () => {
   const { profile, organization } = useAuth();
   const { steps, completedCount, totalSteps, resume, setupComplete } = useOnboarding();
@@ -130,7 +127,7 @@ const Dashboard = () => {
       <div className="mt-8 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
           <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
-          <span className="text-xs text-[hsl(var(--ink-muted))] tabular-nums">
+          <span className="inline-flex items-center rounded-full bg-[hsl(var(--accent-green)/0.12)] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--accent-green))] tabular-nums">
             {completedCount}/{totalSteps}
           </span>
         </div>
@@ -147,7 +144,7 @@ const Dashboard = () => {
                   <Icon className="h-4 w-4" style={{ color: `hsl(var(${item.accent}))` }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className={`text-sm ${item.done ? "text-[hsl(var(--ink-subtle))] line-through" : "text-foreground"}`}>
+                  <span className={`text-sm ${item.done ? "text-[hsl(var(--ink-muted))]" : "font-medium text-foreground"}`}>
                     {item.label}
                   </span>
                   <span className="ml-2 text-[11px] text-[hsl(var(--ink-subtle))] capitalize">
@@ -159,7 +156,7 @@ const Dashboard = () => {
                 ) : item.skipped ? (
                   <button
                     onClick={() => resume(item.key)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(45,70%,32%)] bg-[hsl(var(--accent-yellow)/0.14)] hover:bg-[hsl(var(--accent-yellow)/0.22)] active:scale-[0.96]"
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(45,55%,32%)] bg-[hsl(var(--accent-yellow)/0.14)] hover:bg-[hsl(var(--accent-yellow)/0.22)] active:scale-[0.96]"
                     style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
                   >
                     <Minus className="h-3 w-3" /> Resume
@@ -192,7 +189,6 @@ function LaunchOnboardingView() {
 
   const current = steps.find((s) => s.status === "current") ?? steps.find((s) => !s.done) ?? steps[steps.length - 1];
   const copy = LAUNCH_COPY[current.key];
-  const CtaIcon = STEP_ICON[current.key];
   const doneSteps = steps.filter((s) => s.done);
 
   const employeeCount = employees.data?.length ?? 0;
@@ -231,29 +227,24 @@ function LaunchOnboardingView() {
             {copy.subhead}
           </p>
 
-          {/* CTA card */}
-          <div className="mt-8 rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-6 md:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)]">
-            <div className="flex flex-col md:flex-row gap-5 md:gap-6 md:items-start">
-              <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl"
-                style={{ backgroundColor: "hsl(var(--accent-blue) / 0.1)" }}
+          {/* CTA card — the focal element of this view */}
+          <div className="mt-8 rounded-2xl border border-[hsl(var(--accent-blue)/0.18)] bg-[hsl(var(--surface-raised))] p-6 md:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-18px_rgba(0,0,0,0.16)] ring-1 ring-[hsl(var(--accent-blue)/0.05)]">
+            {/* Signature: the setup pipeline being assembled */}
+            <SetupPipeline steps={steps} currentKey={current.key} />
+
+            <div className="mt-7 border-t border-[hsl(var(--hairline))] pt-6">
+              <h2 className="text-xl font-semibold text-foreground tracking-[-0.3px]">{copy.ctaTitle}</h2>
+              <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] leading-relaxed max-w-[46ch]">{copy.ctaBody}</p>
+              <Button
+                onClick={handleCta}
+                className="mt-6 h-12 px-7 text-[15px] font-medium active:scale-[0.98]"
+                style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
               >
-                <CtaIcon className="h-6 w-6" style={{ color: "hsl(var(--accent-blue))" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-semibold text-foreground tracking-[-0.2px]">{copy.ctaTitle}</h2>
-                <p className="mt-1.5 text-sm text-[hsl(var(--ink-muted))] leading-relaxed">{copy.ctaBody}</p>
-                <Button
-                  onClick={handleCta}
-                  className="mt-5 h-11 px-6 text-sm font-medium active:scale-[0.98]"
-                  style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
-                >
-                  {copy.ctaLabel}
-                </Button>
-                <div className="mt-4 flex items-center gap-2 text-xs text-[hsl(var(--ink-subtle))]">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>No employee invitations will be sent until you confirm launch.</span>
-                </div>
+                {copy.ctaLabel}
+              </Button>
+              <div className="mt-4 flex items-center gap-2 text-xs text-[hsl(var(--ink-subtle))]">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>No employee invitations will be sent until you confirm launch.</span>
               </div>
             </div>
           </div>
@@ -277,10 +268,10 @@ function LaunchOnboardingView() {
           )}
         </div>
 
-        {/* ASIDE */}
+        {/* ASIDE — supporting context, deliberately flat so the hero leads */}
         <aside className="flex flex-col gap-4">
           {current.key === "cycle" && (
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
               <h3 className="text-sm font-semibold text-foreground">What you'll configure</h3>
               <ol className="mt-4 space-y-3">
                 {CYCLE_SUBSTEPS.map((label, i) => (
@@ -301,7 +292,7 @@ function LaunchOnboardingView() {
             </div>
           )}
 
-          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
             <h3 className="text-sm font-semibold text-foreground">Workspace summary</h3>
             <div className="mt-4 grid grid-cols-3 gap-2">
               <SummaryStat icon={Users} value={employeeCount} label="Employees imported" />
@@ -311,9 +302,9 @@ function LaunchOnboardingView() {
           </div>
 
           {organization && (
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
               <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Organization</p>
-              <p className="mt-1 text-lg font-semibold text-foreground tracking-[-0.2px] truncate">
+              <p className="mt-1 text-base font-semibold text-foreground tracking-[-0.2px] truncate">
                 {organization.name}
               </p>
               <div className="mt-3 space-y-1.5 text-xs text-[hsl(var(--ink-muted))]">
@@ -342,6 +333,74 @@ function LaunchOnboardingView() {
       </div>
     </div>
     </>
+  );
+}
+
+function SetupPipeline({
+  steps,
+  currentKey,
+}: {
+  steps: OnboardingStep[];
+  currentKey: OnboardingStepKey;
+}) {
+  return (
+    <ol className="flex items-start" aria-label="Setup progress">
+      {steps.map((step, i) => {
+        const Icon = step.icon;
+        const isCurrent = step.key === currentKey;
+        const isDone = step.done;
+        const nodeStyle = isDone
+          ? {
+              backgroundColor: "hsl(var(--accent-green) / 0.14)",
+              color: "hsl(var(--accent-green))",
+            }
+          : isCurrent
+          ? {
+              backgroundColor: `hsl(var(${step.accent}) / 0.14)`,
+              color: `hsl(var(${step.accent}))`,
+              boxShadow: `0 0 0 2px hsl(var(${step.accent}) / 0.35)`,
+            }
+          : {
+              color: "hsl(var(--ink-subtle))",
+              border: "1px solid hsl(var(--hairline))",
+            };
+        return (
+          <li key={step.key} className="contents">
+            <div className="flex w-16 shrink-0 flex-col items-center gap-2">
+              <span
+                className="flex h-10 w-10 items-center justify-center rounded-full"
+                style={{ ...nodeStyle, transitionProperty: "background-color, box-shadow, color", transitionDuration: "200ms" }}
+              >
+                {isDone ? (
+                  <Check className="h-4 w-4" strokeWidth={3} />
+                ) : (
+                  <Icon className="h-[18px] w-[18px]" />
+                )}
+              </span>
+              <span
+                className={
+                  "text-[11px] font-medium leading-none " +
+                  (isCurrent ? "text-foreground" : "text-[hsl(var(--ink-subtle))]")
+                }
+              >
+                {step.label}
+              </span>
+            </div>
+            {i < steps.length - 1 && (
+              <span
+                className="mt-5 h-[2px] flex-1 rounded-full"
+                style={{
+                  backgroundColor: step.done
+                    ? "hsl(var(--accent-green) / 0.5)"
+                    : "hsl(var(--hairline))",
+                }}
+                aria-hidden
+              />
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 

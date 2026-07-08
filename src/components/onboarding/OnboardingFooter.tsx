@@ -80,7 +80,7 @@ export function OnboardingFooter() {
           ) : (
             <span className="text-xs text-[hsl(var(--ink-subtle))]">First step</span>
           )}
-          <span className="hidden md:inline text-[hsl(var(--hairline))]">|</span>
+          <span className="hidden md:block h-4 w-px bg-[hsl(var(--hairline))]" aria-hidden />
           <p
             className={
               "hidden md:block text-xs tabular-nums " +
@@ -100,7 +100,7 @@ export function OnboardingFooter() {
           {!isAlreadyDone && (
             <Popover open={skipOpen} onOpenChange={setSkipOpen}>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-[hsl(var(--ink-muted))]">
+                <Button variant="ghost" size="sm" className="text-xs text-[hsl(var(--ink-subtle))] hover:text-[hsl(var(--ink-muted))]">
                   Skip this step
                 </Button>
               </PopoverTrigger>

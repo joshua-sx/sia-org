@@ -6,6 +6,7 @@ import { useOnboardingContext } from "./OnboardingContext";
 
 function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }) {
   const { status, label, accent } = step;
+  const Icon = step.icon;
 
   const base =
     "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-none transition-colors";
@@ -45,9 +46,10 @@ function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }
         style={{
           backgroundColor: `hsl(var(${accent}) / 0.14)`,
           color: `hsl(var(${accent}))`,
+          boxShadow: `0 0 0 1px hsl(var(${accent}) / 0.3)`,
         }}
       >
-        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${accent}))` }} />
+        <Icon className="h-3 w-3" />
         {label}
       </span>
     );
@@ -56,6 +58,7 @@ function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }
       <span
         className={`${base} border border-[hsl(var(--hairline))] text-[hsl(var(--ink-subtle))]`}
       >
+        <Icon className="h-3 w-3 text-[hsl(var(--ink-subtle))]" />
         {label}
       </span>
     );
