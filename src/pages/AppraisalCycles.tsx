@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CalendarClock, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
+import { useEmployees } from "@/hooks/useEmployees";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
@@ -14,9 +16,20 @@ const AppraisalCycles = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { data: cycles = [], isLoading, isError, error, refetch } = useAppraisalCycles();
+  const { data: employees = [] } = useEmployees();
   const [formOpen, setFormOpen] = useState(false);
 
   const isHr = profile?.role === "hr_admin";
+  const hasEmployees = employees.length > 0;
+  const newCycleBtn = (
+    <Button
+      onClick={() => setFormOpen(true)}
+      className="shrink-0"
+      disabled={!hasEmployees}
+    >
+      <Plus className="mr-1.5 h-4 w-4" /> New cycle
+    </Button>
+  );
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
