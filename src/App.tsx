@@ -15,6 +15,7 @@ import AppraisalCycles from "./pages/AppraisalCycles";
 import AppraisalCycleDetail from "./pages/AppraisalCycleDetail";
 import MyGoals from "./pages/MyGoals";
 import MyAssessments from "./pages/MyAssessments";
+import AssessmentDetail from "./pages/AssessmentDetail";
 import MyReview from "./pages/MyReview";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/appraisals" element={<ProtectedRoute><AppLayout><AppraisalCycles /></AppLayout></ProtectedRoute>} />
             <Route path="/appraisals/goals" element={<ProtectedRoute><AppLayout><MyGoals /></AppLayout></ProtectedRoute>} />
             <Route path="/appraisals/assessments" element={<ProtectedRoute><AppLayout><MyAssessments /></AppLayout></ProtectedRoute>} />
+            <Route path="/appraisals/assessments/:participantId" element={<ProtectedRoute><AppLayout><AssessmentDetail /></AppLayout></ProtectedRoute>} />
             <Route path="/appraisals/my-review" element={<ProtectedRoute><AppLayout><MyReview /></AppLayout></ProtectedRoute>} />
             <Route path="/appraisals/:id" element={<ProtectedRoute><AppLayout><AppraisalCycleDetail /></AppLayout></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />

@@ -174,3 +174,77 @@
     opacity: 0;
   }
 }
+
+/* ProgressTracker: collapse, progress ring, strikethrough, row enter */
+.pt-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.32s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.28s ease;
+}
+
+.pt-collapse.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.pt-collapse > div {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.pt-ring-fill {
+  transition: stroke-dasharray 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.pt-strike {
+  position: relative;
+}
+
+.pt-strike::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(50% + 1px);
+  height: 1px;
+  width: 0;
+  background: hsl(var(--ink-subtle));
+  transition: width 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.pt-strike.is-done::after {
+  width: 100%;
+}
+
+.pt-strike.no-anim::after {
+  transition: none;
+}
+
+@keyframes pt-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pt-step-enter {
+  animation: pt-step-in 0.35s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-collapse,
+  .pt-ring-fill,
+  .pt-strike::after {
+    transition: none;
+  }
+
+  .pt-step-enter {
+    animation: none;
+  }
+}

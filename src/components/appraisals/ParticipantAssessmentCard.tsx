@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { CheckCircle2, Lock, Save, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,9 +26,11 @@ interface Props {
   cycle: AppraisalCycle;
   /** "manager" = rate + comment (also hr_admin); "reviewer" = reviewer comments only. */
   mode: "manager" | "reviewer";
+  /** When set, the header links to the participant's appraisal detail page. */
+  detailHref?: string;
 }
 
-export function ParticipantAssessmentCard({ participant, cycle, mode }: Props) {
+export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref }: Props) {
   const { data: goals = [], isLoading: goalsLoading } = useGoals(participant.id);
   const goalIds = useMemo(() => goals.map((g) => g.id), [goals]);
   const {
@@ -72,6 +75,14 @@ export function ParticipantAssessmentCard({ participant, cycle, mode }: Props) {
           <ScoreStat label="Final" value={participant.final_score} />
           <ScoreStat label="Overall" value={participant.overall_score} emphasize />
         </div>
+        {detailHref && (
+          <Link
+            to={detailHref}
+            className="shrink-0 rounded-md border border-[hsl(var(--hairline))] px-2 py-0.5 text-[11.5px] font-medium text-foreground transition-colors hover:border-[hsl(var(--ink-subtle))]"
+          >
+            Open →
+          </Link>
+        )}
       </div>
 
       {loading ? (

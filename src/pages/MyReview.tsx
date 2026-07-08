@@ -8,8 +8,10 @@ import { useGoals } from "@/hooks/useGoals";
 import { useAssessments } from "@/hooks/useAssessments";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
+import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
 import { QueryError, QueryLoading } from "@/components/QueryState";
-import { formatScore } from "@/lib/scoring";
+import { participantTrackerSteps } from "@/lib/trackerSteps";
+import { formatScore, weightSum } from "@/lib/scoring";
 import { RATING_LABELS } from "@/lib/assessmentSchema";
 import { STAGE_LABELS, canAcknowledge, type Stage } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
@@ -124,8 +126,18 @@ const MyReview = () => {
           <EmptyNote text="Your manager hasn't set your goals for this cycle yet." />
         ) : (
           <div className="space-y-6">
+            <ProgressTracker
+              title="Your appraisal"
+              steps={participantTrackerSteps(myParticipant, weightSum(goals), {
+                acknowledgeAction: { label: "Acknowledge", href: "#acknowledge" },
+              })}
+            />
+
             {finalRevealed && (
-              <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5">
+              <div
+                id="acknowledge"
+                className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex gap-6">
                     <ScoreStat label="Interim" value={myParticipant.interim_score} />
