@@ -18,13 +18,14 @@ function RouteLoadingScreen() {
 }
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
+  const { session, profile, loading } = useAuth();
 
   if (loading) {
     return <RouteLoadingScreen />;
   }
 
   if (!session) return <Navigate to="/login" replace />;
+  if (!profile) return <Navigate to="/complete-signup" replace />;
   return <>{children}</>;
 };
 
