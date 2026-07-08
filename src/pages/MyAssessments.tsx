@@ -6,17 +6,36 @@ import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCyclePar
 import { useMyEmployee } from "@/hooks/useMyEmployee";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantAssessmentCard from "@/components/appraisals/ParticipantAssessmentCard";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const MyAssessments = () => {
   const { profile } = useAuth();
-  const { activeCycle, isLoading: cyclesLoading } = useAppraisalCycles();
-  const { data: participants = [], isLoading: participantsLoading } = useCycleParticipants(
-    activeCycle?.id,
-  );
+  const {
+    activeCycle,
+    isLoading: cyclesLoading,
+    isError: cyclesError,
+    error: cyclesErr,
+    refetch: refetchCycles,
+  } = useAppraisalCycles();
+  const {
+    data: participants = [],
+    isLoading: participantsLoading,
+    isError: participantsError,
+    error: participantsErr,
+    refetch: refetchParticipants,
+  } = useCycleParticipants(activeCycle?.id);
   const { myEmployee } = useMyEmployee();
 
   const isHr = profile?.role === "hr_admin";
-  const loading = cyclesLoading || (activeCycle && participantsLoading);
+  const loading = cyclesLoading || (!!activeCycle && participantsLoading);
+  const loadError = cyclesError || (!!activeCycle && participantsError);
+  const loadErrorMessage =
+    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
+    (participantsErr instanceof Error ? participantsErr.message : undefined);
+  const retryLoad = () => {
+    void refetchCycles();
+    if (activeCycle) void refetchParticipants();
+  };
 
   // Two lanes: reports I manage (or all, for hr_admin) get the manager lane;
   // participants where I'm the extra reviewer get the reviewer lane. RLS
@@ -65,7 +84,9 @@ const MyAssessments = () => {
 
       <div className="mt-6 space-y-8">
         {loading ? (
-          <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+          <QueryLoading label="Loading assessments" />
+        ) : loadError ? (
+          <QueryError message={loadErrorMessage} onRetry={retryLoad} />
         ) : !activeCycle ? (
           <EmptyNote text="There's no active appraisal cycle right now." />
         ) : (

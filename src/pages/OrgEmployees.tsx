@@ -14,6 +14,7 @@ import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
 import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModal";
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +29,14 @@ import {
 const OrgEmployees = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const { data: employees = [], isLoading, deleteEmployee } = useEmployees();
+  const {
+    data: employees = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    deleteEmployee,
+  } = useEmployees();
   const { data: units = [] } = useOrgUnits();
   const { markSkipped } = useOnboarding();
 
@@ -143,7 +151,12 @@ const OrgEmployees = () => {
 
         <div className="mt-8">
           {isLoading ? (
-            <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+            <QueryLoading label="Loading employees" />
+          ) : isError ? (
+            <QueryError
+              message={error instanceof Error ? error.message : undefined}
+              onRetry={() => void refetch()}
+            />
           ) : empty ? (
             <EmployeeEmptyState
               onImport={() => setImportOpen(true)}

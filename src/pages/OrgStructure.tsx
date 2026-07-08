@@ -15,13 +15,28 @@ import AddUnitModal from "@/components/org/AddUnitModal";
 import CsvImportModal from "@/components/org/CsvImportModal";
 import EditLevelsModal from "@/components/org/EditLevelsModal";
 import { PageHead } from "@/components/PageHead";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const OrgStructure = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { markComplete } = useOnboarding();
-  const { data: unitTypes = [], isLoading: loadingTypes, createTypes } = useOrgUnitTypes();
-  const { data: units = [], isLoading: loadingUnits, addUnit } = useOrgUnits();
+  const {
+    data: unitTypes = [],
+    isLoading: loadingTypes,
+    isError: typesError,
+    error: typesErr,
+    refetch: refetchTypes,
+    createTypes,
+  } = useOrgUnitTypes();
+  const {
+    data: units = [],
+    isLoading: loadingUnits,
+    isError: unitsError,
+    error: unitsErr,
+    refetch: refetchUnits,
+    addUnit,
+  } = useOrgUnits();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -33,6 +48,14 @@ const OrgStructure = () => {
 
   const isNotAdmin = profile && profile.role !== "hr_admin";
   const loading = loadingTypes || loadingUnits;
+  const loadError = typesError || unitsError;
+  const loadErrorMessage =
+    (typesErr instanceof Error ? typesErr.message : undefined) ??
+    (unitsErr instanceof Error ? unitsErr.message : undefined);
+  const retryLoad = () => {
+    void refetchTypes();
+    void refetchUnits();
+  };
   const hasTypes = unitTypes.length > 0;
   const showWizard = !loading && !hasTypes && !wizardDone;
   
@@ -90,6 +113,22 @@ const OrgStructure = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="flex flex-1 items-center justify-center px-6 py-10">
+        <QueryLoading className="w-full max-w-md" label="Loading organization structure" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-1 items-center justify-center px-6 py-10">
+        <QueryError className="w-full max-w-md" message={loadErrorMessage} onRetry={retryLoad} />
+      </div>
+    );
+  }
+
   if (showWizard) {
     return (
       <SetupWizard
@@ -105,14 +144,6 @@ const OrgStructure = () => {
         createTypes={createTypes}
         addUnit={addUnit}
       />
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
-      </div>
     );
   }
 

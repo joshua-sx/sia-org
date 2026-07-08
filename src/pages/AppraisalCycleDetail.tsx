@@ -40,6 +40,7 @@ import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { formatWindow, todayISO, windowState } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
+import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const AppraisalCycleDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,6 +49,9 @@ const AppraisalCycleDetail = () => {
   const {
     data: cycles = [],
     isLoading,
+    isError,
+    error,
+    refetch,
     activeCycle,
     launchCycle,
     completeCycle,
@@ -63,7 +67,18 @@ const AppraisalCycleDetail = () => {
   if (isLoading) {
     return (
       <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-        <p className="text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+        <QueryLoading label="Loading appraisal cycle" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
+        <QueryError
+          message={error instanceof Error ? error.message : undefined}
+          onRetry={() => void refetch()}
+        />
       </div>
     );
   }
@@ -263,7 +278,13 @@ function DraftLaunchPanel({
   onLaunch: (participants: Array<{ employee_id: string; manager_id: string }>) => Promise<void>;
   launching: boolean;
 }) {
-  const { data: employees = [], isLoading } = useEmployees();
+  const {
+    data: employees = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useEmployees();
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [managerOverrides, setManagerOverrides] = useState<Record<string, string>>({});
 
@@ -323,7 +344,16 @@ function DraftLaunchPanel({
       )}
 
       {isLoading ? (
-        <p className="px-5 py-6 text-sm text-[hsl(var(--ink-muted))]">Loading employees…</p>
+        <div className="px-5 py-6">
+          <QueryLoading label="Loading employees" rows={4} />
+        </div>
+      ) : isError ? (
+        <div className="px-5 py-6">
+          <QueryError
+            message={error instanceof Error ? error.message : undefined}
+            onRetry={() => void refetch()}
+          />
+        </div>
       ) : candidates.length === 0 ? (
         <p className="px-5 py-6 text-sm text-[hsl(var(--ink-muted))]">
           No active employees to include. Add employees first.
@@ -407,7 +437,13 @@ function ProgressPanel({
   onComplete: () => Promise<void>;
   completing: boolean;
 }) {
-  const { data: participants = [], isLoading } = useCycleParticipants(cycleId);
+  const {
+    data: participants = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useCycleParticipants(cycleId);
 
   const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
   const { data: goalWeights = [] } = useQuery({
@@ -471,7 +507,16 @@ function ProgressPanel({
         <PanelNotice text="Completing unlocks once the acknowledgement due date has passed or every participant has acknowledged." />
       )}
       {isLoading ? (
-        <p className="px-5 py-6 text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+        <div className="px-5 py-6">
+          <QueryLoading label="Loading cycle progress" rows={4} />
+        </div>
+      ) : isError ? (
+        <div className="px-5 py-6">
+          <QueryError
+            message={error instanceof Error ? error.message : undefined}
+            onRetry={() => void refetch()}
+          />
+        </div>
       ) : (
         <div className="grid gap-px sm:grid-cols-4 bg-[hsl(var(--hairline))]">
           {stages.map((s) => (
