@@ -65,7 +65,7 @@ const OrgStructure = () => {
     hasTypes && units.length > 0,
     hasTypes && units.length > 0
       ? `${units.length} unit${units.length === 1 ? "" : "s"} added — ready to continue.`
-      : "Configure your levels and add at least one unit to continue."
+      : "Structure is required. Configure your levels and add at least one unit to continue."
   );
 
   const typeMap = useMemo(() => {
@@ -139,7 +139,7 @@ const OrgStructure = () => {
             toast.error(e?.message ?? "Could not mark step complete");
           }
           setWizardDone(true);
-          navigate("/org/employees");
+          navigate("/dashboard");
         }}
         createTypes={createTypes}
         addUnit={addUnit}

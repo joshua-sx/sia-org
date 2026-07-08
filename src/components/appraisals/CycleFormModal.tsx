@@ -20,6 +20,7 @@ import {
 } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
+import { useEmployees } from "@/hooks/useEmployees";
 
 interface Props {
   open: boolean;
@@ -53,6 +54,7 @@ function Field({
 
 export function CycleFormModal({ open, onOpenChange, editing, onSaved }: Props) {
   const { createCycle, updateCycle } = useAppraisalCycles();
+  const { data: employees = [] } = useEmployees();
 
   const form = useForm<CycleFormValues>({
     resolver: zodResolver(cycleFormSchema),
@@ -93,6 +95,10 @@ export function CycleFormModal({ open, onOpenChange, editing, onSaved }: Props) 
 
   const onSubmit = form.handleSubmit(
     async (values) => {
+      if (!editing && employees.length === 0) {
+        toast.error("Add at least one employee before creating a cycle");
+        return;
+      }
       try {
         const cycle = editing
           ? await updateCycle.mutateAsync({ id: editing.id, values })
