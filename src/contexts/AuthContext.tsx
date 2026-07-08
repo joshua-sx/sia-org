@@ -104,36 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [profile]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          setTimeout(async () => {
-            const p = await fetchProfileAndOrg(session.user.id);
-            // If the user has a profile but the current JWT lacks the
-            // organization_id claim (stale session issued before the profile
-            // existed, or right after signup), force one session refresh so
-            // subsequent RLS-protected inserts don't fail with 42501.
-            if (
-              p?.organization_id &&
-              refreshedForUserRef.current !== session.user.id &&
-              !jwtHasOrgClaim(session.access_token)
-            ) {
-              refreshedForUserRef.current = session.user.id;
-              await supabase.auth.refreshSession();
-            }
-          }, 0);
-        } else {
-          setProfile(null);
-          setOrganization(null);
-          refreshedForUserRef.current = null;
-        }
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
+    const loadForSession = async (session: Session | null) => {
       if (session?.user) {
         const p = await fetchProfileAndOrg(session.user.id);
         if (
@@ -144,7 +115,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           refreshedForUserRef.current = session.user.id;
           await supabase.auth.refreshSession();
         }
+      } else {
+        setProfile(null);
+        setOrganization(null);
+        refreshedForUserRef.current = null;
       }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        // Await profile load before clearing loading so ProtectedRoute
+        // doesn't render with session truthy + profile null and bounce
+        // deep-link users to /complete-signup.
+        loadForSession(session).finally(() => setLoading(false));
+      }
+    );
+
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      await loadForSession(session);
       setLoading(false);
     });
 
