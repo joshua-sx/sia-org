@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUp, Check, Sparkles, Twitter, Linkedin, Github } from "lucide-react";
+import { ArrowRight, ArrowUp, Sparkles, Twitter, Linkedin, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   AI_QUICK_ACTIONS,
@@ -8,11 +8,11 @@ import {
   FOOTER_COLUMNS,
   GROTESK,
   INDUSTRIES,
-  PRICING_FEATURES,
   STEPS,
   cardBase,
 } from "./constants";
 import { FadeBlock, IconTile, Section, SectionReveal } from "./primitives";
+import { PricingSection } from "./PricingSection";
 
 export function LandingSections() {
   return (
@@ -203,55 +203,7 @@ export function LandingSections() {
         </Section>
       </div>
 
-      <div id="pricing" className="py-24 md:py-32 bg-white">
-        <Section>
-          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
-            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Pricing</span>
-            <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Simple, transparent pricing.
-            </h2>
-            <p className="text-black/60 text-pretty">One plan. Everything included. Scale as you grow.</p>
-          </SectionReveal>
-          <SectionReveal>
-            <div className={cn(cardBase, "p-8 md:p-10 max-w-[520px] mx-auto")}>
-              <div className="mb-6">
-                <div className="flex items-center gap-2">
-                  <span className="flex gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-                  </span>
-                  <span className="text-xs font-medium uppercase tracking-wide text-black/50">Enterprise</span>
-                </div>
-                <div className="flex items-baseline gap-1 mt-3">
-                  <span className="text-5xl font-bold tracking-tight tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    $6
-                  </span>
-                  <span className="text-black/50 text-sm">/ employee / month</span>
-                </div>
-              </div>
-              <ul className="flex flex-col gap-3 mb-8">
-                {PRICING_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm">
-                    <Check size={16} className="mt-0.5 shrink-0" style={{ color: COLORS.green }} />
-                    <span className="text-black/80">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/signup"
-                className="w-full inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
-              >
-                Get started free <ArrowRight size={16} />
-              </Link>
-            </div>
-          </SectionReveal>
-        </Section>
-      </div>
+      <PricingSection />
 
       <div className="py-24 md:py-32 bg-black">
         <Section className="text-center">

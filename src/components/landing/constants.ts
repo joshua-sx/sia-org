@@ -85,15 +85,64 @@ export const STEPS = [
   { num: "4", color: COLORS.green, title: "Review & act", desc: "Analyze results, export reports, plan next steps." },
 ];
 
-export const PRICING_FEATURES = [
-  "Unlimited appraisal cycles",
-  "Org structure builder",
-  "360° review workflows",
-  "Goal cascading & tracking",
-  "Real-time analytics dashboard",
-  "CSV import / export",
-  "Role-based access control",
-  "Dedicated onboarding support",
+export type PricingPlan = {
+  id: string;
+  name: string;
+  description: string;
+  /** Price per employee per month. `null` means custom/contact sales. */
+  monthlyPrice: number | null;
+  yearlyPrice: number | null;
+  ctaText: string;
+  infoText: string;
+  features: string[];
+  isPopular?: boolean;
+};
+
+export const PRICING_PLANS: PricingPlan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    description: "Run your first appraisal cycle without spending a cent.",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    ctaText: "Get started free",
+    infoText: "No credit card required",
+    features: ["1 active appraisal cycle", "Up to 25 employees", "Goal setting & tracking", "Standard analytics dashboard"],
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    description: "Everything you need to run structured appraisals at scale.",
+    monthlyPrice: 6,
+    yearlyPrice: 4.8,
+    ctaText: "Start free trial",
+    infoText: "14-day free trial",
+    features: [
+      "Unlimited appraisal cycles",
+      "Org structure builder",
+      "360° review workflows",
+      "Goal cascading & tracking",
+      "Real-time analytics dashboard",
+      "CSV import / export",
+    ],
+    isPopular: true,
+  },
+  {
+    id: "business",
+    name: "Business",
+    description: "For large or multi-entity organizations with complex hierarchies.",
+    monthlyPrice: null,
+    yearlyPrice: null,
+    ctaText: "Contact sales",
+    infoText: "Custom contract terms",
+    features: [
+      "Everything in Growth",
+      "Role-based access control",
+      "Dedicated onboarding support",
+      "SSO & custom integrations",
+      "Priority support",
+    ],
+  },
 ];
 
 export const AI_QUICK_ACTIONS = [
