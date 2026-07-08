@@ -15,8 +15,10 @@ const Index = () => (
     <ScrollProgressBar />
     <Navbar />
     <BackToTop />
-    <LandingHero />
-    <LandingSections />
+    <main>
+      <LandingHero />
+      <LandingSections />
+    </main>
     <LandingFooter />
   </div>
 );
