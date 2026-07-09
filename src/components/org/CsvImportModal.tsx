@@ -7,6 +7,7 @@ import { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import { OrgUnit, useOrgUnits } from "@/hooks/useOrgUnits";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
+import { parseCsv } from "@/lib/csv";
 
 interface Props {
   open: boolean;
@@ -41,14 +42,14 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      const lines = text.split("\n").filter((l) => l.trim());
-      if (lines.length < 2) {
+      const grid = parseCsv(text).map((row) => row.map((v) => v.trim()));
+      if (grid.length < 2) {
         toast.error("CSV must have a header row and at least one data row");
         return;
       }
-      const hdrs = lines[0].split(",").map((h) => h.trim());
+      const hdrs = grid[0];
       setHeaders(hdrs);
-      setRows(lines.slice(1).map((line) => ({ values: line.split(",").map((v) => v.trim()) })));
+      setRows(grid.slice(1).map((values) => ({ values })));
 
       // Auto-map if headers match expected names
       const autoMap = { name: "", type: "", parent: "" };

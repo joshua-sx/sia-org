@@ -78,10 +78,11 @@ export function useAppraisalCycles() {
   });
 
   /**
-   * Launch a draft cycle: bulk-insert the resolved participant list, then
-   * flip the status to active. Every participant must already have a manager
-   * (DB column is NOT NULL) — unmanaged employees are resolved or excluded
-   * in the UI before this runs.
+   * Launch a draft cycle: bulk-insert the resolved participant list and flip
+   * the status to active in one transaction via the launch_appraisal_cycle
+   * RPC. Every participant must already have a manager (DB column is NOT
+   * NULL) — unmanaged employees are resolved or excluded in the UI before
+   * this runs.
    */
   const launchCycle = useMutation({
     mutationFn: async ({
@@ -92,16 +93,10 @@ export function useAppraisalCycles() {
       participants: Array<{ employee_id: string; manager_id: string }>;
     }) => {
       if (participants.length === 0) throw new Error("No participants to launch with");
-      const { error: insertError } = await supabase
-        .from("cycle_participants")
-        .insert(participants.map((p) => ({ ...p, cycle_id: cycleId })));
-      if (insertError) throw insertError;
-      const { data, error } = await supabase
-        .from("appraisal_cycles")
-        .update({ status: "active" })
-        .eq("id", cycleId)
-        .select()
-        .single();
+      const { data, error } = await supabase.rpc("launch_appraisal_cycle", {
+        p_cycle_id: cycleId,
+        p_participants: participants,
+      });
       if (error) throw error;
       return data as AppraisalCycle;
     },

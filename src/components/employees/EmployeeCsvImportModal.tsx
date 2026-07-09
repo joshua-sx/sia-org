@@ -13,11 +13,11 @@ import { toast } from "sonner";
 import {
   CSV_COLUMNS,
   downloadTemplateCsv,
-  parseCsv,
   validateRow,
   type CsvColumn,
   type ParsedEmployeeRow,
 } from "@/lib/employeeCsv";
+import { parseCsv } from "@/lib/csv";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useEmployees } from "@/hooks/useEmployees";

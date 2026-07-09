@@ -130,51 +130,6 @@
   }
 }
 
-/* Confetti burst animation for reward moments */
-@keyframes confetti-particle {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
-}
-
-.confetti-burst {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.confetti-burst::before,
-.confetti-burst::after {
-  content: '';
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-}
-
-.confetti-burst::before {
-  background: hsl(var(--primary));
-  --x: -30px;
-  --y: -40px;
-  animation: confetti-particle 0.8s ease-out forwards;
-}
-
-.confetti-burst::after {
-  background: hsl(var(--success));
-  --x: 35px;
-  --y: -35px;
-  animation: confetti-particle 0.8s 0.1s ease-out forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .confetti-burst::before,
-  .confetti-burst::after {
-    animation: none;
-    opacity: 0;
-  }
-}
-
 /* ProgressTracker: collapse, progress ring, strikethrough, row enter */
 .pt-collapse {
   display: grid;

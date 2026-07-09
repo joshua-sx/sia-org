@@ -1,24 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  CheckCircle2,
-  Pencil,
-  Rocket,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,20 +13,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants } from "@/hooks/useCycleParticipants";
-import { useEmployees, type Employee } from "@/hooks/useEmployees";
+import { useCycleGoalWeights } from "@/hooks/useCycleGoalWeights";
+import { useEmployees } from "@/hooks/useEmployees";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
 import { CycleReportsPanel } from "@/components/appraisals/CycleReportsPanel";
+import { CycleWindowsSummary } from "@/components/appraisals/CycleWindowsSummary";
+import { DraftLaunchPanel } from "@/components/appraisals/DraftLaunchPanel";
+import { CycleCompletionPanel } from "@/components/appraisals/CycleCompletionPanel";
 import { cycleTrackerSteps } from "@/lib/trackerSteps";
-import { useOrgUnits, type OrgUnit } from "@/hooks/useOrgUnits";
-import { formatWindow, todayISO, windowState } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
@@ -69,6 +55,13 @@ const AppraisalCycleDetail = () => {
   const isHr = profile?.role === "hr_admin";
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const isLaunched = !!cycle && cycle.status !== "draft";
+  const { data: participants = [], isLoading: participantsLoading } = useCycleParticipants(
+    isLaunched ? cycle.id : undefined,
+  );
+  const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
+  const { data: goalWeights = [] } = useCycleGoalWeights(cycle?.id ?? "", participantIds);
 
   if (isLoading) {
     return (
@@ -144,22 +137,36 @@ const AppraisalCycleDetail = () => {
 
       <AppraisalsTabs />
 
-      {cycle.status !== "draft" && <CycleProgressTracker cycle={cycle} />}
-
-      {isHr && cycle.status !== "draft" && (
-        <CycleReportsSection cycle={cycle} employees={employees} units={units} />
+      {isLaunched && !participantsLoading && (
+        <div className="mt-6">
+          <ProgressTracker
+            title="Cycle progress"
+            steps={cycleTrackerSteps(cycle, participants, goalWeights)}
+            defaultOpen
+          />
+        </div>
       )}
 
-      <WindowsSummary cycle={cycle} />
+      {isHr && isLaunched && !participantsLoading && (
+        <CycleReportsPanel
+          cycle={cycle}
+          participants={participants}
+          goalWeights={goalWeights}
+          employees={employees}
+          units={units}
+        />
+      )}
+
+      <CycleWindowsSummary cycle={cycle} />
 
       {cycle.status === "draft" ? (
         isHr ? (
           <DraftLaunchPanel
             cycleId={cycle.id}
             hasActiveCycle={!!activeCycle}
-            onLaunch={async (participants) => {
+            onLaunch={async (launchParticipants) => {
               try {
-                await launchCycle.mutateAsync({ cycleId: cycle.id, participants });
+                await launchCycle.mutateAsync({ cycleId: cycle.id, participants: launchParticipants });
                 await markComplete("cycle");
                 toast.success("Cycle launched");
               } catch (err) {
@@ -174,7 +181,7 @@ const AppraisalCycleDetail = () => {
           </p>
         )
       ) : (
-        <ProgressPanel
+        <CycleCompletionPanel
           cycleId={cycle.id}
           acknowledgementDue={cycle.acknowledgement_due}
           status={cycle.status}
@@ -223,362 +230,5 @@ const AppraisalCycleDetail = () => {
     </div>
   );
 };
-
-function WindowsSummary({
-  cycle,
-}: {
-  cycle: {
-    goal_window_start: string;
-    goal_window_end: string;
-    interim_window_start: string;
-    interim_window_end: string;
-    final_window_start: string;
-    final_window_end: string;
-    acknowledgement_due: string;
-  };
-}) {
-  const windows = [
-    { label: "Goal setting", start: cycle.goal_window_start, end: cycle.goal_window_end },
-    { label: "Interim assessment", start: cycle.interim_window_start, end: cycle.interim_window_end },
-    { label: "Final assessment", start: cycle.final_window_start, end: cycle.final_window_end },
-  ];
-  return (
-    <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {windows.map((w) => {
-        const state = windowState(w.start, w.end);
-        return (
-          <div
-            key={w.label}
-            className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4"
-          >
-            <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{w.label}</p>
-            <p className="mt-1 text-sm font-medium text-foreground tabular-nums">
-              {formatWindow(w.start, w.end)}
-            </p>
-            <p
-              className="mt-1 text-[11px] font-medium"
-              style={{
-                color:
-                  state === "open"
-                    ? "hsl(var(--accent-green))"
-                    : state === "upcoming"
-                      ? "hsl(var(--accent-blue))"
-                      : "hsl(var(--ink-subtle))",
-              }}
-            >
-              {state === "open" ? "Open now" : state === "upcoming" ? "Upcoming" : "Closed"}
-            </p>
-          </div>
-        );
-      })}
-      <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4">
-        <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Acknowledgement due</p>
-        <p className="mt-1 text-sm font-medium text-foreground tabular-nums">{cycle.acknowledgement_due}</p>
-      </div>
-    </div>
-  );
-}
-
-function DraftLaunchPanel({
-  cycleId,
-  hasActiveCycle,
-  onLaunch,
-  launching,
-}: {
-  cycleId: string;
-  hasActiveCycle: boolean;
-  onLaunch: (participants: Array<{ employee_id: string; manager_id: string }>) => Promise<void>;
-  launching: boolean;
-}) {
-  const {
-    data: employees = [],
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useEmployees();
-  const [excluded, setExcluded] = useState<Set<string>>(new Set());
-  const [managerOverrides, setManagerOverrides] = useState<Record<string, string>>({});
-
-  const candidates = useMemo(
-    () => employees.filter((e) => e.employment_status === "active"),
-    [employees],
-  );
-
-  const managerFor = (e: Employee) => managerOverrides[e.id] ?? e.manager_id ?? null;
-  const included = candidates.filter((e) => !excluded.has(e.id));
-  const unmanaged = included.filter((e) => !managerFor(e));
-  const canLaunch = !hasActiveCycle && included.length > 0 && unmanaged.length === 0;
-
-  const toggleExcluded = (employeeId: string) => {
-    setExcluded((prev) => {
-      const next = new Set(prev);
-      if (next.has(employeeId)) next.delete(employeeId);
-      else next.add(employeeId);
-      return next;
-    });
-  };
-
-  return (
-    <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Participants</h2>
-          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
-            <span className="tabular-nums">{included.length}</span> of{" "}
-            <span className="tabular-nums">{candidates.length}</span> active employees included
-            {excluded.size > 0 && <> · {excluded.size} excluded</>}
-          </p>
-        </div>
-        <Button
-          onClick={() =>
-            onLaunch(
-              included.map((e) => ({
-                employee_id: e.id,
-                manager_id: managerFor(e) as string,
-              })),
-            )
-          }
-          disabled={!canLaunch || launching}
-        >
-          <Rocket className="mr-1.5 h-4 w-4" />
-          {launching ? "Launching…" : "Launch cycle"}
-        </Button>
-      </div>
-
-      {hasActiveCycle && (
-        <PanelNotice text="Another cycle is already active. Complete it before launching this one." />
-      )}
-      {!hasActiveCycle && unmanaged.length > 0 && (
-        <PanelNotice
-          text={`${unmanaged.length} included ${unmanaged.length === 1 ? "employee has" : "employees have"} no manager. Assign one below or exclude them — a cycle can't launch with unmanaged participants.`}
-        />
-      )}
-
-      {isLoading ? (
-        <div className="px-5 py-6">
-          <QueryLoading label="Loading employees" rows={4} />
-        </div>
-      ) : isError ? (
-        <div className="px-5 py-6">
-          <QueryError
-            message={error instanceof Error ? error.message : undefined}
-            onRetry={() => void refetch()}
-          />
-        </div>
-      ) : candidates.length === 0 ? (
-        <p className="px-5 py-6 text-sm text-[hsl(var(--ink-muted))]">
-          No active employees to include. Add employees first.
-        </p>
-      ) : (
-        <div className="divide-y divide-[hsl(var(--hairline))]">
-          {candidates.map((e) => {
-            const isExcluded = excluded.has(e.id);
-            const managerId = managerFor(e);
-            return (
-              <div key={e.id} className={`flex items-center gap-4 px-5 py-3 ${isExcluded ? "opacity-50" : ""}`}>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground truncate">
-                    {e.first_name} {e.last_name}
-                  </p>
-                  <p className="text-xs text-[hsl(var(--ink-subtle))] truncate">
-                    {e.job_title || e.email}
-                  </p>
-                </div>
-                <div className="w-52 shrink-0">
-                  <Select
-                    value={managerId ?? undefined}
-                    onValueChange={(v) => setManagerOverrides((prev) => ({ ...prev, [e.id]: v }))}
-                    disabled={isExcluded}
-                  >
-                    <SelectTrigger
-                      className={`h-8 text-xs ${!managerId && !isExcluded ? "border-[hsl(var(--accent-yellow))]" : ""}`}
-                    >
-                      <SelectValue placeholder="Assign manager…" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {candidates
-                        .filter((m) => m.id !== e.id)
-                        .map((m) => (
-                          <SelectItem key={m.id} value={m.id}>
-                            {m.first_name} {m.last_name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex w-24 shrink-0 items-center justify-end gap-2">
-                  <span className="text-[11px] text-[hsl(var(--ink-subtle))]">
-                    {isExcluded ? "Excluded" : "Included"}
-                  </span>
-                  <Switch checked={!isExcluded} onCheckedChange={() => toggleExcluded(e.id)} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PanelNotice({ text }: { text: string }) {
-  return (
-    <div
-      className="flex items-start gap-2.5 px-5 py-3 border-b border-[hsl(var(--hairline))]"
-      style={{ backgroundColor: "hsl(var(--accent-yellow) / 0.08)" }}
-    >
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "hsl(var(--accent-yellow))" }} />
-      <p className="text-xs text-[hsl(var(--ink-muted))] leading-relaxed">{text}</p>
-    </div>
-  );
-}
-
-/** Summed goal weights per participant — shared by the tracker and the completion panel (react-query dedupes the key). */
-function useCycleGoalWeights(cycleId: string, participantIds: string[]) {
-  return useQuery({
-    queryKey: ["cycle_goal_progress", cycleId, participantIds.length],
-    queryFn: async () => {
-      if (participantIds.length === 0) return [] as Array<{ participant_id: string; weight: number }>;
-      const { data, error } = await supabase
-        .from("goals")
-        .select("participant_id, weight")
-        .in("participant_id", participantIds);
-      if (error) throw error;
-      return (data ?? []) as Array<{ participant_id: string; weight: number }>;
-    },
-    enabled: participantIds.length > 0,
-  });
-}
-
-/**
- * Phase-level cycle tracker. On completed cycles it persists as the all-done
- * audit view.
- */
-function CycleReportsSection({
-  cycle,
-  employees,
-  units,
-}: {
-  cycle: {
-    id: string;
-    name: string;
-    status: "active" | "completed";
-    goal_window_start: string;
-    goal_window_end: string;
-    interim_window_start: string;
-    interim_window_end: string;
-    final_window_start: string;
-    final_window_end: string;
-    acknowledgement_due: string;
-  };
-  employees: Employee[];
-  units: OrgUnit[];
-}) {
-  const { data: participants = [], isLoading } = useCycleParticipants(cycle.id);
-  const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
-  const { data: goalWeights = [] } = useCycleGoalWeights(cycle.id, participantIds);
-
-  if (isLoading) return null;
-
-  return (
-    <CycleReportsPanel
-      cycle={cycle}
-      participants={participants}
-      goalWeights={goalWeights}
-      employees={employees}
-      units={units}
-    />
-  );
-}
-
-function CycleProgressTracker({ cycle }: { cycle: { id: string; status: "draft" | "active" | "completed" } }) {
-  const { data: participants = [], isLoading } = useCycleParticipants(cycle.id);
-  const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
-  const { data: goalWeights = [] } = useCycleGoalWeights(cycle.id, participantIds);
-
-  if (isLoading) return null;
-
-  return (
-    <div className="mt-6">
-      <ProgressTracker
-        title="Cycle progress"
-        steps={cycleTrackerSteps(cycle, participants, goalWeights)}
-        defaultOpen
-      />
-    </div>
-  );
-}
-
-function ProgressPanel({
-  cycleId,
-  acknowledgementDue,
-  status,
-  isHr,
-  onComplete,
-  completing,
-}: {
-  cycleId: string;
-  acknowledgementDue: string;
-  status: "active" | "completed";
-  isHr: boolean;
-  onComplete: () => Promise<void>;
-  completing: boolean;
-}) {
-  const {
-    data: participants = [],
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useCycleParticipants(cycleId);
-
-  // Terminated participants are shown frozen and excluded from denominators.
-  const active = participants.filter((p) => p.employee.employment_status !== "terminated");
-  const frozen = participants.length - active.length;
-
-  const acknowledged = active.filter((p) => !!p.acknowledged_at).length;
-  const allAcknowledged = active.length > 0 && acknowledged === active.length;
-  const duePassed = todayISO() > acknowledgementDue;
-  const canComplete = status === "active" && (duePassed || allAcknowledged);
-
-  return (
-    <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Completion</h2>
-          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
-            <span className="tabular-nums">{active.length}</span> participants
-            {frozen > 0 && <> · {frozen} frozen (terminated)</>}
-          </p>
-        </div>
-        {isHr && status === "active" && (
-          <Button onClick={onComplete} disabled={!canComplete || completing} variant="outline">
-            <CheckCircle2 className="mr-1.5 h-4 w-4" />
-            {completing ? "Completing…" : "Complete cycle"}
-          </Button>
-        )}
-      </div>
-      {isHr && status === "active" && !canComplete && (
-        <div className="border-t border-[hsl(var(--hairline))] [&>div]:border-b-0">
-          <PanelNotice text="Completing unlocks once the acknowledgement due date has passed or every participant has acknowledged." />
-        </div>
-      )}
-      {isLoading && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
-          <QueryLoading label="Loading cycle progress" rows={2} />
-        </div>
-      )}
-      {isError && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
-          <QueryError
-            message={error instanceof Error ? error.message : undefined}
-            onRetry={() => void refetch()}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default AppraisalCycleDetail;

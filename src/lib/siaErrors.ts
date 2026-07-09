@@ -17,6 +17,9 @@ const SIA_MESSAGES: Record<string, string> = {
   SIA_INTERIM_NOT_SUBMITTED: "Submit the interim assessment before the final one.",
   SIA_INVALID_STAGE: "Unknown assessment stage.",
   SIA_NOT_FOUND: "This participant no longer exists.",
+  SIA_CYCLE_NOT_DRAFT: "Only a draft cycle can be launched.",
+  SIA_NO_PARTICIPANTS: "There are no participants to launch with.",
+  SIA_CYCLE_ALREADY_ACTIVE: "Another cycle is already active — complete it before launching this one.",
 };
 
 export function friendlyError(err: unknown, fallback = "Something went wrong"): string {

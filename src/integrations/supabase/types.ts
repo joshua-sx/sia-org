@@ -523,6 +523,30 @@ export type Database = {
         Args: { p_participant_id: string }
         Returns: boolean
       }
+      launch_appraisal_cycle: {
+        Args: { p_cycle_id: string; p_participants: Json }
+        Returns: {
+          acknowledgement_due: string
+          created_at: string
+          final_window_end: string
+          final_window_start: string
+          goal_window_end: string
+          goal_window_start: string
+          id: string
+          interim_window_end: string
+          interim_window_start: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appraisal_cycles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       participant_final_submitted: {
         Args: { p_participant_id: string }
         Returns: boolean

@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
@@ -41,13 +40,7 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
   const [confirmedLevels, setConfirmedLevels] = useState<string[]>([]);
   const [units, setUnits] = useState<UnitNode[]>([]);
   const [showPreview, setShowPreview] = useState(false);
-
-  // Reward ceremony state
-  const [phase, setPhase] = useState<"anticipation" | "reveal" | "afterglow">("anticipation");
-  const [rewardProgress, setRewardProgress] = useState(0);
-  const [treeNodesShown, setTreeNodesShown] = useState(0);
-  const [showStats, setShowStats] = useState(false);
-  const [showCTA, setShowCTA] = useState(false);
+  const [done, setDone] = useState(false);
 
   const progress = (step / TOTAL_STEPS) * 100;
 
@@ -81,14 +74,8 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
 
   const [saving, setSaving] = useState(false);
 
-  const startRewardCeremony = async () => {
+  const confirmAndSave = async () => {
     setSaving(true);
-    setStep(4);
-    setPhase("anticipation");
-    setRewardProgress(0);
-    setTreeNodesShown(0);
-    setShowStats(false);
-    setShowCTA(false);
 
     try {
       // 1. Persist levels
@@ -99,20 +86,24 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
       const levelToTypeId: Record<number, string> = {};
       createdTypes.forEach((t) => { levelToTypeId[t.level] = t.id; });
 
-      // 2. Recursively persist units
+      // 2. Persist units depth-by-depth: siblings within a depth run in
+      // parallel, but a depth must finish before its children can reference
+      // the real parent ids it just created.
       const persistNodes = async (nodes: UnitNode[], depth: number, parentId: string | null) => {
-        for (const node of nodes) {
-          const typeId = levelToTypeId[depth + 1]; // levels are 1-indexed
-          if (!typeId) continue;
-          const created = await addUnit.mutateAsync({
-            name: node.name,
-            unit_type_id: typeId,
-            parent_id: parentId,
-          });
-          if (node.children.length > 0) {
-            await persistNodes(node.children, depth + 1, created.id);
-          }
-        }
+        const typeId = levelToTypeId[depth + 1]; // levels are 1-indexed
+        if (!typeId) return;
+        const createdNodes = await Promise.all(
+          nodes.map((node) =>
+            addUnit.mutateAsync({ name: node.name, unit_type_id: typeId, parent_id: parentId }),
+          ),
+        );
+        await Promise.all(
+          nodes.map((node, i) =>
+            node.children.length > 0
+              ? persistNodes(node.children, depth + 1, createdNodes[i].id)
+              : Promise.resolve(),
+          ),
+        );
       };
 
       if (units.length > 0) {
@@ -122,69 +113,19 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
       toast.error("Error saving structure", {
         description: err?.message || "Something went wrong. Please try again.",
       });
-      setStep(3);
       setSaving(false);
       return;
     }
 
     setSaving(false);
+    setDone(true);
   };
-
-  // Flatten units for sequential reveal
-  const flattenUnits = useCallback((nodes: UnitNode[], depth = 0): { name: string; depth: number }[] => {
-    const result: { name: string; depth: number }[] = [];
-    for (const n of nodes) {
-      result.push({ name: n.name, depth });
-      result.push(...flattenUnits(n.children, depth + 1));
-    }
-    return result;
-  }, []);
-
-  const flatNodes = flattenUnits(units);
 
   // Count nodes at each level
   const countAtLevel = useCallback((nodes: UnitNode[], depth: number, target: number): number => {
     if (depth === target) return nodes.length;
     return nodes.reduce((sum, n) => sum + countAtLevel(n.children, depth + 1, target), 0);
   }, []);
-
-  // Reward ceremony animation
-  useEffect(() => {
-    if (step !== 4) return;
-
-    let p = 0;
-    const tick = setInterval(() => {
-      p += p > 75 ? 0.8 : 2.5;
-      setRewardProgress(Math.min(p, 100));
-      if (p >= 100) {
-        clearInterval(tick);
-        setTimeout(() => {
-          setPhase("reveal");
-          let n = 0;
-          const maxNodes = flatNodes.length;
-          if (maxNodes === 0) {
-            setShowStats(true);
-            setTimeout(() => { setPhase("afterglow"); setShowCTA(true); }, 500);
-            return;
-          }
-          const nodeIn = setInterval(() => {
-            n++;
-            setTreeNodesShown(n);
-            if (n >= maxNodes) {
-              clearInterval(nodeIn);
-              setTimeout(() => setShowStats(true), 400);
-              setTimeout(() => { setPhase("afterglow"); setShowCTA(true); }, 900);
-            }
-          }, 150);
-        }, 350);
-      }
-    }, 30);
-
-    return () => clearInterval(tick);
-  }, [step, flatNodes.length]);
-
-  const anticipationMessages = ["Mapping structure...", "Linking levels...", "Connecting units...", "Almost there..."];
-  const msgIdx = rewardProgress < 30 ? 0 : rewardProgress < 60 ? 1 : rewardProgress < 90 ? 2 : 3;
 
   const hasUnits = units.length > 0;
 
@@ -193,7 +134,13 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk]">
-          {step === 1 ? "Choose your hierarchy template" : step === 2 ? "Build your structure" : step === 3 ? "Review your structure" : "Done"}
+          {step === 1
+            ? "Choose your hierarchy template"
+            : step === 2
+              ? "Build your structure"
+              : done
+                ? "Structure saved"
+                : "Review your structure"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {step === 1
@@ -201,10 +148,10 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
               ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
               : "This determines the organizational levels available during setup. You can adjust later in settings."
             : step === 2
-            ? confirmedLevels.join(" → ")
-            : step === 3
-            ? "Confirm your organizational hierarchy."
-            : ""}
+              ? confirmedLevels.join(" → ")
+              : done
+                ? ""
+                : "Confirm your organizational hierarchy."}
         </p>
 
       </div>
@@ -383,8 +330,8 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
         </div>
       )}
 
-      {/* ═══ Step 3: Preview / Confirm ═══ */}
-      {step === 3 && (
+      {/* ═══ Step 3: Preview / Confirm, then a static success card ═══ */}
+      {step === 3 && !done && (
         <div className="animate-fade-in" key="step-3">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardHeader>
@@ -420,11 +367,12 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-border">
-                <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+                <Button variant="ghost" size="sm" onClick={() => setStep(2)} disabled={saving}>
                   <ArrowLeft className="mr-1 h-4 w-4" /> Edit
                 </Button>
-                <Button onClick={startRewardCeremony}>
-                  Confirm & Finish <ChevronRight className="ml-1 h-4 w-4" />
+                <Button onClick={confirmAndSave} disabled={saving}>
+                  {saving ? "Saving…" : "Confirm & Finish"}
+                  {!saving && <ChevronRight className="ml-1 h-4 w-4" />}
                 </Button>
               </div>
             </CardContent>
@@ -432,118 +380,33 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
         </div>
       )}
 
-      {/* ═══ Step 4: Done — Reward Ceremony ═══ */}
-      {step === 4 && (
-        <div className="animate-fade-in" key="step-4">
+      {step === 3 && done && (
+        <div className="animate-fade-in" key="step-3-done">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardContent className="py-10">
-              {/* Anticipation */}
-              {phase === "anticipation" && (
-                <div className="flex flex-col items-center justify-center space-y-5 py-8">
-                  <div className="h-12 w-12 rounded-full border-2 border-primary/20 flex items-center justify-center">
-                    <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                  </div>
-                  <div className="text-center space-y-2">
-                    <p className="text-sm font-medium text-foreground">
-                      Building your org chart
-                    </p>
-                    <p className="text-xs text-muted-foreground animate-pulse">
-                      {anticipationMessages[msgIdx]}
-                    </p>
-                  </div>
-                  <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all duration-100"
-                      style={{ width: `${rewardProgress}%` }}
-                    />
-                  </div>
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-10 w-10 text-primary" />
                 </div>
-              )}
 
-              {/* Reveal + Afterglow */}
-              {(phase === "reveal" || phase === "afterglow") && (
-                <div className="flex flex-col items-center text-center space-y-6">
-                  {/* Checkmark */}
-                  <div className="relative">
-                    <div className="confetti-burst" />
-                    <div className="animate-scale-in">
-                      <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CheckCircle2 className="h-10 w-10 text-primary" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-bold text-foreground font-[Space_Grotesk]">
-                      Structure ready
-                    </h2>
-                    <p className="text-sm text-muted-foreground max-w-sm">
-                      Your hierarchy is saved. Next, add the people who work inside it.
-                    </p>
-                  </div>
-
-                  {/* Hierarchy path */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 animate-fade-in">
-                    {confirmedLevels.map((level, i) => (
-                      <span key={i} className="flex items-center gap-1.5">
-                        {i > 0 && <span className="text-muted-foreground/40">→</span>}
-                        <div className={`h-2 w-2 rounded-full ${LEVEL_DOT_COLORS[i % LEVEL_DOT_COLORS.length]}`} />
-                        <span className="text-sm font-medium text-foreground">{level}</span>
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Sequential tree reveal */}
-                  {flatNodes.length > 0 && (
-                    <div className="w-full max-w-xs text-left bg-muted/50 rounded-lg p-3 space-y-0.5">
-                      {flatNodes.map((node, idx) =>
-                        idx < treeNodesShown ? (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2 animate-fade-in"
-                            style={{ paddingLeft: node.depth * 16 }}
-                          >
-                            <div className={`h-1.5 w-1.5 rounded-full ${LEVEL_DOT_COLORS[node.depth % LEVEL_DOT_COLORS.length]}`} />
-                            <span className="text-xs text-foreground">{node.name}</span>
-                          </div>
-                        ) : null
-                      )}
-                    </div>
-                  )}
-
-                  {/* Stats */}
-                  {showStats && (
-                    <div className="flex gap-6 animate-fade-in">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-foreground">{confirmedLevels.length}</div>
-                        <div className="text-xs text-muted-foreground">Levels</div>
-                      </div>
-                      {confirmedLevels.map((level, i) => {
-                        const count = countAtLevel(units, 0, i);
-                        if (count === 0) return null;
-                        return (
-                          <div key={level} className="text-center">
-                            <div className="text-2xl font-bold text-foreground">{count}</div>
-                            <div className="text-xs text-muted-foreground">{level}s</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* CTA */}
-                  {showCTA && (
-                    <div className="flex gap-3 pt-2 animate-fade-in">
-                      <Button onClick={onComplete}>
-                        Next: add your people <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                        Go to dashboard
-                      </Button>
-                    </div>
-                  )}
+                <div className="space-y-2">
+                  <h2 className="text-xl font-bold text-foreground font-[Space_Grotesk]">
+                    Structure saved
+                  </h2>
+                  <p className="text-sm text-muted-foreground max-w-sm">
+                    Your hierarchy is saved. Next, add the people who work inside it.
+                  </p>
                 </div>
-              )}
+
+                <div className="flex gap-3 pt-2">
+                  <Button onClick={onComplete}>
+                    Next: add your people <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                    Go to dashboard
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
