@@ -1,79 +1,6 @@
-import { Link } from "react-router-dom";
-import { Check, Minus } from "lucide-react";
-import { useOnboarding, type OnboardingStep } from "@/hooks/useOnboarding";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useOnboardingContext } from "./OnboardingContext";
-
-
-function Segment({ step, isActive }: { step: OnboardingStep; isActive: boolean }) {
-  const { status, label, accent } = step;
-  const Icon = step.icon;
-
-  const base =
-    "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium leading-none transition-colors";
-  const textActive = isActive || status === "current";
-
-  let inner;
-  if (status === "done") {
-    inner = (
-      <span
-        className={base}
-        style={{
-          backgroundColor: `hsl(var(--accent-green) / 0.14)`,
-          color: `hsl(var(--accent-green))`,
-        }}
-      >
-        <Check className="h-3 w-3" strokeWidth={3} />
-        {label}
-      </span>
-    );
-  } else if (status === "skipped") {
-    inner = (
-      <span
-        className={base}
-        style={{
-          backgroundColor: `hsl(var(--accent-yellow) / 0.14)`,
-          color: `hsl(45, 55%, 32%)`,
-        }}
-      >
-        <Minus className="h-3 w-3" />
-        {label}
-      </span>
-    );
-  } else if (textActive) {
-    inner = (
-      <span
-        className={base}
-        style={{
-          backgroundColor: `hsl(var(${accent}) / 0.14)`,
-          color: `hsl(var(${accent}))`,
-          boxShadow: `0 0 0 1px hsl(var(${accent}) / 0.3)`,
-        }}
-      >
-        <Icon className="h-3 w-3" />
-        {label}
-      </span>
-    );
-  } else {
-    inner = (
-      <span
-        className={`${base} border border-[hsl(var(--hairline))] text-[hsl(var(--ink-subtle))]`}
-      >
-        <Icon className="h-3 w-3 text-[hsl(var(--ink-subtle))]" />
-        {label}
-      </span>
-    );
-  }
-
-  const canClick = step.href && (step.done || step.skipped || status === "current" || isActive);
-  if (canClick) {
-    return (
-      <Link to={step.href!} className="active:scale-[0.97] transition-transform">
-        {inner}
-      </Link>
-    );
-  }
-  return inner;
-}
+import { OnboardingPipeline } from "./OnboardingPipeline";
 
 export function OnboardingStrip({ className }: { className?: string }) {
   const { steps, isOnboarding, completedCount, totalSteps } = useOnboarding();
@@ -93,11 +20,9 @@ export function OnboardingStrip({ className }: { className?: string }) {
         (className ?? "")
       }
     >
-      <div className="mx-auto max-w-5xl px-6 md:px-10 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-          {steps.map((step) => (
-            <Segment key={step.key} step={step} isActive={step.key === active.key} />
-          ))}
+      <div className="mx-auto max-w-5xl px-6 md:px-10 py-2.5 flex items-center justify-between gap-6">
+        <div className="flex-1 min-w-0">
+          <OnboardingPipeline steps={steps} currentKey={active.key} size="sm" />
         </div>
         <p className="text-[11px] text-[hsl(var(--ink-subtle))] tabular-nums shrink-0">
           {completedCount}/{totalSteps}

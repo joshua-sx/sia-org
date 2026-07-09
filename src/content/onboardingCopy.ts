@@ -14,7 +14,7 @@ export const LAUNCH_COPY: Record<OnboardingStepKey, LaunchCopy> = {
     subhead: "Confirm your profile so we can personalize your workspace.",
     ctaTitle: "Complete your account",
     ctaBody: "Add your details to unlock the rest of the setup flow.",
-    ctaLabel: "Continue setup",
+    ctaLabel: "Continue",
   },
   structure: {
     headline: "Shape your organization",
@@ -23,7 +23,7 @@ export const LAUNCH_COPY: Record<OnboardingStepKey, LaunchCopy> = {
     ctaTitle: "Set up your organization structure",
     ctaBody:
       "Pick a template or design your own levels, then add the first units. You can always expand it later.",
-    ctaLabel: "Set up structure",
+    ctaLabel: "Continue",
   },
   people: {
     headline: "Add your team to keep things moving",
@@ -32,7 +32,7 @@ export const LAUNCH_COPY: Record<OnboardingStepKey, LaunchCopy> = {
     ctaTitle: "Add your employees",
     ctaBody:
       "Give each person a role and a manager so review workflows can route automatically.",
-    ctaLabel: "Add employees",
+    ctaLabel: "Continue",
   },
   cycle: {
     headline: "You're one step away from launching reviews",
@@ -41,7 +41,7 @@ export const LAUNCH_COPY: Record<OnboardingStepKey, LaunchCopy> = {
     ctaTitle: "Create your first appraisal cycle",
     ctaBody:
       "Set the review timeline, then resolve participants and managers before you launch. You'll review everything before invitations go out.",
-    ctaLabel: "Create First Appraisal Cycle",
+    ctaLabel: "Continue",
   },
 };
 

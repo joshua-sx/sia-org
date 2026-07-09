@@ -101,7 +101,7 @@ export function OnboardingFooter() {
             <Popover open={skipOpen} onOpenChange={setSkipOpen}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-xs text-[hsl(var(--ink-subtle))] hover:text-[hsl(var(--ink-muted))]">
-                  Skip this step
+                  Skip
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-72">
@@ -114,7 +114,7 @@ export function OnboardingFooter() {
                     Cancel
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleSkip} disabled={saving}>
-                    Skip step
+                    Skip
                   </Button>
                 </div>
               </PopoverContent>
@@ -128,7 +128,7 @@ export function OnboardingFooter() {
               className="active:scale-[0.96]"
               style={{ transitionProperty: "transform" }}
             >
-              {next ? `Continue to ${next.label}` : "Go to dashboard"}
+              Continue
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           ) : (
@@ -139,7 +139,7 @@ export function OnboardingFooter() {
               className="active:scale-[0.96]"
               style={{ transitionProperty: "transform, opacity" }}
             >
-              {next ? "Complete step" : "Finish setup"}
+              Continue
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           )}
