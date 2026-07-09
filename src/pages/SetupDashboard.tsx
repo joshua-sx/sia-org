@@ -4,10 +4,11 @@ import { PageHead } from "@/components/PageHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Users, Building2, UserCog, ShieldCheck, Check, Globe2, Briefcase } from "lucide-react";
-import { useOnboarding, type OnboardingStep, type OnboardingStepKey } from "@/hooks/useOnboarding";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { LAUNCH_COPY, CYCLE_SUBSTEPS } from "@/content/onboardingCopy";
+import { OnboardingPipeline } from "@/components/onboarding/OnboardingPipeline";
 
 export function SetupDashboard() {
   const { organization } = useAuth();
@@ -59,7 +60,7 @@ export function SetupDashboard() {
           {/* CTA card — the focal element of this view */}
           <div className="mt-8 rounded-2xl border border-[hsl(var(--accent-blue)/0.18)] bg-[hsl(var(--surface-raised))] p-6 md:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-18px_rgba(0,0,0,0.16)] ring-1 ring-[hsl(var(--accent-blue)/0.05)]">
             {/* Signature: the setup pipeline being assembled */}
-            <SetupPipeline steps={steps} currentKey={current.key} />
+            <OnboardingPipeline steps={steps} currentKey={current.key} />
 
             <div className="mt-7 border-t border-[hsl(var(--hairline))] pt-6">
               <h2 className="text-xl font-semibold text-foreground tracking-[-0.3px]">{copy.ctaTitle}</h2>
@@ -162,74 +163,6 @@ export function SetupDashboard() {
       </div>
     </div>
     </>
-  );
-}
-
-function SetupPipeline({
-  steps,
-  currentKey,
-}: {
-  steps: OnboardingStep[];
-  currentKey: OnboardingStepKey;
-}) {
-  return (
-    <ol className="flex items-start" aria-label="Setup progress">
-      {steps.map((step, i) => {
-        const Icon = step.icon;
-        const isCurrent = step.key === currentKey;
-        const isDone = step.done;
-        const nodeStyle = isDone
-          ? {
-              backgroundColor: "hsl(var(--accent-green) / 0.14)",
-              color: "hsl(var(--accent-green))",
-            }
-          : isCurrent
-          ? {
-              backgroundColor: `hsl(var(${step.accent}) / 0.14)`,
-              color: `hsl(var(${step.accent}))`,
-              boxShadow: `0 0 0 2px hsl(var(${step.accent}) / 0.35)`,
-            }
-          : {
-              color: "hsl(var(--ink-subtle))",
-              border: "1px solid hsl(var(--hairline))",
-            };
-        return (
-          <li key={step.key} className="contents">
-            <div className="flex w-16 shrink-0 flex-col items-center gap-2">
-              <span
-                className="flex h-10 w-10 items-center justify-center rounded-full"
-                style={{ ...nodeStyle, transitionProperty: "background-color, box-shadow, color", transitionDuration: "200ms" }}
-              >
-                {isDone ? (
-                  <Check className="h-4 w-4" strokeWidth={3} />
-                ) : (
-                  <Icon className="h-[18px] w-[18px]" />
-                )}
-              </span>
-              <span
-                className={
-                  "text-[11px] font-medium leading-none " +
-                  (isCurrent ? "text-foreground" : "text-[hsl(var(--ink-subtle))]")
-                }
-              >
-                {step.label}
-              </span>
-            </div>
-            {i < steps.length - 1 && (
-              <span
-                className="mt-5 h-[2px] flex-1 rounded-full"
-                style={{
-                  backgroundColor: step.done
-                    ? "hsl(var(--accent-green) / 0.5)"
-                    : "hsl(var(--hairline))",
-                }}
-                aria-hidden
-              />
-            )}
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 

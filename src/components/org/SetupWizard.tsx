@@ -262,7 +262,7 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                     </div>
                   )}
                   <Button onClick={confirmStep1} disabled={!canProceedStep1()}>
-                    Confirm & Continue <ChevronRight className="ml-1 h-4 w-4" />
+                    Continue <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -318,7 +318,7 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                     className="text-xs text-muted-foreground underline hover:text-foreground transition-colors"
                     onClick={skipStep2}
                   >
-                    Skip for now
+                    Skip
                   </button>
                 </div>
                 <Button onClick={confirmStep2} disabled={!hasUnits}>
@@ -371,7 +371,7 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                   <ArrowLeft className="mr-1 h-4 w-4" /> Edit
                 </Button>
                 <Button onClick={confirmAndSave} disabled={saving}>
-                  {saving ? "Saving…" : "Confirm & Finish"}
+                  {saving ? "Saving…" : "Continue"}
                   {!saving && <ChevronRight className="ml-1 h-4 w-4" />}
                 </Button>
               </div>
@@ -400,7 +400,7 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
 
                 <div className="flex gap-3 pt-2">
                   <Button onClick={onComplete}>
-                    Next: add your people <ChevronRight className="ml-1 h-4 w-4" />
+                    Continue <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                   <Button variant="ghost" onClick={() => navigate("/dashboard")}>
                     Go to dashboard
