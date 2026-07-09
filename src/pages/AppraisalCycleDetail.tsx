@@ -39,7 +39,9 @@ import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
+import { CycleReportsPanel } from "@/components/appraisals/CycleReportsPanel";
 import { cycleTrackerSteps } from "@/lib/trackerSteps";
+import { useOrgUnits, type OrgUnit } from "@/hooks/useOrgUnits";
 import { formatWindow, todayISO, windowState } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -60,6 +62,8 @@ const AppraisalCycleDetail = () => {
     deleteCycle,
   } = useAppraisalCycles();
   const { markComplete } = useOnboarding();
+  const { data: employees = [] } = useEmployees();
+  const { data: units = [] } = useOrgUnits();
 
   const cycle = cycles.find((c) => c.id === id) ?? null;
   const isHr = profile?.role === "hr_admin";
@@ -141,6 +145,10 @@ const AppraisalCycleDetail = () => {
       <AppraisalsTabs />
 
       {cycle.status !== "draft" && <CycleProgressTracker cycle={cycle} />}
+
+      {isHr && cycle.status !== "draft" && (
+        <CycleReportsSection cycle={cycle} employees={employees} units={units} />
+      )}
 
       <WindowsSummary cycle={cycle} />
 
@@ -447,6 +455,43 @@ function useCycleGoalWeights(cycleId: string, participantIds: string[]) {
  * Phase-level cycle tracker. On completed cycles it persists as the all-done
  * audit view.
  */
+function CycleReportsSection({
+  cycle,
+  employees,
+  units,
+}: {
+  cycle: {
+    id: string;
+    name: string;
+    status: "active" | "completed";
+    goal_window_start: string;
+    goal_window_end: string;
+    interim_window_start: string;
+    interim_window_end: string;
+    final_window_start: string;
+    final_window_end: string;
+    acknowledgement_due: string;
+  };
+  employees: Employee[];
+  units: OrgUnit[];
+}) {
+  const { data: participants = [], isLoading } = useCycleParticipants(cycle.id);
+  const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
+  const { data: goalWeights = [] } = useCycleGoalWeights(cycle.id, participantIds);
+
+  if (isLoading) return null;
+
+  return (
+    <CycleReportsPanel
+      cycle={cycle}
+      participants={participants}
+      goalWeights={goalWeights}
+      employees={employees}
+      units={units}
+    />
+  );
+}
+
 function CycleProgressTracker({ cycle }: { cycle: { id: string; status: "draft" | "active" | "completed" } }) {
   const { data: participants = [], isLoading } = useCycleParticipants(cycle.id);
   const participantIds = useMemo(() => participants.map((p) => p.id), [participants]);
