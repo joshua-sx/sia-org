@@ -1,0 +1,288 @@
+import { useMemo, useState } from "react";
+import { Download, FileText, Filter } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
+import type { CycleParticipant } from "@/hooks/useCycleParticipants";
+import type { Employee } from "@/hooks/useEmployees";
+import type { OrgUnit } from "@/hooks/useOrgUnits";
+import { useAuth } from "@/contexts/AuthContext";
+import { exportParticipantPdf } from "@/lib/appraisalRecord";
+import {
+  buildCycleCompletionSummary,
+  buildManagerReports,
+  buildOverdueTasks,
+  buildParticipantReports,
+  exportCycleCompletionCsv,
+  exportEmployeeStatusCsv,
+  exportManagerCompletionCsv,
+  exportOverdueTasksCsv,
+  filterParticipantRows,
+  statusLabel,
+  type StatusFilter,
+  type TaskStatus,
+} from "@/lib/cycleReports";
+import { buildAncestryMap, unitBreadcrumb } from "@/lib/orgHierarchy";
+import { friendlyError } from "@/lib/siaErrors";
+
+const STATUS_CHIP: Record<TaskStatus, string> = {
+  complete: "text-[hsl(var(--accent-green))] bg-[hsl(var(--accent-green)/0.1)]",
+  pending: "text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.1)]",
+  overdue: "text-[hsl(var(--accent-red))] bg-[hsl(var(--accent-red)/0.1)]",
+  frozen: "text-[hsl(var(--ink-subtle))] bg-[hsl(var(--hairline)/0.5)]",
+  not_due: "text-[hsl(var(--ink-subtle))] bg-[hsl(var(--hairline)/0.35)]",
+};
+
+function StatusChip({ status }: { status: TaskStatus }) {
+  return (
+    <span
+      className={`inline-flex rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${STATUS_CHIP[status]}`}
+    >
+      {statusLabel(status)}
+    </span>
+  );
+}
+
+interface Props {
+  cycle: AppraisalCycle;
+  participants: CycleParticipant[];
+  goalWeights: Array<{ participant_id: string; weight: number }>;
+  employees: Employee[];
+  units: OrgUnit[];
+}
+
+export function CycleReportsPanel({ cycle, participants, goalWeights, employees, units }: Props) {
+  const { organization } = useAuth();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [managerFilter, setManagerFilter] = useState<string>("all");
+  const [exportingPdfId, setExportingPdfId] = useState<string | null>(null);
+
+  const unitByEmployeeId = useMemo(() => {
+    const ancestry = buildAncestryMap(units);
+    const map = new Map<string, string>();
+    employees.forEach((e) => {
+      if (e.org_unit_id) map.set(e.id, unitBreadcrumb(e.org_unit_id, ancestry));
+    });
+    return map;
+  }, [employees, units]);
+
+  const reportRows = useMemo(
+    () => buildParticipantReports(participants, goalWeights, cycle, unitByEmployeeId),
+    [participants, goalWeights, cycle, unitByEmployeeId],
+  );
+
+  const summary = useMemo(() => buildCycleCompletionSummary(cycle, reportRows), [cycle, reportRows]);
+  const managerReports = useMemo(() => buildManagerReports(reportRows), [reportRows]);
+  const overdueTasks = useMemo(() => buildOverdueTasks(reportRows, cycle), [reportRows, cycle]);
+
+  const managers = useMemo(() => {
+    const seen = new Map<string, string>();
+    reportRows.forEach((r) => seen.set(r.managerId, r.managerName));
+    return [...seen.entries()].map(([id, name]) => ({ id, name }));
+  }, [reportRows]);
+
+  const filteredRows = useMemo(() => {
+    let rows = filterParticipantRows(reportRows, statusFilter);
+    if (managerFilter !== "all") {
+      rows = rows.filter((r) => r.managerId === managerFilter);
+    }
+    return rows;
+  }, [reportRows, statusFilter, managerFilter]);
+
+  const handlePdfExport = async (participant: CycleParticipant) => {
+    if (!organization?.name) return;
+    setExportingPdfId(participant.id);
+    try {
+      await exportParticipantPdf(organization.name, cycle, participant);
+    } catch (err) {
+      toast.error(friendlyError(err, "Could not export PDF"));
+    } finally {
+      setExportingPdfId(null);
+    }
+  };
+
+  return (
+    <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Cycle status &amp; exports</h2>
+          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
+            Track who's late, export CSV reports, or save individual appraisal records as PDF.
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Reports</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => exportCycleCompletionCsv(cycle, summary)}>
+              Completion summary
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportEmployeeStatusCsv(cycle, reportRows)}>
+              Employee status
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportManagerCompletionCsv(cycle, managerReports)}>
+              Manager completion
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => exportOverdueTasksCsv(cycle, overdueTasks)}>
+              Overdue tasks ({overdueTasks.length})
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="grid gap-3 px-5 py-4 sm:grid-cols-2 lg:grid-cols-4 border-b border-[hsl(var(--hairline))]">
+        <Stat label="Participants" value={summary.totalParticipants} />
+        <Stat label="Overdue" value={summary.overdueParticipants} accent="red" />
+        <Stat label="Acknowledged" value={`${summary.acknowledged}/${summary.totalParticipants}`} />
+        <Stat label="Completion" value={`${summary.completionPct}%`} accent="green" />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
+        <Filter className="h-3.5 w-3.5 text-[hsl(var(--ink-subtle))]" />
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <SelectTrigger className="h-8 w-40 text-xs">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All participants</SelectItem>
+            <SelectItem value="overdue">Overdue only</SelectItem>
+            <SelectItem value="pending">Pending tasks</SelectItem>
+            <SelectItem value="complete">Fully complete</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={managerFilter} onValueChange={setManagerFilter}>
+          <SelectTrigger className="h-8 w-48 text-xs">
+            <SelectValue placeholder="Manager" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All managers</SelectItem>
+            {managers.map((m) => (
+              <SelectItem key={m.id} value={m.id}>
+                {m.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-[hsl(var(--ink-subtle))] tabular-nums">
+          {filteredRows.length} shown
+        </span>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-[hsl(var(--hairline))] text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+              <th className="px-5 py-2.5 font-medium">Employee</th>
+              <th className="px-3 py-2.5 font-medium">Manager</th>
+              <th className="px-3 py-2.5 font-medium">Goals</th>
+              <th className="px-3 py-2.5 font-medium">Interim</th>
+              <th className="px-3 py-2.5 font-medium">Final</th>
+              <th className="px-3 py-2.5 font-medium">Ack</th>
+              <th className="px-5 py-2.5 font-medium text-right">Record</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[hsl(var(--hairline))]">
+            {filteredRows.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-5 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">
+                  No participants match this filter.
+                </td>
+              </tr>
+            ) : (
+              filteredRows.map((row) => {
+                const participant = participants.find((p) => p.id === row.participantId);
+                const canExport = !!participant?.final_submitted_at;
+                return (
+                  <tr key={row.participantId} className={row.frozen ? "opacity-60" : undefined}>
+                    <td className="px-5 py-3">
+                      <p className="font-medium text-foreground">{row.employeeName}</p>
+                      <p className="text-xs text-[hsl(var(--ink-subtle))] truncate max-w-[200px]">
+                        {row.unit || row.jobTitle || "—"}
+                      </p>
+                    </td>
+                    <td className="px-3 py-3 text-xs text-[hsl(var(--ink-muted))]">{row.managerName}</td>
+                    <td className="px-3 py-3">
+                      <StatusChip status={row.goals} />
+                    </td>
+                    <td className="px-3 py-3">
+                      <StatusChip status={row.interim} />
+                    </td>
+                    <td className="px-3 py-3">
+                      <StatusChip status={row.final} />
+                    </td>
+                    <td className="px-3 py-3">
+                      <StatusChip status={row.acknowledgement} />
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      {participant && canExport ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs"
+                          disabled={exportingPdfId === participant.id}
+                          onClick={() => void handlePdfExport(participant)}
+                        >
+                          <FileText className="mr-1 h-3.5 w-3.5" />
+                          {exportingPdfId === participant.id ? "Opening…" : "PDF"}
+                        </Button>
+                      ) : (
+                        <span className="text-[11px] text-[hsl(var(--ink-subtle))]">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  accent?: "red" | "green";
+}) {
+  const color =
+    accent === "red"
+      ? "hsl(var(--accent-red))"
+      : accent === "green"
+        ? "hsl(var(--accent-green))"
+        : "hsl(var(--foreground))";
+  return (
+    <div className="rounded-lg border border-[hsl(var(--hairline))] bg-background px-3 py-2.5">
+      <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{label}</p>
+      <p className="mt-0.5 text-lg font-semibold tabular-nums" style={{ color }}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+export default CycleReportsPanel;
