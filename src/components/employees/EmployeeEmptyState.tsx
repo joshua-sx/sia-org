@@ -19,7 +19,7 @@ export function EmployeeEmptyState({ onImport, onAddManual, onSkip }: Props) {
       title: "Upload a CSV",
       hint: "Fastest for teams of 10+",
       badge: "Recommended",
-      accent: "--accent-red",
+      accent: "--accent-yellow",
       onClick: onImport,
     },
     {

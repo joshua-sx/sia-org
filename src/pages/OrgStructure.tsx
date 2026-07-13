@@ -8,6 +8,8 @@ import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnits, buildTree, OrgUnitTreeNode } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
+import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
+import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
 import SetupWizard from "@/components/org/SetupWizard";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
@@ -20,7 +22,7 @@ import { QueryError, QueryLoading } from "@/components/QueryState";
 const OrgStructure = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const { markComplete } = useOnboarding();
+  const { markComplete, isOnboarding } = useOnboarding();
   const {
     data: unitTypes = [],
     isLoading: loadingTypes,
@@ -62,10 +64,10 @@ const OrgStructure = () => {
 
   useStepReadiness(
     "structure",
-    hasTypes && units.length > 0,
-    hasTypes && units.length > 0
-      ? `${units.length} unit${units.length === 1 ? "" : "s"} added — ready to continue.`
-      : "Structure is required. Configure your levels and add at least one unit to continue."
+    !showWizard && hasTypes && units.length > 0,
+    !showWizard && hasTypes && units.length > 0
+      ? "Ready to continue."
+      : "Configure your levels and add at least one unit to continue."
   );
 
   const typeMap = useMemo(() => {
@@ -132,14 +134,16 @@ const OrgStructure = () => {
   if (showWizard) {
     return (
       <SetupWizard
+        isOnboarding={isOnboarding}
         onComplete={async () => {
           try {
             await markComplete("structure");
-          } catch (e: any) {
-            toast.error(e?.message ?? "Could not mark step complete");
+          } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Could not mark step complete";
+            toast.error(message);
           }
           setWizardDone(true);
-          navigate("/dashboard");
+          navigate(isOnboarding ? "/org/employees" : "/dashboard");
         }}
         createTypes={createTypes}
         addUnit={addUnit}
@@ -147,24 +151,46 @@ const OrgStructure = () => {
     );
   }
 
-  return (
+  const pageInner = (
     <>
-      <PageHead
-        title="Organization structure | SIA"
-        description="Build the org hierarchy that powers your appraisal cycles."
-        path="/org/structure"
-      />
-      <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-            Organization structure
-          </h1>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-            {sortedTypes.map((t) => t.name).join(" → ")}
-          </p>
+      {isOnboarding ? (
+        <OnboardingStepHeader
+          eyebrow="STRUCTURE"
+          eyebrowAccent="--accent-red"
+          title="Build your organization"
+          subtitle="Add levels first, then place your units."
+          criteriaAccent="--accent-red"
+          criteria={[
+            { label: "At least 2 levels defined", met: unitTypes.length >= 2 },
+            { label: "At least 1 unit created", met: units.length > 0 },
+          ]}
+        />
+      ) : (
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
+              Organization structure
+            </h1>
+            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+              {sortedTypes.map((t) => t.name).join(" → ")}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
+              <Settings2 className="mr-1 h-3 w-3" /> Edit levels
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
+              <Upload className="mr-1 h-3 w-3" /> Import CSV
+            </Button>
+            <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
+              <Plus className="mr-1 h-3 w-3" /> Add unit
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
+      )}
+
+      {isOnboarding && (
+        <div className="flex flex-wrap gap-2 mb-6">
           <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
             <Settings2 className="mr-1 h-3 w-3" /> Edit levels
           </Button>
@@ -175,15 +201,15 @@ const OrgStructure = () => {
             <Plus className="mr-1 h-3 w-3" /> Add unit
           </Button>
         </div>
-      </div>
+      )}
 
       {units.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <div className={`rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)] ${isOnboarding ? "" : "mt-10"}`}>
           <div
             className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "hsl(var(--accent-green) / 0.12)" }}
+            style={{ backgroundColor: "hsl(var(--accent-red) / 0.12)" }}
           >
-            <Building2 className="h-6 w-6" style={{ color: "hsl(var(--accent-green))" }} />
+            <Building2 className="h-6 w-6" style={{ color: "hsl(var(--accent-red))" }} />
           </div>
           <h2 className="text-base font-semibold text-foreground">Your hierarchy is configured</h2>
           <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
@@ -194,7 +220,7 @@ const OrgStructure = () => {
           </Button>
         </div>
       ) : (
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className={`grid gap-6 ${isOnboarding ? "grid-cols-1" : "lg:grid-cols-[1fr_320px]"} ${isOnboarding ? "" : "mt-6"}`}>
           <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <OrgTree nodes={tree} selectedId={selectedId} onSelect={(n) => setSelectedId(n.id)} />
           </div>
@@ -211,7 +237,21 @@ const OrgStructure = () => {
       <AddUnitModal open={showAdd} onOpenChange={setShowAdd} unitTypes={unitTypes} units={units} preselectedParent={addParent} preselectedTypeId={addTypeId} />
       <CsvImportModal open={showCsv} onOpenChange={setShowCsv} unitTypes={unitTypes} units={units} />
       <EditLevelsModal open={showEditLevels} onOpenChange={setShowEditLevels} unitTypes={unitTypes} hasUnits={units.length > 0} />
-      </div>
+    </>
+  );
+
+  return (
+    <>
+      <PageHead
+        title="Organization structure | SIA"
+        description="Build the org hierarchy that powers your appraisal cycles."
+        path="/org/structure"
+      />
+      {isOnboarding ? (
+        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+      ) : (
+        <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
+      )}
     </>
   );
 };

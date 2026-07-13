@@ -8,6 +8,8 @@ import { useEmployees, type Employee } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
+import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
+import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
 import EmployeeEmptyState from "@/components/employees/EmployeeEmptyState";
 import EmployeeTable from "@/components/employees/EmployeeTable";
 import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
@@ -38,7 +40,7 @@ const OrgEmployees = () => {
     deleteEmployee,
   } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { markSkipped } = useOnboarding();
+  const { markSkipped, isOnboarding, nextStepAfter } = useOnboarding();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -95,7 +97,8 @@ const OrgEmployees = () => {
   const handleEmptyStateSkip = async () => {
     await markSkipped("people");
     toast.info("Skipped People — you can add employees any time.");
-    navigate("/dashboard");
+    const next = nextStepAfter("people");
+    navigate(next?.href ?? "/dashboard");
   };
 
   const handleAssignManager = () => {
@@ -106,59 +109,62 @@ const OrgEmployees = () => {
   const empty = !isLoading && employees.length === 0;
   const showAttention = !empty && !hasManagerLink;
 
-  return (
+  const pageInner = (
     <>
-      <PageHead
-        title="Employees | SIA"
-        description="Add and manage employees and manager relationships for your organization."
-        path="/org/employees"
-      />
-      <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <div>
-            <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-              Add your employees
-            </h1>
-            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-              Import a CSV or add people manually. No invitations are sent during setup.
-            </p>
-            <p className="mt-2 text-xs text-[hsl(var(--ink-subtle))]">
-              Optional during setup — you can skip and come back any time. Appraisal cycles require at least one employee.
-            </p>
-          </div>
+      {isOnboarding ? (
+        <OnboardingStepHeader
+          eyebrow="PEOPLE"
+          eyebrowAccent="--accent-yellow"
+          title="Add your team"
+          subtitle="Import a CSV or add people manually."
+          criteriaAccent="--accent-yellow"
+          criteria={[
+            { label: "At least 1 employee added", met: employees.length >= 1 },
+            { label: "Every employee has a manager", met: hasManagerLink },
+          ]}
+        />
+      ) : (
+        <div>
+          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
+            Add your employees
+          </h1>
+          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+            Import a CSV or add people manually. No invitations are sent during setup.
+          </p>
+        </div>
+      )}
 
-          {showAttention && (
-            <div
-              className="rounded-xl border p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
-              style={{
-                backgroundColor: "hsl(var(--accent-yellow) / 0.08)",
-                borderColor: "hsl(var(--accent-yellow) / 0.35)",
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-yellow))" }} />
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">People needs attention</p>
-                  <p className="mt-1 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
-                    <span className="tabular-nums">{employeesWithoutManager.length}</span>{" "}
-                    {employeesWithoutManager.length === 1 ? "employee has" : "employees have"} no manager assigned.
-                    Appraisal cycles need at least one manager-employee relationship before you continue.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" onClick={handleAssignManager}>
-                      Assign manager
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={openAdd} className="border-[hsl(var(--accent-blue))] text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)] hover:text-[hsl(var(--accent-blue))]">
-                      Add another employee
-                    </Button>
-                  </div>
-                </div>
+      {showAttention && (
+        <div
+          className="rounded-xl border p-4 mb-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+          style={{
+            backgroundColor: "hsl(var(--accent-yellow) / 0.08)",
+            borderColor: "hsl(var(--accent-yellow) / 0.35)",
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-yellow))" }} />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">People needs attention</p>
+              <p className="mt-1 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
+                <span className="tabular-nums">{employeesWithoutManager.length}</span>{" "}
+                {employeesWithoutManager.length === 1 ? "employee has" : "employees have"} no manager assigned.
+                Assign at least one manager-employee relationship to continue.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={handleAssignManager}>
+                  Assign manager
+                </Button>
+                <Button size="sm" variant="outline" onClick={openAdd} className="border-[hsl(var(--accent-blue))] text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)] hover:text-[hsl(var(--accent-blue))]">
+                  Add another employee
+                </Button>
               </div>
             </div>
-          )}
+          </div>
         </div>
+      )}
 
-        <div className="mt-8">
+      <div className={isOnboarding ? "" : "mt-8"}>
           {isLoading ? (
             <QueryLoading label="Loading employees" />
           ) : isError ? (
@@ -198,10 +204,22 @@ const OrgEmployees = () => {
               />
             </div>
           )}
-        </div>
       </div>
+    </>
+  );
 
-
+  return (
+    <>
+      <PageHead
+        title="Employees | SIA"
+        description="Add and manage employees and manager relationships for your organization."
+        path="/org/employees"
+      />
+      {isOnboarding ? (
+        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+      ) : (
+        <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
+      )}
       <EmployeeFormModal
         open={formOpen}
         onOpenChange={setFormOpen}

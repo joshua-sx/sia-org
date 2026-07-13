@@ -69,7 +69,7 @@ export function useOnboarding() {
       key: "structure",
       label: "Structure",
       icon: Building2,
-      accent: "--accent-green",
+      accent: "--accent-red",
       href: "/org/structure",
       status: resolveStatus(1),
       done: structureDone,
@@ -79,7 +79,7 @@ export function useOnboarding() {
       key: "people",
       label: "People",
       icon: Users,
-      accent: "--accent-red",
+      accent: "--accent-yellow",
       href: "/org/employees",
       status: resolveStatus(2),
       done: peopleDone,
@@ -89,7 +89,8 @@ export function useOnboarding() {
       key: "cycle",
       label: "Launch",
       icon: CalendarClock,
-      accent: "--accent-yellow",
+      accent: "--accent-green",
+      href: "/appraisals",
       status: resolveStatus(3),
       done: cycleDone,
       skipped: cycleSkipped,
@@ -97,10 +98,12 @@ export function useOnboarding() {
   ];
 
   const completedCount = steps.filter((s) => s.done).length;
-  // Only Structure is required. People and Launch are optional follow-ups
-  // that can be completed later from the dashboard checklist.
-  const setupComplete = structureDone;
-  const isOnboarding = !structureDone && !!organization;
+  const allStepsResolved =
+    structureDone &&
+    (peopleDone || peopleSkipped) &&
+    (cycleDone || cycleSkipped);
+  const setupComplete = allStepsResolved;
+  const isOnboarding = !!organization && !allStepsResolved;
 
   type OrgPatch = Partial<{
     structure_complete: boolean;

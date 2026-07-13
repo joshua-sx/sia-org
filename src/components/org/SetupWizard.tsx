@@ -1,10 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
+import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
+import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { useOnboardingContext } from "@/components/onboarding/OnboardingContext";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
@@ -26,13 +29,21 @@ const LEVEL_DOT_COLORS = [
 ];
 
 interface SetupWizardProps {
+  isOnboarding?: boolean;
   onComplete: () => void;
   createTypes: UseMutationResult<OrgUnitType[], Error, { name: string; level: number }[]>;
   addUnit: UseMutationResult<OrgUnit, Error, { name: string; unit_type_id: string; parent_id?: string | null }>;
 }
 
-const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => {
+const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }: SetupWizardProps) => {
   const navigate = useNavigate();
+  const { setFooterSuppressed } = useOnboardingContext();
+
+  useEffect(() => {
+    if (!isOnboarding) return;
+    setFooterSuppressed(true);
+    return () => setFooterSuppressed(false);
+  }, [isOnboarding, setFooterSuppressed]);
 
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -129,32 +140,44 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
 
   const hasUnits = units.length > 0;
 
-  return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6 md:p-10">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk]">
-          {step === 1
-            ? "Choose your hierarchy template"
-            : step === 2
-              ? "Build your structure"
-              : done
-                ? "Structure saved"
-                : "Review your structure"}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {step === 1
-            ? selectedTemplate === "custom"
-              ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
-              : "This determines the organizational levels available during setup. You can adjust later in settings."
-            : step === 2
-              ? confirmedLevels.join(" → ")
-              : done
-                ? ""
-                : "Confirm your organizational hierarchy."}
-        </p>
-
-      </div>
+  const wizardContent = (
+    <div className={`space-y-6 ${isOnboarding ? "" : "mx-auto max-w-4xl p-6 md:p-10"}`}>
+      {isOnboarding ? (
+        <OnboardingStepHeader
+          eyebrow="STRUCTURE"
+          eyebrowAccent="--accent-red"
+          title="Build your organization"
+          subtitle="Add levels first, then place your units."
+          criteriaAccent="--accent-red"
+          criteria={[
+            { label: "At least 2 levels defined", met: getLevels().length >= 2 },
+            { label: "At least 1 unit created", met: hasUnits },
+          ]}
+        />
+      ) : (
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk]">
+            {step === 1
+              ? "Choose your hierarchy template"
+              : step === 2
+                ? "Build your structure"
+                : done
+                  ? "Structure saved"
+                  : "Review your structure"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {step === 1
+              ? selectedTemplate === "custom"
+                ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
+                : "This determines the organizational levels available during setup. You can adjust later in settings."
+              : step === 2
+                ? confirmedLevels.join(" → ")
+                : done
+                  ? ""
+                  : "Confirm your organizational hierarchy."}
+          </p>
+        </div>
+      )}
 
       {/* Numbered step indicator */}
       <div className="flex items-center justify-center gap-0">
@@ -402,9 +425,11 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                   <Button onClick={onComplete}>
                     Continue <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                    Go to dashboard
-                  </Button>
+                  {!isOnboarding && (
+                    <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                      Go to dashboard
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -413,6 +438,12 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
       )}
     </div>
   );
+
+  if (isOnboarding) {
+    return <OnboardingPageShell>{wizardContent}</OnboardingPageShell>;
+  }
+
+  return wizardContent;
 };
 
 export default SetupWizard;

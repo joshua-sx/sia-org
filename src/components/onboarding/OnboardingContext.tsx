@@ -9,6 +9,8 @@ interface Readiness {
 interface OnboardingContextValue {
   activeStep: OnboardingStepKey | null;
   readiness: Partial<Record<OnboardingStepKey, Readiness>>;
+  footerSuppressed: boolean;
+  setFooterSuppressed: (suppressed: boolean) => void;
   register: (key: OnboardingStepKey, r: Readiness) => void;
   unregister: (key: OnboardingStepKey) => void;
 }
@@ -18,6 +20,7 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [readiness, setReadiness] = useState<Partial<Record<OnboardingStepKey, Readiness>>>({});
   const [activeStep, setActiveStep] = useState<OnboardingStepKey | null>(null);
+  const [footerSuppressed, setFooterSuppressed] = useState(false);
 
   const register = useCallback((key: OnboardingStepKey, r: Readiness) => {
     setActiveStep(key);
@@ -33,8 +36,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const value = useMemo(
-    () => ({ activeStep, readiness, register, unregister }),
-    [activeStep, readiness, register, unregister]
+    () => ({ activeStep, readiness, footerSuppressed, setFooterSuppressed, register, unregister }),
+    [activeStep, readiness, footerSuppressed, register, unregister]
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
