@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CalendarClock, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
@@ -28,12 +29,17 @@ const AppraisalCycles = () => {
   const isHr = profile?.role === "hr_admin";
   const hasEmployees = employees.length > 0;
   const cycleDone = steps.find((s) => s.key === "cycle")?.done ?? false;
-  const cycleReady = cycleDone || cycles.length > 0;
+  const hasLaunchedCycle = cycles.some((c) => c.status !== "draft");
+  const cycleReady = cycleDone || hasLaunchedCycle;
 
   useStepReadiness(
     "cycle",
     cycleReady,
-    cycleReady ? "Ready to continue." : "Create a cycle to continue."
+    cycleReady
+      ? "Ready to continue."
+      : cycles.length > 0
+        ? "Launch your cycle to continue."
+        : "Create and launch a cycle to continue."
   );
 
   const showOnboardingChrome = isOnboarding && isHr;
@@ -57,28 +63,20 @@ const AppraisalCycles = () => {
           subtitle="Set the name, scoring, and review windows."
           criteriaAccent="--accent-green"
           criteria={[
-            { label: "Cycle created", met: cycles.length > 0 },
-            { label: "Review windows configured", met: cycles.length > 0 },
+            { label: "Cycle launched", met: hasLaunchedCycle },
           ]}
         />
       ) : (
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))] uppercase tracking-wider">
-              <CalendarClock className="h-3.5 w-3.5" />
-              Appraisals
-            </p>
-            <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-              Appraisal cycles
-            </h1>
-            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-              {isHr
-                ? "Create a cycle, review the timeline, and launch when your participant list is ready."
-                : "Cycles your organization is running. Your goals and reviews live in the tabs above once a cycle is active."}
-            </p>
-          </div>
-          {isHr && (
-            hasEmployees ? newCycleBtn : (
+        <PageHeader
+          title="Appraisal cycles"
+          subtitle={
+            isHr
+              ? "Create a cycle, review the timeline, and launch when your participant list is ready."
+              : "Cycles your organization is running. Your goals and reviews live in the tabs above once a cycle is active."
+          }
+          actions={
+            isHr &&
+            (hasEmployees ? newCycleBtn : (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -90,9 +88,9 @@ const AppraisalCycles = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )
-          )}
-        </div>
+            ))
+          }
+        />
       )}
 
       {showOnboardingChrome && isHr && (
@@ -128,8 +126,8 @@ const AppraisalCycles = () => {
         ) : cycles.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-14 text-center">
             <CalendarClock className="mx-auto h-8 w-8 text-[hsl(var(--accent-green))]" />
-            <h2 className="mt-4 text-base font-semibold text-foreground">No appraisal cycles yet</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-[hsl(var(--ink-muted))]">
+            <h2 className="mt-4 text-base font-semibold text-foreground text-balance">No appraisal cycles yet</h2>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-[hsl(var(--ink-muted))] text-pretty">
               {isHr
                 ? "Create your first cycle to define the goal-setting, assessment, and acknowledgement windows."
                 : "Your HR team hasn't created a cycle yet. Check back soon."}

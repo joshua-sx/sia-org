@@ -281,8 +281,6 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
                 variant="outline"
                 onClick={submitKeep}
                 disabled={formState.isSubmitting}
-                className="active:scale-[0.96]"
-                style={{ transitionProperty: "transform", transitionDuration: "160ms" }}
               >
                 Save & add another
               </Button>
@@ -291,8 +289,6 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
               type="button"
               onClick={submitClose}
               disabled={formState.isSubmitting}
-              className="active:scale-[0.96]"
-              style={{ transitionProperty: "transform", transitionDuration: "160ms" }}
             >
               {formState.isSubmitting ? "Saving…" : editing ? "Save changes" : "Save employee"}
             </Button>

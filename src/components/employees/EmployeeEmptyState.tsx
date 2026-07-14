@@ -1,15 +1,14 @@
 import { motion } from "framer-motion";
-import { Upload, UserPlus, SkipForward, Download } from "lucide-react";
+import { Upload, UserPlus, Download } from "lucide-react";
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 
 interface Props {
   onImport: () => void;
   onAddManual: () => void;
-  onSkip: () => void;
 }
 
-export function EmployeeEmptyState({ onImport, onAddManual, onSkip }: Props) {
+export function EmployeeEmptyState({ onImport, onAddManual }: Props) {
   const reduceMotion = usePrefersReducedMotion();
 
   const options = [
@@ -31,19 +30,10 @@ export function EmployeeEmptyState({ onImport, onAddManual, onSkip }: Props) {
       accent: "--accent-blue",
       onClick: onAddManual,
     },
-    {
-      key: "skip",
-      icon: SkipForward,
-      title: "Skip for now",
-      hint: "Return to this later",
-      badge: null,
-      accent: "--accent-yellow",
-      onClick: onSkip,
-    },
   ] as const;
 
   const cardClassName =
-    "group relative flex flex-col items-start gap-3 rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 text-left hover:border-[hsl(var(--ink-strong)/0.18)] hover:shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] active:scale-[0.98]";
+    "group relative flex flex-col items-start gap-3 rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 text-left hover:border-[hsl(var(--ink-strong)/0.18)] hover:shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] active:scale-[0.96] transition-transform";
   const cardStyle = {
     transitionProperty: "border-color, box-shadow, transform",
     transitionDuration: "180ms",
@@ -51,17 +41,7 @@ export function EmployeeEmptyState({ onImport, onAddManual, onSkip }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="text-center">
-        <h2 className="text-[22px] font-semibold tracking-[-0.3px] text-foreground font-[Space_Grotesk] text-balance">
-          Add your first employees
-        </h2>
-        <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] max-w-md mx-auto text-pretty">
-          People are the foundation of everything else — appraisal cycles, managers, and reporting all
-          build on top of your employee list.
-        </p>
-      </div>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {options.map((opt, i) => {
           const content = (
             <>

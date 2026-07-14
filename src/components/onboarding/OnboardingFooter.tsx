@@ -47,6 +47,7 @@ export function OnboardingFooter() {
       onContinue={isAlreadyDone ? goToNextOrDashboard : handleComplete}
       canGoBack={!!previous?.href}
       continueDisabled={!isAlreadyDone && (!r.ready || saving)}
+      hint={!isAlreadyDone ? r.hint : undefined}
     />
   );
 }

@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, ChevronRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
 import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useOnboardingContext } from "@/components/onboarding/OnboardingContext";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
@@ -17,15 +18,16 @@ import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 
 
-const STEP_LABELS = ["Hierarchy", "Structure", "Done"];
+const STEP_LABELS = ["Hierarchy", "Structure", "Review"];
 const TOTAL_STEPS = 3;
+const STRUCTURE_ACCENT = "--accent-red";
 
 const LEVEL_DOT_COLORS = [
-  "bg-primary",
-  "bg-green-500",
-  "bg-violet-500",
-  "bg-amber-500",
-  "bg-rose-500",
+  "hsl(var(--accent-blue))",
+  "hsl(var(--accent-green))",
+  "hsl(var(--accent-yellow))",
+  "hsl(var(--accent-red))",
+  "hsl(var(--accent-blue))",
 ];
 
 interface SetupWizardProps {
@@ -53,8 +55,6 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
   const [showPreview, setShowPreview] = useState(false);
   const [done, setDone] = useState(false);
 
-  const progress = (step / TOTAL_STEPS) * 100;
-
   const getLevels = () => {
     if (selectedTemplate === "custom") return customLevels;
     const t = TEMPLATES.find((t) => t.key === selectedTemplate);
@@ -79,7 +79,6 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
   };
 
   const skipStep2 = () => {
-    setUnits([]);
     setStep(3);
   };
 
@@ -145,18 +144,19 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
       {isOnboarding ? (
         <OnboardingStepHeader
           eyebrow="STRUCTURE"
-          eyebrowAccent="--accent-red"
+          eyebrowAccent={STRUCTURE_ACCENT}
           title="Build your organization"
           subtitle="Add levels first, then place your units."
-          criteriaAccent="--accent-red"
+          localStepLabel={`STRUCTURE · ${STEP_LABELS[step - 1]?.toUpperCase() ?? "HIERARCHY"} ${step} OF ${TOTAL_STEPS}`}
+          criteriaAccent={STRUCTURE_ACCENT}
           criteria={[
-            { label: "At least 2 levels defined", met: getLevels().length >= 2 },
+            { label: "At least 1 level defined", met: getLevels().length >= 1 },
             { label: "At least 1 unit created", met: hasUnits },
           ]}
         />
       ) : (
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk]">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk] text-balance">
             {step === 1
               ? "Choose your hierarchy template"
               : step === 2
@@ -165,7 +165,7 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
                   ? "Structure saved"
                   : "Review your structure"}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground text-pretty">
             {step === 1
               ? selectedTemplate === "custom"
                 ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
@@ -179,7 +179,9 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
         </div>
       )}
 
-      {/* Numbered step indicator */}
+      {/* Numbered step indicator — onboarding mode relies on the header's
+          localStepLabel text instead, to avoid duplicating progress UI. */}
+      {!isOnboarding && (
       <div className="flex items-center justify-center gap-0">
         {STEP_LABELS.map((label, i) => {
           const stepNum = i + 1;
@@ -192,29 +194,53 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
                 <button
                   onClick={() => isCompleted && goToStep(stepNum)}
                   disabled={!isCompleted}
-                  className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+                  className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold ${
                     isCompleted
-                      ? "bg-primary text-primary-foreground cursor-pointer"
+                      ? "cursor-pointer"
                       : isCurrent
-                      ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
-                      : "bg-muted text-muted-foreground"
+                      ? "ring-2"
+                      : ""
                   }`}
+                  style={
+                    isCompleted || isCurrent
+                      ? {
+                          backgroundColor: `hsl(var(${STRUCTURE_ACCENT}))`,
+                          color: "white",
+                          boxShadow: isCurrent ? `0 0 0 2px hsl(var(${STRUCTURE_ACCENT}) / 0.25)` : undefined,
+                          transitionProperty: "background-color, box-shadow, transform",
+                          transitionDuration: "150ms",
+                        }
+                      : {
+                          backgroundColor: "hsl(var(--muted))",
+                          color: "hsl(var(--ink-subtle))",
+                          transitionProperty: "background-color, transform",
+                          transitionDuration: "150ms",
+                        }
+                  }
                 >
                   {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : stepNum}
                 </button>
-                <span className={`text-[11px] font-medium ${isCurrent || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-[11px] font-medium ${
+                    isCurrent || isCompleted ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
+                  }`}
+                >
                   {label}
                 </span>
               </div>
               {i < STEP_LABELS.length - 1 && (
-                <div className={`w-16 h-px mx-2 mb-5 border-t border-dashed ${
-                  stepNum < step ? "border-primary" : "border-border"
-                }`} />
+                <div
+                  className="w-16 h-px mx-2 mb-5 border-t border-dashed"
+                  style={{
+                    borderColor: stepNum < step ? `hsl(var(${STRUCTURE_ACCENT}))` : "hsl(var(--hairline))",
+                  }}
+                />
               )}
             </div>
           );
         })}
       </div>
+      )}
 
       {/* ═══ Step 1: Template ═══ */}
       {step === 1 && (
@@ -285,7 +311,7 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
                     </div>
                   )}
                   <Button onClick={confirmStep1} disabled={!canProceedStep1()}>
-                    Continue <ChevronRight className="ml-1 h-4 w-4" />
+                    Continue <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -337,15 +363,17 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
                   <Button variant="ghost" size="sm" onClick={() => setStep(1)}>
                     <ArrowLeft className="mr-1 h-4 w-4" /> Back
                   </Button>
-                  <button
-                    className="text-xs text-muted-foreground underline hover:text-foreground transition-colors"
-                    onClick={skipStep2}
-                  >
-                    Skip
-                  </button>
+                  {!hasUnits && (
+                    <button
+                      className="text-xs text-muted-foreground underline hover:text-foreground transition-colors"
+                      onClick={skipStep2}
+                    >
+                      Skip
+                    </button>
+                  )}
                 </div>
                 <Button onClick={confirmStep2} disabled={!hasUnits}>
-                  Continue <ChevronRight className="ml-1 h-4 w-4" />
+                  Continue <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -381,9 +409,12 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
                   const count = countAtLevel(units, 0, i);
                   return (
                     <div key={level} className="flex items-center gap-1.5 text-sm">
-                      <div className={`h-2 w-2 rounded-full ${LEVEL_DOT_COLORS[i % LEVEL_DOT_COLORS.length]}`} />
-                      <span className="font-semibold text-foreground">{count}</span>
-                      <span className="text-muted-foreground">{level}{count !== 1 ? "s" : ""}</span>
+                      <div
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: LEVEL_DOT_COLORS[i % LEVEL_DOT_COLORS.length] }}
+                      />
+                      <span className="font-semibold text-foreground tabular-nums">{count}</span>
+                      <span className="text-[hsl(var(--ink-muted))]">{level}{count !== 1 ? "s" : ""}</span>
                     </div>
                   );
                 })}
@@ -394,8 +425,8 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
                   <ArrowLeft className="mr-1 h-4 w-4" /> Edit
                 </Button>
                 <Button onClick={confirmAndSave} disabled={saving}>
-                  {saving ? "Saving…" : "Continue"}
-                  {!saving && <ChevronRight className="ml-1 h-4 w-4" />}
+                  {saving ? "Saving…" : "Save structure"}
+                  {!saving && <ArrowRight className="ml-1 h-4 w-4" />}
                 </Button>
               </div>
             </CardContent>
@@ -403,13 +434,26 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
         </div>
       )}
 
-      {step === 3 && done && (
+      {step === 3 && done && isOnboarding && (
+        <StepSuccess
+          eyebrow="Structure complete"
+          title="Your hierarchy is saved"
+          description="Next, add the people who work inside it."
+          primaryLabel="Continue"
+          onPrimary={onComplete}
+        />
+      )}
+
+      {step === 3 && done && !isOnboarding && (
         <div className="animate-fade-in" key="step-3-done">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardContent className="py-10">
               <div className="flex flex-col items-center text-center space-y-6">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <CheckCircle2 className="h-10 w-10 text-primary" />
+                <div
+                  className="h-16 w-16 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "hsl(var(--accent-green) / 0.14)" }}
+                >
+                  <CheckCircle2 className="h-10 w-10" style={{ color: "hsl(var(--accent-green))" }} />
                 </div>
 
                 <div className="space-y-2">
@@ -423,13 +467,11 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
 
                 <div className="flex gap-3 pt-2">
                   <Button onClick={onComplete}>
-                    Continue <ChevronRight className="ml-1 h-4 w-4" />
+                    Continue <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
-                  {!isOnboarding && (
-                    <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                      Go to dashboard
-                    </Button>
-                  )}
+                  <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                    Go to dashboard
+                  </Button>
                 </div>
               </div>
             </CardContent>

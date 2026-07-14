@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useEmployees } from "@/hooks/useEmployees";
 import { useOnboardingContext } from "./OnboardingContext";
 
 /** Optional skip control for the app header during onboarding. */
@@ -15,6 +16,7 @@ export function OnboardingSkipControl() {
   const navigate = useNavigate();
   const { isOnboarding, steps, markSkipped, nextStepAfter, saving } = useOnboarding();
   const { activeStep } = useOnboardingContext();
+  const { data: employees = [] } = useEmployees();
   const [open, setOpen] = useState(false);
 
   if (!isOnboarding || !activeStep || activeStep === "structure") return null;
@@ -23,6 +25,8 @@ export function OnboardingSkipControl() {
   if (!step || step.done || step.skipped) return null;
 
   const next = nextStepAfter(activeStep);
+  const opensToUnusableLaunch =
+    activeStep === "people" && employees.length === 0 && next?.key === "cycle";
 
   const handleSkip = async () => {
     try {
@@ -42,7 +46,8 @@ export function OnboardingSkipControl() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="text-xs text-[hsl(var(--ink-subtle))] hover:text-[hsl(var(--ink-muted))] transition-colors"
+          className="relative inline-flex min-h-10 items-center px-2 text-xs text-[hsl(var(--ink-subtle))] hover:text-[hsl(var(--ink-muted))] active:scale-[0.96]"
+          style={{ transitionProperty: "color, transform", transitionDuration: "150ms" }}
         >
           Skip this step
         </button>
@@ -52,6 +57,15 @@ export function OnboardingSkipControl() {
         <p className="mt-1 text-xs text-[hsl(var(--ink-muted))]">
           You can come back to this any time from the sidebar.
         </p>
+        {opensToUnusableLaunch && (
+          <p
+            className="mt-2 text-xs leading-relaxed"
+            style={{ color: "hsl(45, 55%, 32%)" }}
+          >
+            Launch needs at least one employee — you won't be able to create a
+            cycle until you add one.
+          </p>
+        )}
         <div className="mt-3 flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
             Cancel

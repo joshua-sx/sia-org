@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { ArrowLeft, Plus, Upload, Settings2, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -161,32 +162,28 @@ const OrgStructure = () => {
           subtitle="Add levels first, then place your units."
           criteriaAccent="--accent-red"
           criteria={[
-            { label: "At least 2 levels defined", met: unitTypes.length >= 2 },
+            { label: "At least 1 level defined", met: unitTypes.length >= 1 },
             { label: "At least 1 unit created", met: units.length > 0 },
           ]}
         />
       ) : (
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-              Organization structure
-            </h1>
-            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-              {sortedTypes.map((t) => t.name).join(" → ")}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
-              <Settings2 className="mr-1 h-3 w-3" /> Edit levels
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
-              <Upload className="mr-1 h-3 w-3" /> Import CSV
-            </Button>
-            <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
-              <Plus className="mr-1 h-3 w-3" /> Add unit
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          title="Organization structure"
+          subtitle="Create and manage the divisions, departments, and teams within your organization."
+          actions={
+            <>
+              <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
+                <Settings2 className="mr-1 h-3 w-3" /> Edit levels
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
+                <Upload className="mr-1 h-3 w-3" /> Import CSV
+              </Button>
+              <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
+                <Plus className="mr-1 h-3 w-3" /> Add unit
+              </Button>
+            </>
+          }
+        />
       )}
 
       {isOnboarding && (
@@ -211,8 +208,8 @@ const OrgStructure = () => {
           >
             <Building2 className="h-6 w-6" style={{ color: "hsl(var(--accent-red))" }} />
           </div>
-          <h2 className="text-base font-semibold text-foreground">Your hierarchy is configured</h2>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+          <h2 className="text-base font-semibold text-foreground text-balance">Your hierarchy is configured</h2>
+          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))] text-pretty">
             Add your first {topLevelType?.name ?? "unit"}.
           </p>
           <Button className="mt-6" onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>

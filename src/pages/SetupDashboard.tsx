@@ -29,10 +29,6 @@ export function SetupDashboard() {
   }, [employees.data]);
 
   const handleCta = () => {
-    if (current.key === "cycle") {
-      navigate("/appraisals");
-      return;
-    }
     if (current.href) navigate(current.href);
   };
 
@@ -43,7 +39,7 @@ export function SetupDashboard() {
         description="Track appraisal setup progress and manage your SIA workspace."
         path="/dashboard"
       />
-    <div className="px-6 md:px-10 py-10 md:py-14 max-w-6xl">
+    <div className="px-6 md:px-10 py-10 md:py-14 max-w-5xl mx-auto w-full">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* MAIN */}
         <div>
@@ -53,7 +49,7 @@ export function SetupDashboard() {
           <h1 className="text-[40px] md:text-[52px] leading-[1.05] font-semibold tracking-[-1.5px] text-foreground font-[Space_Grotesk] text-balance">
             {copy.headline}
           </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] max-w-[560px]" style={{ textWrap: "pretty" as never }}>
+          <p className="mt-4 text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] max-w-[560px] text-pretty">
             {copy.subhead}
           </p>
 
@@ -67,8 +63,7 @@ export function SetupDashboard() {
               <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] leading-relaxed max-w-[46ch]">{copy.ctaBody}</p>
               <Button
                 onClick={handleCta}
-                className="mt-6 h-12 px-7 text-[15px] font-medium active:scale-[0.98]"
-                style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
+                className="mt-6 h-12 px-7 text-[15px] font-medium"
               >
                 {copy.ctaLabel}
               </Button>

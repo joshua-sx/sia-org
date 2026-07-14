@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { ClipboardCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCycleParticipants";
@@ -68,10 +67,6 @@ const MyAssessments = () => {
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-      <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-yellow))] uppercase tracking-wider">
-        <ClipboardCheck className="h-3.5 w-3.5" />
-        Appraisals
-      </p>
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         Assessments
       </h1>

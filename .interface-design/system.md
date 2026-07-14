@@ -29,10 +29,10 @@ is a wayfinding signal (which part of setup am I in?), never a gradient flourish
 This is the documented exception to the usual "one accent" rule.
 
 - `--accent-blue  217 89% 61%` — Account / Dashboard / primary actions
-- `--accent-green 137 55% 43%` — Structure / done + success states
-- `--accent-red     4 81% 56%` — People / destructive
-- `--accent-yellow 45 97% 51%` — Launch / skipped + attention (paired with a
+- `--accent-red     4 81% 56%` — Structure (org hierarchy step)
+- `--accent-yellow 45 97% 51%` — People / skipped + attention (paired with a
   darkened text hue `hsl(45,55%,32%)` for legibility on tints)
+- `--accent-green 137 55% 43%` — Launch / done + success states
 
 Rule: within a single view, still lead with ONE hue (the view's owner). Use tints
 at ~0.1-0.14 alpha for backgrounds; reserve the solid hue for the single element
@@ -86,6 +86,13 @@ never size alone.
 
 Recorded values worth remembering (not one-offs or prop variations).
 
+- **Page header** (`PageHeader`, top-level product pages — Dashboard, Structure,
+  Employees, Appraisals, ...) — bold `28px/-0.5px` Space Grotesk title,
+  `--ink-muted` subtitle below, optional actions right-aligned on the same row.
+  No eyebrow label, icon, or colored accent above the title — that vocabulary is
+  reserved for `OnboardingStepHeader` during setup, where the accent is a
+  wayfinding signal for "which step am I in." Once setup is complete, pages
+  stand on their own and don't need step-coding.
 - **Setup CTA card** (dashboard hero focal element) — `rounded-2xl` ·
   `border border-[hsl(var(--accent-blue)/0.18)]` · `ring-1
   ring-[hsl(var(--accent-blue)/0.05)]` · `p-6 md:p-8` · elevation
@@ -98,10 +105,9 @@ Recorded values worth remembering (not one-offs or prop variations).
   icon; upcoming = hairline border + `--ink-subtle` icon. Connector = green/0.5
   when the preceding step is done, else hairline. Labels 11px/500, current in
   foreground else subtle.
-- **Onboarding step pill** (persistent strip) — `rounded-full px-2.5 py-1
-  11px/500`, one leading glyph per state mirroring the pipeline (done check /
-  current step-icon + `0 0 0 1px accent/0.3` ring / skipped minus / upcoming muted
-  step-icon). Shares the pipeline's state vocabulary, not its geometry.
+- **Onboarding strip** (persistent top bar on step pages, hidden on setup dashboard) —
+  `OnboardingPipeline` size `sm` in a hairline-bordered raised surface; tabular-nums
+  `completedCount/totalSteps` on the right. Replaces the older segment-bar progress UI.
 - **Aside card** (flat supporting context) — `rounded-xl border
   border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5`, no shadow.
 - **Checklist row** — 14px label; actionable rows `font-medium` foreground, done

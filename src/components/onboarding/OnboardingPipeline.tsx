@@ -66,7 +66,10 @@ export function OnboardingPipeline({ steps, currentKey, size = "md" }: Onboardin
         return (
           <li key={step.key} className="contents">
             {canClick ? (
-              <Link to={step.href!} className="active:scale-[0.97] transition-transform">
+              <Link
+                to={step.href!}
+                className="rounded-lg py-1 active:scale-[0.96] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
                 {node}
               </Link>
             ) : (
@@ -77,6 +80,8 @@ export function OnboardingPipeline({ steps, currentKey, size = "md" }: Onboardin
                 className={`${lineOffset} h-[2px] flex-1 rounded-full`}
                 style={{
                   backgroundColor: step.status === "done" ? "hsl(var(--accent-green) / 0.5)" : "hsl(var(--hairline))",
+                  transitionProperty: "background-color",
+                  transitionDuration: "200ms",
                 }}
                 aria-hidden
               />
