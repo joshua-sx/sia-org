@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, ClipboardList, Lock } from "lucide-react";
+import { CheckCircle2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants } from "@/hooks/useCycleParticipants";
@@ -97,10 +97,6 @@ const MyReview = () => {
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-      <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-yellow))] uppercase tracking-wider">
-        <ClipboardList className="h-3.5 w-3.5" />
-        Appraisals
-      </p>
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         My review
       </h1>
