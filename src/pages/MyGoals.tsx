@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Target } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCycleParticipants";
