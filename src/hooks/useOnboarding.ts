@@ -98,12 +98,13 @@ export function useOnboarding() {
   ];
 
   const completedCount = steps.filter((s) => s.done).length;
-  const allStepsResolved =
-    structureDone &&
-    (peopleDone || peopleSkipped) &&
-    (cycleDone || cycleSkipped);
-  const setupComplete = allStepsResolved;
-  const isOnboarding = !!organization && !allStepsResolved;
+  // Structure is the only required step. Once it's done (or the org was
+  // already marked setup_complete by the previous flow), the user exits
+  // onboarding — People and Launch are optional and can be resumed from
+  // the dashboard checklist.
+  const setupComplete =
+    !!organization && (structureDone || !!organization?.setup_complete);
+  const isOnboarding = !!organization && !setupComplete;
 
   type OrgPatch = Partial<{
     structure_complete: boolean;
