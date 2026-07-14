@@ -68,10 +68,6 @@ const MyGoals = () => {
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-      <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-yellow))] uppercase tracking-wider">
-        <Target className="h-3.5 w-3.5" />
-        Appraisals
-      </p>
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         Team goals
       </h1>
