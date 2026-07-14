@@ -41,17 +41,7 @@ export function EmployeeEmptyState({ onImport, onAddManual }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="text-center">
-        <h2 className="text-[22px] font-semibold tracking-[-0.3px] text-foreground font-[Space_Grotesk] text-balance">
-          Add your first employees
-        </h2>
-        <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] max-w-md mx-auto text-pretty">
-          People are the foundation of everything else — appraisal cycles, managers, and reporting all
-          build on top of your employee list.
-        </p>
-      </div>
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {options.map((opt, i) => {
           const content = (
             <>

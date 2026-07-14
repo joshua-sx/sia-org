@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -121,14 +122,10 @@ const OrgEmployees = () => {
           ]}
         />
       ) : (
-        <div>
-          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-            Add your employees
-          </h1>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-            Import a CSV or add people manually. No invitations are sent during setup.
-          </p>
-        </div>
+        <PageHeader
+          title="Add your employees"
+          subtitle="Add employees manually or import a CSV to build your reporting structure and prepare for appraisal cycles. No invitations will be sent during setup."
+        />
       )}
 
       {showAttention && (

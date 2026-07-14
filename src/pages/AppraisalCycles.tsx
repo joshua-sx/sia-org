@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CalendarClock, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
@@ -66,23 +67,16 @@ const AppraisalCycles = () => {
           ]}
         />
       ) : (
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-green))] uppercase tracking-wider">
-              <CalendarClock className="h-3.5 w-3.5" />
-              Appraisals
-            </p>
-            <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-              Appraisal cycles
-            </h1>
-            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-              {isHr
-                ? "Create a cycle, review the timeline, and launch when your participant list is ready."
-                : "Cycles your organization is running. Your goals and reviews live in the tabs above once a cycle is active."}
-            </p>
-          </div>
-          {isHr && (
-            hasEmployees ? newCycleBtn : (
+        <PageHeader
+          title="Appraisal cycles"
+          subtitle={
+            isHr
+              ? "Create a cycle, review the timeline, and launch when your participant list is ready."
+              : "Cycles your organization is running. Your goals and reviews live in the tabs above once a cycle is active."
+          }
+          actions={
+            isHr &&
+            (hasEmployees ? newCycleBtn : (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -94,9 +88,9 @@ const AppraisalCycles = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )
-          )}
-        </div>
+            ))
+          }
+        />
       )}
 
       {showOnboardingChrome && isHr && (

@@ -86,6 +86,13 @@ never size alone.
 
 Recorded values worth remembering (not one-offs or prop variations).
 
+- **Page header** (`PageHeader`, top-level product pages — Dashboard, Structure,
+  Employees, Appraisals, ...) — bold `28px/-0.5px` Space Grotesk title,
+  `--ink-muted` subtitle below, optional actions right-aligned on the same row.
+  No eyebrow label, icon, or colored accent above the title — that vocabulary is
+  reserved for `OnboardingStepHeader` during setup, where the accent is a
+  wayfinding signal for "which step am I in." Once setup is complete, pages
+  stand on their own and don't need step-coding.
 - **Setup CTA card** (dashboard hero focal element) — `rounded-2xl` ·
   `border border-[hsl(var(--accent-blue)/0.18)]` · `ring-1
   ring-[hsl(var(--accent-blue)/0.05)]` · `p-6 md:p-8` · elevation

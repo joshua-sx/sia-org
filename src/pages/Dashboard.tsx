@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { CheckCircle2, Circle, ChevronRight, Minus } from "lucide-react";
 import { useOnboarding, type OnboardingStatus } from "@/hooks/useOnboarding";
 import { DashboardAppraisalCard } from "@/components/appraisals/DashboardAppraisalCard";
@@ -23,34 +24,21 @@ const Dashboard = () => {
   }
 
   const firstName = profile?.full_name?.split(" ")[0];
-  const progressPct = 100;
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl">
-      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-        <div>
-          <p className="mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-blue))]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-blue))]" />
-            Overview
-          </p>
-          <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
-            Welcome back{firstName ? `, ${firstName}` : ""}
-          </h1>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
-            You're all set. Ready to run your first appraisal cycle.
-          </p>
-          <div className="mt-3 w-56 h-1 rounded-full bg-[hsl(var(--ink-strong)/0.06)] overflow-hidden">
-            <div className="h-full bg-[hsl(var(--accent-green))]" style={{ width: `${progressPct}%` }} />
-          </div>
-        </div>
-
-        {organization && (
-          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[220px]">
-            <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Organization</p>
-            <p className="mt-0.5 text-sm font-medium text-foreground truncate">{organization.name}</p>
-          </div>
-        )}
-      </div>
+      <PageHeader
+        title={`Welcome${firstName ? `, ${firstName}` : ""}`}
+        subtitle="You're all set. Ready to run your first appraisal cycle."
+        actions={
+          organization && (
+            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[220px]">
+              <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Organization</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground truncate">{organization.name}</p>
+            </div>
+          )
+        }
+      />
 
       <DashboardAppraisalCard className="mt-8" />
 
