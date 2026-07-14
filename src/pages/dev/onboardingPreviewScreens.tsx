@@ -34,8 +34,8 @@ export interface PreviewFlowActions {
 
 function PreviewDashboardMock({ state }: { state: PreviewFlowState }) {
   const checklist = [
-    { key: "account", label: "Account", icon: UserCircle2, accent: "--accent-blue", done: true },
-    { key: "structure", label: "Structure", icon: Building2, accent: "--accent-red", done: true },
+    { key: "account", label: "Account", icon: UserCircle2, accent: "--accent-blue", done: true, skipped: false },
+    { key: "structure", label: "Structure", icon: Building2, accent: "--accent-red", done: true, skipped: false },
     {
       key: "people",
       label: "People",
