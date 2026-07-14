@@ -109,6 +109,7 @@ export function DraftLaunchPanel({
           {candidates.map((e) => {
             const isExcluded = excluded.has(e.id);
             const managerId = managerFor(e);
+            const managerOptions = candidates.filter((m) => m.id !== e.id);
             return (
               <div key={e.id} className={`flex items-center gap-4 px-5 py-3 ${isExcluded ? "opacity-50" : ""}`}>
                 <div className="min-w-0 flex-1">
@@ -131,13 +132,17 @@ export function DraftLaunchPanel({
                       <SelectValue placeholder="Assign manager…" />
                     </SelectTrigger>
                     <SelectContent>
-                      {candidates
-                        .filter((m) => m.id !== e.id)
-                        .map((m) => (
+                      {managerOptions.length === 0 ? (
+                        <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                          No other employees available — add another employee to assign a manager.
+                        </div>
+                      ) : (
+                        managerOptions.map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.first_name} {m.last_name}
                           </SelectItem>
-                        ))}
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
