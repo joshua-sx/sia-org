@@ -26,7 +26,7 @@ const Dashboard = () => {
   const firstName = profile?.full_name?.split(" ")[0];
 
   return (
-    <div className="px-6 md:px-10 py-10 max-w-5xl">
+    <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
       <PageHeader
         title={`Welcome${firstName ? `, ${firstName}` : ""}`}
         subtitle="You're all set. Ready to run your first appraisal cycle."

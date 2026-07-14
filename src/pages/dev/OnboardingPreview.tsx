@@ -271,8 +271,8 @@ export default function OnboardingPreview() {
           </div>
         )}
 
-        <main className="flex-1 flex justify-center px-6 py-10 md:px-16 md:py-12">
-          <div className={isDashboardScreen ? "w-full max-w-5xl" : "w-full max-w-[760px]"}>
+        <main className="flex-1 flex justify-center px-6 py-10 md:px-10 md:py-12">
+          <div className="w-full max-w-5xl">
             {!isTerminalScreen ? (
               <>
                 <OnboardingStepHeader

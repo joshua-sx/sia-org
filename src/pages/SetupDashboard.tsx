@@ -39,7 +39,7 @@ export function SetupDashboard() {
         description="Track appraisal setup progress and manage your SIA workspace."
         path="/dashboard"
       />
-    <div className="px-6 md:px-10 py-10 md:py-14 max-w-6xl">
+    <div className="px-6 md:px-10 py-10 md:py-14 max-w-5xl mx-auto w-full">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* MAIN */}
         <div>

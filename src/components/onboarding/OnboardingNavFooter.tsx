@@ -22,7 +22,7 @@ export function OnboardingNavFooter({
 }: OnboardingNavFooterProps) {
   return (
     <div className="sticky bottom-0 z-30 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-[760px] items-center justify-between gap-4 px-6 py-3 md:px-16">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3 md:px-10">
         <Button
           variant="ghost"
           size="sm"
