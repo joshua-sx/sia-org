@@ -161,7 +161,7 @@ const OrgStructure = () => {
           subtitle="Add levels first, then place your units."
           criteriaAccent="--accent-red"
           criteria={[
-            { label: "At least 2 levels defined", met: unitTypes.length >= 2 },
+            { label: "At least 1 level defined", met: unitTypes.length >= 1 },
             { label: "At least 1 unit created", met: units.length > 0 },
           ]}
         />
@@ -211,8 +211,8 @@ const OrgStructure = () => {
           >
             <Building2 className="h-6 w-6" style={{ color: "hsl(var(--accent-red))" }} />
           </div>
-          <h2 className="text-base font-semibold text-foreground">Your hierarchy is configured</h2>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+          <h2 className="text-base font-semibold text-foreground text-balance">Your hierarchy is configured</h2>
+          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))] text-pretty">
             Add your first {topLevelType?.name ?? "unit"}.
           </p>
           <Button className="mt-6" onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>

@@ -33,15 +33,15 @@ export function StepSuccess({
   return (
     <div className="mx-auto max-w-2xl px-6 py-14 text-center">
       <motion.div
-        initial={{ scale: reduce ? 1 : 0.4, opacity: 0 }}
+        initial={{ scale: reduce ? 1 : 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", duration: 0.5, bounce: 0 }}
         className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
         style={{ backgroundColor: "hsl(var(--accent-green) / 0.14)" }}
       >
         <motion.div
-          initial={{ scale: reduce ? 1 : 0 }}
-          animate={{ scale: 1 }}
+          initial={{ scale: reduce ? 1 : 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.15, type: "spring", duration: 0.4, bounce: 0 }}
         >
           <Check className="h-8 w-8" strokeWidth={3} style={{ color: "hsl(var(--accent-green))" }} />
@@ -97,14 +97,14 @@ export function StepSuccess({
         transition={{ delay: 0.6, duration: 0.3 }}
         className="mt-10 flex items-center justify-center gap-3"
       >
-        <Button onClick={onPrimary} className="active:scale-[0.96] transition-transform">
+        <Button onClick={onPrimary}>
           {primaryLabel}
         </Button>
         {secondaryLabel && onSecondary && (
           <Button
             variant="ghost"
             onClick={onSecondary}
-            className="text-[hsl(var(--ink-muted))] active:scale-[0.96] transition-transform"
+            className="text-[hsl(var(--ink-muted))]"
           >
             {secondaryLabel}
           </Button>

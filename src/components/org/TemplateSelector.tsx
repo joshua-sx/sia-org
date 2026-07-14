@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Building2, Landmark, HeartPulse, GraduationCap, LayoutList, Settings2, Check, Pencil } from "lucide-react";
 
 export interface HierarchyTemplate {
@@ -34,26 +34,23 @@ interface Props {
 }
 
 const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTemplate; active: boolean; onSelect: () => void }) => {
-  const [hovered, setHovered] = useState(false);
   const Icon = template.icon;
 
   return (
     <button
       onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={`relative flex flex-col text-left rounded-xl border-[1.5px] p-4 pb-3.5 min-h-[155px] transition-all duration-150 cursor-pointer outline-none ${
+      className={`group relative flex flex-col text-left rounded-xl border-[1.5px] p-4 pb-3.5 min-h-[155px] transition-[border-color,background-color,box-shadow] duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
         active
           ? "border-primary bg-accent shadow-[0_0_0_2px_hsl(var(--primary)/0.15),0_4px_14px_rgba(28,25,23,0.08)]"
-          : hovered
-          ? "border-border/80 bg-card shadow-[0_4px_14px_rgba(28,25,23,0.08),0_2px_4px_rgba(28,25,23,0.04)]"
-          : "border-border bg-card shadow-[0_1px_3px_rgba(28,25,23,0.06),0_1px_2px_rgba(28,25,23,0.04)]"
+          : "border-border bg-card shadow-[0_1px_3px_rgba(28,25,23,0.06),0_1px_2px_rgba(28,25,23,0.04)] hover:border-border/80 hover:bg-card hover:shadow-[0_4px_14px_rgba(28,25,23,0.08),0_2px_4px_rgba(28,25,23,0.04)]"
       }`}
     >
       {/* Checkmark */}
-      <div className={`absolute top-3 right-3 h-5 w-5 rounded-full flex items-center justify-center transition-all duration-150 ${
-        active ? "bg-primary scale-100" : "bg-muted scale-75 opacity-0"
-      }`}>
+      <div
+        className={`absolute top-3 right-3 h-5 w-5 rounded-full flex items-center justify-center transition-[opacity,transform] duration-150 ${
+          active ? "bg-primary scale-100 opacity-100" : "bg-muted scale-[0.25] opacity-0"
+        }`}
+      >
         <Check className="h-3 w-3 text-primary-foreground" />
       </div>
 
@@ -62,7 +59,7 @@ const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTempl
         <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
           active ? "bg-primary/10" : "bg-muted"
         }`}>
-          <Icon className={`h-4.5 w-4.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+          <Icon className={`size-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
         </div>
         <span className="text-sm font-semibold text-foreground">{template.label}</span>
       </div>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -30,7 +30,6 @@ import {
 
 const OrgEmployees = () => {
   const { profile } = useAuth();
-  const navigate = useNavigate();
   const {
     data: employees = [],
     isLoading,
@@ -40,7 +39,7 @@ const OrgEmployees = () => {
     deleteEmployee,
   } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { markSkipped, isOnboarding, nextStepAfter } = useOnboarding();
+  const { isOnboarding } = useOnboarding();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -56,10 +55,12 @@ const OrgEmployees = () => {
     () => employees.filter((e) => !e.manager_id),
     [employees]
   );
-  const ready = employees.length >= 1 && hasManagerLink;
+  // A single employee has nobody to report to — a manager link isn't
+  // possible yet, so don't gate on it until there's a second person.
+  const ready = employees.length >= 1 && (hasManagerLink || employees.length === 1);
   const readyHint = employees.length === 0
     ? "Add at least 1 employee to continue."
-    : !hasManagerLink
+    : !hasManagerLink && employees.length > 1
       ? "Assign a manager relationship to continue."
       : `${employees.length} ${employees.length === 1 ? "person" : "people"} added — ready to continue.`;
 
@@ -94,20 +95,13 @@ const OrgEmployees = () => {
     setFormOpen(true);
   };
 
-  const handleEmptyStateSkip = async () => {
-    await markSkipped("people");
-    toast.info("Skipped People — you can add employees any time.");
-    const next = nextStepAfter("people");
-    navigate(next?.href ?? "/dashboard");
-  };
-
   const handleAssignManager = () => {
     const target = employeesWithoutManager[0];
     if (target) openEdit(target);
   };
 
   const empty = !isLoading && employees.length === 0;
-  const showAttention = !empty && !hasManagerLink;
+  const showAttention = !empty && !hasManagerLink && employees.length > 1;
 
   const pageInner = (
     <>
@@ -120,7 +114,10 @@ const OrgEmployees = () => {
           criteriaAccent="--accent-yellow"
           criteria={[
             { label: "At least 1 employee added", met: employees.length >= 1 },
-            { label: "Every employee has a manager", met: hasManagerLink },
+            {
+              label: "At least one manager relationship set (once you have 2+ people)",
+              met: hasManagerLink || employees.length <= 1,
+            },
           ]}
         />
       ) : (
@@ -176,7 +173,6 @@ const OrgEmployees = () => {
             <EmployeeEmptyState
               onImport={() => setImportOpen(true)}
               onAddManual={openAdd}
-              onSkip={handleEmptyStateSkip}
             />
           ) : (
             <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_4px_12px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
@@ -185,7 +181,7 @@ const OrgEmployees = () => {
                   size="sm"
                   variant="outline"
                   onClick={openAdd}
-                  className="border-[hsl(var(--accent-blue)/0.4)] text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.06)] hover:bg-[hsl(var(--accent-blue)/0.12)] hover:text-[hsl(var(--accent-blue))] active:scale-[0.96] transition-transform"
+                  className="border-[hsl(var(--accent-blue)/0.4)] text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.06)] hover:bg-[hsl(var(--accent-blue)/0.12)] hover:text-[hsl(var(--accent-blue))]"
                 >
                   <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add manually
                 </Button>

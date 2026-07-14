@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { GlobalStepBar } from "@/components/onboarding/GlobalStepBar";
+import { OnboardingPipeline } from "@/components/onboarding/OnboardingPipeline";
 import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
 import { PageHead } from "@/components/PageHead";
 import {
@@ -10,6 +10,8 @@ import {
   deriveScreen,
   nextScreenId,
   prevScreenId,
+  pipelineStepsFor,
+  PIPELINE_KEY_BY_GLOBAL_STEP,
   screenIndex,
   skipTargetFrom,
   SCREEN_ORDER,
@@ -44,10 +46,7 @@ export default function OnboardingPreview() {
   const goContinue = useCallback(() => {
     setFlow((prev) => {
       const current = deriveScreen(prev);
-      if (!current.footerReady) {
-        toast.message(current.blockedHint || "Complete this step to continue.");
-        return prev;
-      }
+      if (!current.footerReady) return prev;
       const nextId = nextScreenId(prev.screenId);
       if (!nextId) return prev;
       if (nextId === "complete") {
@@ -263,7 +262,13 @@ export default function OnboardingPreview() {
         </header>
 
         {!isTerminalScreen && (
-          <GlobalStepBar activeStep={screen.globalStep} completedThrough={screen.completedThrough} />
+          <div className="border-b border-[hsl(var(--hairline))] px-6 md:px-16 py-4">
+            <OnboardingPipeline
+              steps={pipelineStepsFor(screen.globalStep, screen.completedThrough)}
+              currentKey={PIPELINE_KEY_BY_GLOBAL_STEP[screen.globalStep]}
+              size="sm"
+            />
+          </div>
         )}
 
         <main className="flex-1 flex justify-center px-6 py-10 md:px-16 md:py-12">
@@ -294,6 +299,7 @@ export default function OnboardingPreview() {
             canGoBack={currentIndex > 0}
             continueDisabled={!isCompleteScreen && !screen.footerReady}
             continueLabel={isCompleteScreen ? "Go to dashboard" : "Continue"}
+            hint={!isCompleteScreen ? screen.blockedHint : undefined}
           />
         )}
       </div>

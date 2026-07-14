@@ -1,9 +1,9 @@
 import { Info, Check, Circle } from "lucide-react";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export interface CompletionCriterion {
   label: string;
@@ -18,7 +18,8 @@ interface CompletionCriteriaProps {
 
 /**
  * Inline "done when" trigger. Replaces a persistent sidebar card with a
- * link + info icon that reveals criteria on hover.
+ * link + info icon that reveals criteria on click/tap/keyboard focus —
+ * a HoverCard would be unreachable on touch devices.
  */
 export function CompletionCriteria({
   criteria,
@@ -28,18 +29,18 @@ export function CompletionCriteria({
   if (criteria.length === 0) return null;
 
   return (
-    <HoverCard openDelay={200} closeDelay={100}>
-      <HoverCardTrigger asChild>
+    <Popover>
+      <PopoverTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium hover:underline"
+          className="relative -my-2 inline-flex min-h-10 items-center gap-1.5 py-2 text-[13px] font-medium hover:underline"
           style={{ color: `hsl(var(${accent}))` }}
         >
           <Info className="h-3.5 w-3.5" />
           {triggerLabel}
         </button>
-      </HoverCardTrigger>
-      <HoverCardContent align="start" className="w-72 p-4">
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-72 p-4">
         <p
           className="text-xs font-semibold uppercase tracking-wide"
           style={{ color: `hsl(var(${accent}))` }}
@@ -64,8 +65,8 @@ export function CompletionCriteria({
             </li>
           ))}
         </ul>
-      </HoverCardContent>
-    </HoverCard>
+      </PopoverContent>
+    </Popover>
   );
 }
 

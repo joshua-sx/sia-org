@@ -1,4 +1,6 @@
+import { UserCircle2, Building2, Users, CalendarClock } from "lucide-react";
 import type { CompletionCriterion } from "@/components/onboarding/CompletionCriteria";
+import type { OnboardingStep, OnboardingStepKey } from "@/hooks/useOnboarding";
 
 export type PreviewScreenId =
   | "account"
@@ -90,7 +92,7 @@ export interface DerivedScreen {
   subtitle: string;
   localStepLabel?: string;
   criteria?: CompletionCriterion[];
-  /** Shown in a toast when Continue is tapped too early — not in the footer */
+  /** Shown inline next to the disabled Continue button */
   blockedHint: string;
   footerReady: boolean;
   showSkip: boolean;
@@ -277,6 +279,36 @@ export function deriveScreen(state: PreviewFlowState): DerivedScreen {
       return _exhaustive;
     }
   }
+}
+
+export const PIPELINE_KEY_BY_GLOBAL_STEP: Record<1 | 2 | 3 | 4, OnboardingStepKey> = {
+  1: "account",
+  2: "structure",
+  3: "people",
+  4: "cycle",
+};
+
+const PIPELINE_STEP_META: { key: OnboardingStepKey; label: string; icon: OnboardingStep["icon"]; accent: string }[] = [
+  { key: "account", label: "Account", icon: UserCircle2, accent: "--accent-blue" },
+  { key: "structure", label: "Structure", icon: Building2, accent: "--accent-red" },
+  { key: "people", label: "People", icon: Users, accent: "--accent-yellow" },
+  { key: "cycle", label: "Launch", icon: CalendarClock, accent: "--accent-green" },
+];
+
+/** Build a mock OnboardingStep[] for OnboardingPipeline from the preview's simplified progress state.
+ * No href — these nodes are illustrative only in the dev preview, not real navigation targets. */
+export function pipelineStepsFor(globalStep: 1 | 2 | 3 | 4, completedThrough: number): OnboardingStep[] {
+  return PIPELINE_STEP_META.map((meta, i) => {
+    const stepNum = i + 1;
+    const done = stepNum <= completedThrough;
+    const current = !done && stepNum === globalStep;
+    return {
+      ...meta,
+      status: done ? "done" : current ? "current" : "next",
+      skipped: false,
+      done,
+    };
+  });
 }
 
 export function screenIndex(id: PreviewScreenId): number {

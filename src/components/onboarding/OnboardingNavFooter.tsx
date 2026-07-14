@@ -7,6 +7,8 @@ interface OnboardingNavFooterProps {
   canGoBack?: boolean;
   continueDisabled?: boolean;
   continueLabel?: string;
+  /** Shown inline next to Continue while it's disabled, e.g. "Add at least 1 employee to continue." */
+  hint?: string;
 }
 
 /** Minimal onboarding footer: Back on the left, Continue on the right. */
@@ -16,6 +18,7 @@ export function OnboardingNavFooter({
   canGoBack = true,
   continueDisabled = false,
   continueLabel = "Continue",
+  hint,
 }: OnboardingNavFooterProps) {
   return (
     <div className="sticky bottom-0 z-30 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]/95 backdrop-blur">
@@ -31,10 +34,20 @@ export function OnboardingNavFooter({
           <ArrowLeft className="mr-1 h-3.5 w-3.5" />
           Back
         </Button>
-        <Button size="sm" type="button" onClick={onContinue} disabled={continueDisabled}>
-          {continueLabel}
-          <ArrowRight className="ml-1 h-3.5 w-3.5" />
-        </Button>
+        <div className="flex items-center gap-3">
+          {continueDisabled && hint && (
+            <p className="text-xs text-[hsl(var(--ink-muted))]">{hint}</p>
+          )}
+          <Button
+            size="sm"
+            type="button"
+            onClick={onContinue}
+            disabled={continueDisabled}
+          >
+            {continueLabel}
+            <ArrowRight className="ml-1 h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
     </div>
   );

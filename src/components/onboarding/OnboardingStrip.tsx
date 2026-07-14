@@ -1,12 +1,15 @@
+import { useLocation } from "react-router-dom";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useOnboardingContext } from "./OnboardingContext";
 import { OnboardingPipeline } from "./OnboardingPipeline";
 
 export function OnboardingStrip({ className }: { className?: string }) {
+  const location = useLocation();
   const { steps, isOnboarding, completedCount, totalSteps } = useOnboarding();
   const { activeStep } = useOnboardingContext();
 
-  if (!isOnboarding) return null;
+  // Setup dashboard owns the signature pipeline in its hero card — avoid duplicating it.
+  if (!isOnboarding || location.pathname === "/dashboard") return null;
 
   const active =
     (activeStep && steps.find((s) => s.key === activeStep)) ||

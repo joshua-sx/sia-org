@@ -261,7 +261,6 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
               <Button
                 onClick={runImport}
                 disabled={importing || readyCount === 0}
-                className="active:scale-[0.96] transition-transform"
               >
                 {importing ? "Importing…" : `Import ${readyCount}`}
               </Button>
