@@ -118,8 +118,8 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
         toast.success(editing ? "Employee updated" : "Employee added");
         onOpenChange(false);
       }
-    } catch (err: any) {
-      toast.error(err?.message ?? "Failed to save employee");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save employee");
     }
   };
 
@@ -211,7 +211,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
             <Field label="Employment type">
               <Select
                 value={watch("employment_type")}
-                onValueChange={(v) => setValue("employment_type", v as any)}
+                onValueChange={(v) => setValue("employment_type", v as (typeof EMPLOYMENT_TYPES)[number])}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -251,7 +251,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
             <Field label="Status">
               <Select
                 value={watch("employment_status")}
-                onValueChange={(v) => setValue("employment_status", v as any)}
+                onValueChange={(v) => setValue("employment_status", v as (typeof EMPLOYMENT_STATUSES)[number])}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>

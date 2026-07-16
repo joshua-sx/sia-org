@@ -38,8 +38,8 @@ const EditLevelsModal = ({ open, onOpenChange, unitTypes, hasUnits }: Props) => 
       }
       toast.success("Labels updated");
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update");
     } finally {
       setSaving(false);
     }

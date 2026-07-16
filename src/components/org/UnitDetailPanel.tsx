@@ -28,8 +28,8 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
       await updateUnit.mutateAsync({ id: node.id, name: newName.trim() });
       toast.success("Unit renamed");
       setEditing(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to rename");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to rename");
     }
   };
 
@@ -43,8 +43,8 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
     try {
       await updateUnit.mutateAsync({ id: node.id, is_active: false });
       toast.success("Unit deactivated");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to deactivate");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to deactivate");
     }
   };
 
@@ -52,8 +52,8 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
     try {
       await updateUnit.mutateAsync({ id: node.id, is_active: true });
       toast.success("Unit reactivated");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to reactivate");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to reactivate");
     }
   };
 

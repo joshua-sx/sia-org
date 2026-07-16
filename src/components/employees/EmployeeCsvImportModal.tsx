@@ -111,8 +111,8 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
       } else {
         toast.success(`Imported ${inserted.length} of ${rows.length} rows`);
       }
-    } catch (err: any) {
-      toast.error(err?.message ?? "Import failed");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Import failed");
     } finally {
       setImporting(false);
     }

@@ -159,8 +159,8 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
           updated[idx] = { ...row, imported: true };
           successCount++;
           progressed = true;
-        } catch (err: any) {
-          updated[idx] = { ...row, error: err.message };
+        } catch (err) {
+          updated[idx] = { ...row, error: err instanceof Error ? err.message : "Import failed" };
         }
       }
     }

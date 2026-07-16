@@ -56,8 +56,8 @@ const AddUnitModal = ({ open, onOpenChange, unitTypes, units, preselectedParent,
       setTypeId("");
       setParentId("");
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add unit");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to add unit");
     } finally {
       setSaving(false);
     }
