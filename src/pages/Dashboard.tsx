@@ -81,7 +81,7 @@ const Dashboard = () => {
                   </button>
                 ) : showResume ? (
                   <Link to={item.href!}>
-                    <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs">
+                    <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs text-[hsl(var(--accent-green))] hover:bg-[hsl(var(--accent-green)/0.12)] hover:text-[hsl(var(--accent-green))]">
                       Continue
                       <ChevronRight className="h-3 w-3" />
                     </Button>
