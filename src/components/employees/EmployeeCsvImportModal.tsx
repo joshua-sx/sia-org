@@ -239,7 +239,7 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
                             {r.errors[0]}
                           </span>
                         ) : r.warnings.length ? (
-                          <span className="text-[hsl(45,70%,32%)]">{r.warnings[0]}</span>
+                          <span className="text-[hsl(270,60%,45%)]">{r.warnings[0]}</span>
                         ) : (
                           <span style={{ color: "hsl(var(--accent-green))" }}>Ready</span>
                         )}
