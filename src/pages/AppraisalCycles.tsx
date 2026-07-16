@@ -43,10 +43,12 @@ const AppraisalCycles = () => {
   );
 
   const showOnboardingChrome = isOnboarding && isHr;
+  const onboardingGreenBtn =
+    "bg-[hsl(var(--accent-green))] text-white hover:bg-[hsl(var(--accent-green)/0.9)]";
   const newCycleBtn = (
     <Button
       onClick={() => setFormOpen(true)}
-      className="shrink-0"
+      className={`shrink-0 ${showOnboardingChrome ? onboardingGreenBtn : ""}`}
       disabled={!hasEmployees}
     >
       <Plus className="mr-1.5 h-4 w-4" /> New cycle
@@ -133,7 +135,11 @@ const AppraisalCycles = () => {
                 : "Your HR team hasn't created a cycle yet. Check back soon."}
             </p>
             {isHr && (
-              <Button className="mt-5" onClick={() => setFormOpen(true)} disabled={!hasEmployees}>
+              <Button
+                className={`mt-5 ${showOnboardingChrome ? onboardingGreenBtn : ""}`}
+                onClick={() => setFormOpen(true)}
+                disabled={!hasEmployees}
+              >
                 <Plus className="mr-1.5 h-4 w-4" /> Create first cycle
               </Button>
             )}
