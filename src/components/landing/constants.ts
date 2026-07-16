@@ -14,7 +14,7 @@ export const EASE = [0.22, 1, 0.36, 1] as const;
 export const COLORS = {
   blue: "#4285F4",
   red: "#EA4335",
-  yellow: "#FBBC05",
+  yellow: "#A855F7",
   green: "#34A853",
 } as const;
 
