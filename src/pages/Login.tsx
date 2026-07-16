@@ -42,7 +42,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    try { sessionStorage.setItem("sia:next", next); } catch {}
+    try {
+      sessionStorage.setItem("sia:next", next);
+    } catch {
+      // intentionally ignored: sessionStorage may be unavailable (e.g. private
+      // browsing/blocked storage); the OAuth redirect still works without it
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });

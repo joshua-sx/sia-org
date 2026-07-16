@@ -242,8 +242,8 @@ const OrgEmployees = () => {
                 try {
                   await deleteEmployee.mutateAsync(confirmDelete.id);
                   toast.success("Employee removed");
-                } catch (err: any) {
-                  toast.error(err?.message ?? "Delete failed");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Delete failed");
                 }
                 setConfirmDelete(null);
               }}
