@@ -1,21 +1,40 @@
-## Problem
 
-On `/appraisals/:id`, the "Assign manager…" dropdown appears as a thin empty sliver. It looks like a z-index/clipping issue but the popover is actually rendering correctly through Radix's portal — it just has **no items inside it**.
+# Onboarding per-step accent theming
 
-In `src/components/appraisals/DraftLaunchPanel.tsx` the option list is:
+Match every primary CTA / accent on each onboarding page to the color of that step in the sidebar checklist. This applies **only while `isOnboarding` is true** — the post-setup pages keep today's default blue primary and shared styling.
+
+Colors already exist as tokens:
+- Structure → `--accent-red`
+- People (Employees) → `--accent-yellow` (now vibrant purple)
+- Launch (Appraisals) → `--accent-green`
+
+## Changes
+
+### `src/pages/AppraisalCycles.tsx` (Launch = green, onboarding only)
+- When `showOnboardingChrome` is true, render the `New cycle` button with a green primary style (background `--accent-green`, white text) instead of the default blue.
+- Same treatment for the "Create first cycle" button in the empty state (only when onboarding).
+
+### `src/pages/OrgEmployees.tsx` (People = purple, onboarding only)
+- When `isOnboarding`, restyle the `Add manually` outline button from `--accent-blue` to `--accent-yellow` (purple) so it matches the step accent.
+- Same for the "Add another employee" button inside the attention panel.
+- Leave the amber-tinted attention banner alone (its border/bg already use `--accent-yellow`, which is now purple, so it already reads correctly).
+
+### `src/pages/OrgStructure.tsx` (Structure = red, onboarding only)
+- When `isOnboarding`, restyle the `Add unit` primary button to use `--accent-red` background / white text instead of the default blue.
+- Same for the empty-state "Add {topLevelType}" button.
+
+## Not in scope
+
+- No changes to non-onboarding views (the tabs bar, post-setup Cycles list, etc.). User explicitly said "This is only for onboarding".
+- No changes to sidebar, dashboard checklist, or shared components — they already use the correct per-step accent.
+- No token changes in `index.css` / `tailwind.config.ts`.
+
+## Technical notes
+
+Buttons currently use shadcn's default `Button` (blue primary). To recolor per-page without touching the global variant, add inline `className` overrides on those specific buttons, e.g.:
 
 ```tsx
-candidates.filter((m) => m.id !== e.id).map(...)
+className="bg-[hsl(var(--accent-green))] text-white hover:bg-[hsl(var(--accent-green)/0.9)]"
 ```
 
-With only one active employee in the org (Ada Lovelace), that filter yields zero items, so the `SelectContent` renders as an empty rounded rectangle just under the trigger. Nothing is behind anything — there's simply nothing to show, and Radix has no built-in empty state.
-
-## Fix
-
-Render a non-selectable empty message inside `SelectContent` when the filtered list is empty, so the dropdown communicates *why* it's empty instead of looking broken.
-
-1. In `src/components/appraisals/DraftLaunchPanel.tsx`, compute `const managerOptions = candidates.filter((m) => m.id !== e.id);` once per row.
-2. If `managerOptions.length === 0`, render a small muted message inside `SelectContent` (e.g. a `div` with `px-2 py-1.5 text-xs text-muted-foreground` reading "No other employees available — add another employee to assign a manager.").
-3. Otherwise map `managerOptions` to `SelectItem`s as today.
-
-No other files need to change. This is a presentation-only fix; data flow, RLS, and launch logic are untouched.
+Gate each override behind the page's existing onboarding boolean (`showOnboardingChrome` / `isOnboarding`) so the default styling returns once setup completes.

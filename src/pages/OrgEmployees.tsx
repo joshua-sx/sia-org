@@ -149,7 +149,16 @@ const OrgEmployees = () => {
                 <Button variant="outline" size="sm" onClick={handleAssignManager}>
                   Assign manager
                 </Button>
-                <Button size="sm" variant="outline" onClick={openAdd} className="border-[hsl(var(--accent-blue))] text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)] hover:text-[hsl(var(--accent-blue))]">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={openAdd}
+                  className={
+                    isOnboarding
+                      ? "border-[hsl(var(--accent-yellow))] text-[hsl(var(--accent-yellow))] hover:bg-[hsl(var(--accent-yellow)/0.08)] hover:text-[hsl(var(--accent-yellow))]"
+                      : "border-[hsl(var(--accent-blue))] text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)] hover:text-[hsl(var(--accent-blue))]"
+                  }
+                >
                   Add another employee
                 </Button>
               </div>
@@ -178,7 +187,11 @@ const OrgEmployees = () => {
                   size="sm"
                   variant="outline"
                   onClick={openAdd}
-                  className="border-[hsl(var(--accent-blue)/0.4)] text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.06)] hover:bg-[hsl(var(--accent-blue)/0.12)] hover:text-[hsl(var(--accent-blue))]"
+                  className={
+                    isOnboarding
+                      ? "border-[hsl(var(--accent-yellow)/0.4)] text-[hsl(var(--accent-yellow))] bg-[hsl(var(--accent-yellow)/0.06)] hover:bg-[hsl(var(--accent-yellow)/0.12)] hover:text-[hsl(var(--accent-yellow))]"
+                      : "border-[hsl(var(--accent-blue)/0.4)] text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.06)] hover:bg-[hsl(var(--accent-blue)/0.12)] hover:text-[hsl(var(--accent-blue))]"
+                  }
                 >
                   <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add manually
                 </Button>

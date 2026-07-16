@@ -194,7 +194,11 @@ const OrgStructure = () => {
           <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
             <Upload className="mr-1 h-3 w-3" /> Import CSV
           </Button>
-          <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
+          <Button
+            size="sm"
+            onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}
+            className="bg-[hsl(var(--accent-red))] text-white hover:bg-[hsl(var(--accent-red)/0.9)]"
+          >
             <Plus className="mr-1 h-3 w-3" /> Add unit
           </Button>
         </div>
@@ -212,7 +216,10 @@ const OrgStructure = () => {
           <p className="mt-1 text-sm text-[hsl(var(--ink-muted))] text-pretty">
             Add your first {topLevelType?.name ?? "unit"}.
           </p>
-          <Button className="mt-6" onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>
+          <Button
+            className={`mt-6 ${isOnboarding ? "bg-[hsl(var(--accent-red))] text-white hover:bg-[hsl(var(--accent-red)/0.9)]" : ""}`}
+            onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}
+          >
             <Plus className="mr-1 h-4 w-4" /> Add {topLevelType?.name ?? "unit"}
           </Button>
         </div>
