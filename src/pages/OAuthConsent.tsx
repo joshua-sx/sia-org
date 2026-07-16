@@ -5,17 +5,37 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Typed shim for the beta supabase.auth.oauth namespace.
+interface OAuthClient {
+  name?: string;
+}
+
+interface OAuthAuthorizationDetails {
+  client?: OAuthClient;
+  redirect_url?: string;
+  redirect_to?: string;
+}
+
+interface OAuthErrorInfo {
+  message: string;
+}
+
 type OAuthApi = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: any; error: any }>;
-  approveAuthorization: (id: string) => Promise<{ data: any; error: any }>;
-  denyAuthorization: (id: string) => Promise<{ data: any; error: any }>;
+  getAuthorizationDetails: (
+    id: string,
+  ) => Promise<{ data: OAuthAuthorizationDetails | null; error: OAuthErrorInfo | null }>;
+  approveAuthorization: (
+    id: string,
+  ) => Promise<{ data: OAuthAuthorizationDetails | null; error: OAuthErrorInfo | null }>;
+  denyAuthorization: (
+    id: string,
+  ) => Promise<{ data: OAuthAuthorizationDetails | null; error: OAuthErrorInfo | null }>;
 };
 const oauth = (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 
 export default function OAuthConsent() {
   const [params] = useSearchParams();
   const authorizationId = params.get("authorization_id") ?? "";
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<OAuthAuthorizationDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

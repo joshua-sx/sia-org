@@ -7,7 +7,7 @@ import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/whoami.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
-var whoami_default = defineTool({
+const whoami_default = defineTool({
   name: "whoami",
   title: "Who am I",
   description: "Return the signed-in user's identity, role, and organization within SIA.",
@@ -37,7 +37,7 @@ var whoami_default = defineTool({
 
 // src/lib/mcp/tools/list-org-units.ts
 import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
-var list_org_units_default = defineTool2({
+const list_org_units_default = defineTool2({
   name: "list_org_units",
   title: "List organizational units",
   description: "List all organizational units (departments, teams, etc.) in the signed-in user's organization, with hierarchy path and type.",
@@ -67,7 +67,7 @@ var list_org_units_default = defineTool2({
 
 // src/lib/mcp/tools/list-unit-types.ts
 import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
-var list_unit_types_default = defineTool3({
+const list_unit_types_default = defineTool3({
   name: "list_unit_types",
   title: "List hierarchy levels",
   description: "List the organization's hierarchy level definitions (e.g. Division, Department, Team) in order.",
@@ -98,7 +98,7 @@ var list_unit_types_default = defineTool3({
 // src/lib/mcp/tools/list-employees.ts
 import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
 import { z } from "npm:zod@^4.4.3";
-var list_employees_default = defineTool4({
+const list_employees_default = defineTool4({
   name: "list_employees",
   title: "List employees",
   description: "List employees (profiles) in the signed-in user's organization. Optionally filter by role (hr_admin, manager, employee).",
@@ -131,8 +131,8 @@ var list_employees_default = defineTool4({
 });
 
 // src/lib/mcp/index.ts
-var projectRef = "jntmckvvulntmywwzmen";
-var mcp_default = defineMcp({
+const projectRef = "jntmckvvulntmywwzmen";
+const mcp_default = defineMcp({
   name: "sia-mcp",
   title: "SIA \u2014 Smart Performance Management",
   version: "0.1.0",

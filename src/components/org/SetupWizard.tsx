@@ -119,9 +119,9 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
       if (units.length > 0) {
         await persistNodes(units, 0, null);
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.error("Error saving structure", {
-        description: err?.message || "Something went wrong. Please try again.",
+        description: err instanceof Error ? err.message : "Something went wrong. Please try again.",
       });
       setSaving(false);
       return;
