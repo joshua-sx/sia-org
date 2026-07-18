@@ -505,6 +505,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _seed_submit_and_ack: {
+        Args: { p_ack?: boolean; p_participant_id: string; p_stage: string }
+        Returns: undefined
+      }
       current_user_employee_id: { Args: never; Returns: string }
       current_user_org_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
