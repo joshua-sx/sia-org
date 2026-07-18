@@ -1,68 +1,76 @@
-## Redesign the post-setup Dashboard (`/dashboard`) to match the reference layout
+## Three shared demo accounts — one per role
 
-Reference: uploaded Taskplus dashboard — greeting header with meta + actions, 4 KPI stat cards with deltas, two-column "today's list + performance chart" band, and a projects table with progress bars and owner avatars.
+Ship **one demo account per role** in the same pre-seeded demo org so you can jump between perspectives and see every page as HR, as a manager, and as an individual contributor.
 
-Scope: only the post-setup `Dashboard` (`src/pages/Dashboard.tsx`). The onboarding `SetupDashboard` and shared chrome (sidebar, header, footer) stay untouched. Colors and type come from the existing SIA tokens — no new palette.
+All three land in the same `Acme Corp (Demo)` organization, so switching accounts changes only the vantage point (which employees, cycles, goals, and reviews you're allowed to see through RLS), not the underlying data.
 
-### Layout (top to bottom)
+### Credentials (post-run)
 
 ```text
-┌────────────────────────────────────────────────────────────────┐
-│ Welcome, {first}  👋              Last updated · {date}        │
-│ {org.name} · {role}               [Export]  [+ New cycle]      │
-├─────────────┬─────────────┬─────────────┬──────────────────────┤
-│ Active      │ Employees   │ Assessments │ Completed reviews    │
-│ cycles  2   │        24   │ in progress │              48      │
-│ +1 vs last  │  +3 vs last │      12     │  +15 vs last cycle   │
-├──────────────────────────────────┬─────────────────────────────┤
-│ Your pending actions      Filter │ Completion       (weekly ▾) │
-│ ─────────────────────────────── │  ▂ ▄ ▅ ▃ ▆ ▇   86%          │
-│ · Review Ada's Q2 goals   Due..  │  Mon Tue Wed…   +15% wk     │
-│ · Approve 3 self-reviews  Due..  │                             │
-│ · Sign off cycle "H1 2026" Due.. │                             │
-├────────────────────────────────────────────────────────────────┤
-│ Active cycles                                        Filter    │
-│ Name          Status      Progress   Participants  Due    Owner│
-│ H1 2026       In progress ▓▓▓▓░ 70%  14/20        12 Mar  MM   │
-│ Leadership    Draft       ░░░░░  0%   0/7         20 Mar  SK   │
-│ …                                                              │
-└────────────────────────────────────────────────────────────────┘
+Email                 Password         Role       Sees
+hr@sia.demo           DemoHR2026!      hr_admin   Everyone · every cycle · every goal
+manager@sia.demo      DemoMgr2026!     manager    Own row + direct reports' goals/reviews
+employee@sia.demo     DemoEmp2026!     employee   Only own goals, assessments, review
 ```
 
-### Section-by-section
+Emails use `@sia.demo` (a reserved TLD safe from real inboxes) and land on `/dashboard` after login — no email confirmation, no onboarding.
 
-1. **Header band** — keeps `PageHeader` title `Welcome, {first} 👋`. Subtitle becomes `{org.name} · {role label}`. Right side: small "Last updated · {date}" meta line above two pill buttons — `Export` (ghost, `Download` icon) and `+ New cycle` (primary blue, links to `/appraisals`). If no cycle exists yet, the primary is `+ Create cycle`.
+### Where each account renders meaningfully
 
-2. **KPI row (4 cards)** — grid `grid-cols-2 lg:grid-cols-4 gap-3`. Each card: `rounded-xl border-hairline bg-surface-raised p-4`, label in `text-[11px] uppercase tracking-wider ink-subtle`, large `text-3xl font-semibold tabular-nums font-[Space_Grotesk]`, and a delta chip (`+N vs last cycle`) using accent-green for positive / accent-red for negative. Metrics, computed from existing hooks:
-   - **Active cycles** — count of `appraisal_cycles` with status `active` (via `useAppraisalCycles`).
-   - **Employees** — `useEmployees().length`.
-   - **Assessments in progress** — `useCycleParticipants(activeCycle.id)` where stage ∈ {`self_assessment`,`manager_assessment`,`calibration`}.
-   - **Completed reviews** — participants with stage `acknowledged` in the active cycle.
-   Deltas are best-effort; when no prior data exists show a subtle "—" instead of fabricating numbers.
+| Route | hr@ | manager@ | employee@ |
+| --- | --- | --- | --- |
+| `/dashboard` | Full KPIs, pending actions, active-cycle table | Personal appraisal card + team quick view | Personal appraisal card only |
+| `/org/structure` | Full tree, editable | Read-only tree | Read-only tree |
+| `/org/employees` | Full list, add/edit/import | Full list (read) | Full list (read) |
+| `/appraisals` | All cycles, launch/complete | Cycles they participate in / manage | Cycles they participate in |
+| `/appraisals/:id` | Full participants panel | Their direct reports' rows | Own row |
+| `/appraisals/goals` | Own (linked to an employee too) | Own goals for own participant | Own goals |
+| `/appraisals/assessments` | List of assessments they own | 3 direct reports, mixed stages | Own only |
+| `/appraisals/assessments/:id` | Any | Own reports | Own |
+| `/appraisals/my-review` | Own (their employee row is a participant) | Own review, final submitted, ready to acknowledge | Own review, awaiting manager |
 
-3. **Two-column band** (`grid lg:grid-cols-[1fr_360px] gap-4`):
-   - **Left — "Your pending actions"** card. Reuses `DashboardAppraisalCard` data plus HR-side actions when `role === 'hr_admin'`: goals awaiting approval, assessments due today, cycles ready to sign off. Each row: small colored icon dot (blue for review, green for approve, red for sign-off), title, secondary "Due · {date}", chevron. Empty state: "You're all caught up." with a green check.
-   - **Right — "Cycle completion"** card. Simple 7-bar SVG showing % of assessments submitted per weekday over the last week (derived from `cycle_participants.updated_at`, no new query wiring needed — bucket client-side). Big number top-right: overall active-cycle completion %. Subtle "+N% vs last week" delta. Bars use `--accent-blue` at 0.9 with 0.35 for the past days. Reduced-motion aware.
+### Demo org content (shared by all three)
 
-4. **Active cycles table** — card with header "Active cycles" + a right-side "View all" link to `/appraisals`. Columns: Name, Status (existing `CycleStatusBadge`), Progress (thin bar `bg-hairline` fill `accent-blue`), Participants (`14/20` tabular-nums), Due date, Owner (avatar initials chip). Rows link to `/appraisals/:id`. Uses existing `ui/table`. Limit to 5 rows; if none, empty state with `+ Create your first cycle`.
+- `Acme Corp (Demo)` organization.
+- 3 unit types (Division · Department · Team), 3-level hierarchy across Engineering / Product / People / Finance.
+- **15 employees** with realistic names, titles, emails, unit assignments, and manager links. Three of them are wired to the three demo profiles:
+  - `hr@sia.demo` → **Alex HR** (People · Talent), role `hr_admin`.
+  - `manager@sia.demo` → **Morgan Lee** (Engineering › Platform), role `manager`, has **3 direct reports** so `/appraisals/assessments` is populated.
+  - `employee@sia.demo` → **Sam Rivera** (Engineering › Platform › API Team), role `employee`, reports to Morgan.
+- **Active cycle `H1 2026 Review`** with date windows around today (goal window closed, interim window open, final window a few weeks out).
+- **15 cycle participants** with managers wired to the above chain.
+- **3 goals per participant** (weights 40/30/30 = 100) so the submit RPC accepts them.
+- **Mixed assessment states** so every UI state has data:
+  - 5 participants: interim submitted (scored).
+  - 3 participants: final submitted (overall score computed).
+  - 1 participant (`manager@sia.demo`'s own row): final submitted, **acknowledgement pending** — so `/appraisals/my-review` for the manager account shows the "Acknowledge" state.
+  - 1 participant: fully acknowledged.
+  - `employee@sia.demo`'s row: interim in progress, goals set — so employee-side "My Goals" and "My Review" both render.
 
-5. **Setup checklist** — removed from the default view now that setup is complete. Keeps living inside `SetupDashboard` for the onboarding flow.
+### How it works
 
-### Design system
+New edge function **`supabase/functions/seed-demo-account/index.ts`** (deployed with `verify_jwt=false`, guarded by a `SEED_TOKEN` header):
 
-- All colors via tokens: `--accent-blue` (primary + progress + chart), `--accent-green` (positive delta, done), `--accent-red` (negative delta, sign-off), `--accent-purple` (secondary accents like the pending-actions icon for goal approvals). No hardcoded hex.
-- Radius: cards `rounded-xl`, chips `rounded-full`, buttons `rounded-lg`.
-- Shadows: `shadow-[0_1px_2px_rgba(0,0,0,0.03)]` per token guidance.
-- Type: Space Grotesk for KPI numbers and headings, DM Sans for body, `tabular-nums` on all counts, dates, percentages.
-- Container widens from `max-w-5xl` to `max-w-6xl` to fit the 4-up KPI grid comfortably.
-- Fully responsive: KPI cards collapse 4→2→1, two-column band stacks on `<lg`, table gains horizontal scroll on `<md`.
+1. Uses `SUPABASE_SERVICE_ROLE_KEY` to `auth.admin.createUser` (or fetch) each of the three demo emails with `email_confirm: true`.
+2. Idempotent: on run it deletes any prior `Acme Corp (Demo)` org first (cascade wipes its employees / cycles / goals / participants), then rebuilds fresh. Auth users are reused so passwords remain stable.
+3. Creates org → unit types → units → employees → profiles (linking each of the three auth users to their employee row via `profile_id` and setting `role` correctly).
+4. Creates the active cycle and enrolls all 15 participants with correct managers.
+5. Inserts 3 goals per participant and calls the existing **`submit_assessment_stage`** RPC for the interim/final submissions so scores, timestamps, and triggers stay consistent with production logic.
+6. Acknowledges the one designated participant via service-role update.
+7. Accepts `?reset=1` to force a full re-seed anytime.
+8. Onboarding is auto-bypassed for all three accounts because `useOnboarding` gates on `structureDone` (units exist).
+
+No client code, no UI changes, no schema changes.
+
+### Secrets
+
+- `SEED_TOKEN` — generated via `generate_secret` (32 chars), guards the function so nobody can trigger a public reset.
+- Existing `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_URL` are reused.
 
 ### Files touched
 
-- `src/pages/Dashboard.tsx` — rewrite the post-setup branch.
-- `src/components/dashboard/StatCard.tsx` — new (KPI card primitive).
-- `src/components/dashboard/PendingActionsCard.tsx` — new (extracted from the current `DashboardAppraisalCard` + HR actions).
-- `src/components/dashboard/CompletionChart.tsx` — new (7-bar SVG + headline %).
-- `src/components/dashboard/ActiveCyclesTable.tsx` — new.
+- `supabase/functions/seed-demo-account/index.ts` — new. All seeding logic.
 
-No hook, schema, RLS, or route changes. No new dependencies.
+### After implementation
+
+I invoke the function once and paste the three sign-in blocks back into chat. Whenever the cycle dates drift out of window (weeks later), tell me and I'll re-invoke it to refresh — no manual DB work on your side.
