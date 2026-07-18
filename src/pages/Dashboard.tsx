@@ -21,6 +21,9 @@ const ROLE_LABEL: Record<string, string> = {
 const Dashboard = () => {
   const { profile, organization } = useAuth();
   const { setupComplete } = useOnboarding();
+  const { data: cycles = [], activeCycle } = useAppraisalCycles();
+  const { data: employees = [] } = useEmployees();
+  const { data: activeParticipants = [] } = useCycleParticipants(activeCycle?.id);
 
   if (!setupComplete) {
     return <SetupDashboard />;
@@ -30,9 +33,6 @@ const Dashboard = () => {
   const firstName = profile?.full_name?.split(" ")[0];
   const roleLabel = profile?.role ? ROLE_LABEL[profile.role] ?? profile.role : "";
 
-  const { data: cycles = [], activeCycle } = useAppraisalCycles();
-  const { data: employees = [] } = useEmployees();
-  const { data: activeParticipants = [] } = useCycleParticipants(activeCycle?.id);
 
   const activeCycles = cycles.filter((c) => c.status === "active").length;
   const inProgress = activeParticipants.filter(
