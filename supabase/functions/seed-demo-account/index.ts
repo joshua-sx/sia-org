@@ -263,8 +263,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    async function submitStage(pid: string, stage: "interim" | "final") {
-      const { error } = await sb.rpc("submit_assessment_stage", { p_participant_id: pid, p_stage: stage });
+    async function submitStage(pid: string, stage: "interim" | "final", ack = false) {
+      const { error } = await sb.rpc("_seed_submit_and_ack", { p_participant_id: pid, p_stage: stage, p_ack: ack });
       if (error) throw new Error(`submit ${stage} failed for ${pid}: ${error.message}`);
     }
 
