@@ -295,10 +295,7 @@ Deno.serve(async (req) => {
         await seedRatings(pid, "interim", [4, 3, 4]);
         await submitStage(pid, "interim");
         await seedRatings(pid, "final",   [4, 4, 5]);
-        await submitStage(pid, "final");
-        if (email === acknowledgedEmail) {
-          await sb.from("cycle_participants").update({ acknowledged_at: new Date().toISOString() }).eq("id", pid);
-        }
+        await submitStage(pid, "final", email === acknowledgedEmail);
       } else if (interimSubmittedEmails.has(email)) {
         await seedRatings(pid, "interim", [3, 4, 3]);
         await submitStage(pid, "interim");
