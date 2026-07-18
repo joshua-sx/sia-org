@@ -24,6 +24,7 @@ import ResetPassword from "./pages/ResetPassword";
 import CompleteSignup from "./pages/CompleteSignup";
 import BlogPerformanceManagementExamples from "./pages/BlogPerformanceManagementExamples";
 import OnboardingPreview from "./pages/dev/OnboardingPreview";
+import { DemoAccountSwitcher } from "@/components/DemoAccountSwitcher";
 
 const queryClient = new QueryClient();
 const devRoutes = import.meta.env.DEV ? (
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/appraisals/:id" element={<ProtectedRoute><AppLayout><AppraisalCycleDetail /></AppLayout></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <DemoAccountSwitcher />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
