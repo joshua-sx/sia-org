@@ -67,11 +67,13 @@ Deno.serve(async (req) => {
       authUsers[acc.email] = id;
     }
 
-    // 2. Delete any prior demo org (cascades employees, cycles, goals, participants, profiles).
+    // 2. Delete any prior demo org. Delete cycles first (participants cascade with them)
+    //    so we don't hit the manager_id NO-ACTION FK when employees are removed.
     const { data: existing, error: exErr } = await sb.from("organizations").select("id").eq("name", "Acme Corp (Demo)");
     if (exErr) throw exErr;
     if (existing?.length) {
       for (const o of existing) {
+        await sb.from("appraisal_cycles").delete().eq("organization_id", o.id).select();
         const { error: delErr } = await sb.from("organizations").delete().eq("id", o.id).select();
         if (delErr) throw new Error(`delete org ${o.id}: ${delErr.message}`);
       }
