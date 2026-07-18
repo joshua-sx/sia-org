@@ -68,12 +68,16 @@ Deno.serve(async (req) => {
     }
 
     // 2. Delete any prior demo org (cascades employees, cycles, goals, participants, profiles).
-    const { data: existing } = await sb.from("organizations").select("id").eq("name", "Acme Corp (Demo)");
+    const { data: existing, error: exErr } = await sb.from("organizations").select("id").eq("name", "Acme Corp (Demo)");
+    if (exErr) throw exErr;
     if (existing?.length) {
       for (const o of existing) {
-        await sb.from("organizations").delete().eq("id", o.id);
+        const { error: delErr } = await sb.from("organizations").delete().eq("id", o.id).select();
+        if (delErr) throw new Error(`delete org ${o.id}: ${delErr.message}`);
       }
     }
+    // Defensive: clean up any lingering demo profiles pointing at other orgs.
+    await sb.from("profiles").delete().like("email", "%@sia.demo").select();
 
     // 3. Create org.
     const { data: org, error: orgErr } = await sb
