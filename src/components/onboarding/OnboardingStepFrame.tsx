@@ -182,5 +182,9 @@ export function OnboardingStepFrame({
             </Button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
 
 export default OnboardingStepFrame;
