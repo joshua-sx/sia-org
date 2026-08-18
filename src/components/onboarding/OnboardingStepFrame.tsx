@@ -5,14 +5,23 @@ import { Button } from "@/components/ui/button";
 import { useOnboarding, type OnboardingStepKey } from "@/hooks/useOnboarding";
 import { useOnboardingContext } from "./OnboardingContext";
 
-/** Display order of the guided setup, excluding the implicit "account" step and
- * including the final review screen that lives on the dashboard. */
-export const FLOW_STEPS: { key: OnboardingStepKey | "review"; href: string; accent: string }[] = [
-  { key: "structure", href: "/org/structure", accent: "--accent-red" },
-  { key: "people", href: "/org/employees", accent: "--accent-purple" },
-  { key: "cycle", href: "/appraisals", accent: "--accent-green" },
-  { key: "review", href: "/dashboard", accent: "--accent-blue" },
+/** The four stages of setup, each owning one SIA brand color, matching the
+ * sidebar: Dashboard (blue) → Org Structure (red) → Employees (purple) →
+ * Appraisals (green). The final review lives back on the Dashboard. */
+export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; accent: string }[] = [
+  { key: "account", label: "Dashboard", href: "/dashboard", accent: "--accent-blue" },
+  { key: "structure", label: "Org Structure", href: "/org/structure", accent: "--accent-red" },
+  { key: "people", label: "Employees", href: "/org/employees", accent: "--accent-purple" },
+  { key: "cycle", label: "Appraisals", href: "/appraisals", accent: "--accent-green" },
 ];
+
+/** Shared color rule for every setup progress indicator. */
+export function stepSegmentColor(opts: { accent: string; state: "done" | "current" | "upcoming" | "skipped" }) {
+  if (opts.state === "current") return `hsl(var(${opts.accent}))`;
+  if (opts.state === "done") return `hsl(var(${opts.accent}) / 0.45)`;
+  return "hsl(var(--hairline))";
+}
+
 
 interface OnboardingStepFrameProps {
   stepKey: OnboardingStepKey | "review";
@@ -52,20 +61,22 @@ export function OnboardingStepFrame({
   const { steps, markComplete, finishSetup, saving } = useOnboarding();
   const { readiness } = useOnboardingContext();
 
-  const index = FLOW_STEPS.findIndex((s) => s.key === stepKey);
-  const current = FLOW_STEPS[index];
-  const previous = index > 0 ? FLOW_STEPS[index - 1] : null;
-  const next = index < FLOW_STEPS.length - 1 ? FLOW_STEPS[index + 1] : null;
+  const isReview = stepKey === "review";
+  const index = isReview ? FLOW_STEPS.length - 1 : FLOW_STEPS.findIndex((s) => s.key === stepKey);
+  const current = isReview ? FLOW_STEPS[0] : FLOW_STEPS[index];
+  const previous = !isReview && index > 0 ? FLOW_STEPS[index - 1] : null;
+  const next = !isReview && index < FLOW_STEPS.length - 1 ? FLOW_STEPS[index + 1] : null;
 
-  const statusOf = (key: OnboardingStepKey | "review") => {
-    if (key === "review") return "pending";
+  const stateOf = (key: OnboardingStepKey, i: number): "done" | "current" | "upcoming" | "skipped" => {
+    if (isReview) return "done";
     const s = steps.find((st) => st.key === key);
-    if (s?.done) return "done";
+    if (i === index) return "current";
     if (s?.skipped) return "skipped";
-    return "pending";
+    if (s?.done || i < index) return "done";
+    return "upcoming";
   };
 
-  const r = stepKey === "review" ? undefined : readiness[stepKey];
+  const r = isReview ? undefined : readiness[stepKey as OnboardingStepKey];
   const ready = statusMet || !!r?.ready;
 
   const handleContinue = async () => {
@@ -74,18 +85,20 @@ export function OnboardingStepFrame({
         await onContinue();
         return;
       }
-      if (stepKey === "review") {
+      if (isReview) {
         await finishSetup();
         return;
       }
-      const step = steps.find((s) => s.key === stepKey);
-      if (!step?.done && !step?.skipped) await markComplete(stepKey);
+      const key = stepKey as OnboardingStepKey;
+      const step = steps.find((s) => s.key === key);
+      if (!step?.done && !step?.skipped) await markComplete(key);
       if (next) navigate(next.href);
-      else await finishSetup();
+      else navigate("/dashboard");
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Could not complete this step");
     }
   };
+
 
   return (
     <div className="px-5 py-10 md:px-10 md:py-14">
@@ -98,25 +111,18 @@ export function OnboardingStepFrame({
             {eyebrow}
           </p>
           <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] tabular-nums">
-            Step {index + 1} of {FLOW_STEPS.length}
+            {isReview ? "Review" : `Step ${index + 1} of ${FLOW_STEPS.length}`}
           </p>
           <ol className="mt-3 flex items-center justify-center gap-2" aria-label="Setup progress">
             {FLOW_STEPS.map((s, i) => {
-              const st = statusOf(s.key);
-              const color =
-                i < index || st === "done"
-                  ? "hsl(var(--accent-green))"
-                  : st === "skipped"
-                  ? "hsl(var(--accent-purple) / 0.5)"
-                  : i === index
-                  ? "hsl(var(--accent-blue))"
-                  : "hsl(var(--hairline))";
+              const state = stateOf(s.key, i);
               return (
                 <li key={s.key}>
+                  <span className="sr-only">{s.label}</span>
                   <span
                     className="block h-[4px] w-10 rounded-full md:w-14"
                     style={{
-                      backgroundColor: color,
+                      backgroundColor: stepSegmentColor({ accent: s.accent, state }),
                       transitionProperty: "background-color",
                       transitionDuration: "200ms",
                     }}
@@ -126,6 +132,7 @@ export function OnboardingStepFrame({
               );
             })}
           </ol>
+
 
           <h1 className="mt-8 font-[Space_Grotesk] text-[30px] leading-[1.08] font-semibold tracking-[-1px] text-foreground text-balance md:text-[44px]">
             {title}

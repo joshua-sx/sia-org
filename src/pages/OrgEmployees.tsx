@@ -199,8 +199,8 @@ const OrgEmployees = () => {
           title="Add your people"
           subtitle="Add your team and place each person in the organization."
           statusLabel={readyHint}
-          continueLabel="Continue to cycle"
-          caption="Invitations will not be sent yet."
+          continueLabel="Continue"
+          caption="No one is emailed until you launch a cycle."
         >
           {pageInner}
         </OnboardingStepFrame>

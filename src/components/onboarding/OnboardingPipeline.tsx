@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Check, Minus } from "lucide-react";
 import type { OnboardingStep, OnboardingStepKey } from "@/hooks/useOnboarding";
+import { stepSegmentColor } from "./OnboardingStepFrame";
 
 interface OnboardingPipelineProps {
   steps: OnboardingStep[];
@@ -24,19 +25,15 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
       <ol className="flex items-center justify-center gap-2" aria-label="Setup progress">
         {steps.map((step) => {
           const isCurrent = step.key === currentKey;
-          const color =
-            step.status === "done"
-              ? "hsl(var(--accent-green))"
-              : step.status === "skipped"
-              ? "hsl(var(--accent-purple) / 0.5)"
-              : isCurrent
-              ? `hsl(var(${step.accent}))`
-              : "hsl(var(--hairline))";
+          const color = stepSegmentColor({
+            accent: step.accent,
+            state: isCurrent ? "current" : step.status === "done" ? "done" : step.status === "skipped" ? "skipped" : "upcoming",
+          });
           return (
             <li key={step.key}>
               <span className="sr-only">{step.label}</span>
               <span
-                className="block h-[3px] w-9 rounded-full"
+                className="block h-[4px] w-10 rounded-full md:w-14"
                 style={{ backgroundColor: color, transitionProperty: "background-color", transitionDuration: "200ms" }}
                 aria-hidden
               />

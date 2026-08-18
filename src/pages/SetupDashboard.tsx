@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { LAUNCH_COPY, CYCLE_SUBSTEPS } from "@/content/onboardingCopy";
+import { LAUNCH_COPY } from "@/content/onboardingCopy";
 import { OnboardingStepFrame, FLOW_STEPS } from "@/components/onboarding/OnboardingStepFrame";
 import { OnboardingPipeline } from "@/components/onboarding/OnboardingPipeline";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
@@ -14,13 +14,13 @@ import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 
 export function SetupDashboard() {
   const navigate = useNavigate();
-  const { steps, finishSetup, nextStepAfter, saving } = useOnboarding();
+  const { steps, finishSetup, saving } = useOnboarding();
   const { data: units = [] } = useOrgUnits();
   const { data: employees = [] } = useEmployees();
   const { data: cycles = [] } = useAppraisalCycles();
   const [confirmed, setConfirmed] = useState(false);
 
-  const flowKeys = FLOW_STEPS.filter((s) => s.key !== "review").map((s) => s.key);
+  const flowKeys = FLOW_STEPS.filter((s) => s.key !== "account").map((s) => s.key);
   const flowSteps = steps.filter((s) => flowKeys.includes(s.key));
   const allResolved = flowSteps.every((s) => s.done || s.skipped);
 
@@ -32,9 +32,6 @@ export function SetupDashboard() {
   const statusLabel = remaining <= 1 ? "Almost ready" : `${remaining} steps left`;
   const doneCount = steps.filter((s) => s.done).length;
 
-  const next = nextStepAfter(current.key);
-  const nextHint =
-    current.key === "cycle" ? CYCLE_SUBSTEPS[1] : next ? `${next.label} — ${LAUNCH_COPY[next.key].ctaTitle}` : null;
 
   const handleCta = () => {
     if (current.href) navigate(current.href);
@@ -147,31 +144,23 @@ export function SetupDashboard() {
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3">
-            <Button onClick={handleCta} className="h-12 w-full max-w-[300px] text-[15px] font-medium">
+            <Button
+              onClick={handleCta}
+              className="h-12 w-full max-w-[300px] text-[15px] font-medium active:scale-[0.96] transition-transform"
+            >
               {copy.ctaLabel}
             </Button>
             {doneCount > 1 && (
               <button
                 onClick={() => finishSetup()}
                 disabled={saving}
-                className="rounded-md px-2 py-1 text-sm font-medium text-[hsl(var(--accent-blue))] transition-colors hover:text-[hsl(var(--accent-blue))]/80 disabled:opacity-60"
+                className="min-h-10 rounded-md px-3 py-2 text-sm font-medium text-[hsl(var(--accent-blue))] transition-colors hover:text-[hsl(var(--accent-blue))]/80 disabled:opacity-60"
               >
                 Review completed setup
               </button>
             )}
           </div>
 
-          <div className="mt-7 flex items-center justify-center gap-2 text-xs text-[hsl(var(--ink-subtle))]">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Invitations are only sent after you review and confirm launch.</span>
-          </div>
-
-          {nextHint && (
-            <>
-              <div className="mx-auto mt-8 h-px w-full max-w-[400px] bg-[hsl(var(--hairline))]" />
-              <p className="mt-5 text-sm text-[hsl(var(--ink-muted))]">Next: {nextHint}</p>
-            </>
-          )}
         </div>
       </div>
     </>

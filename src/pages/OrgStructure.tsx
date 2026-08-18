@@ -240,12 +240,10 @@ const OrgStructure = () => {
           subtitle="Create the structure your people and reviews will use."
           statusLabel={
             units.length > 0
-              ? `${units.length} ${units.length === 1 ? "unit" : "units"} across ${sortedTypes.length} ${
-                  sortedTypes.length === 1 ? "level" : "levels"
-                } ready`
-              : "Add at least one unit to continue."
+              ? `${units.length} ${units.length === 1 ? "unit" : "units"} ready`
+              : "No units yet"
           }
-          continueLabel="Continue to people"
+          continueLabel="Continue"
           caption="You can update your structure later."
         >
           {pageInner}
