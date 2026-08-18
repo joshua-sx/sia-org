@@ -20,7 +20,7 @@ export function SetupDashboard() {
   const { data: cycles = [] } = useAppraisalCycles();
   const [confirmed, setConfirmed] = useState(false);
 
-  const flowKeys = FLOW_STEPS.filter((s) => s.key !== "review").map((s) => s.key);
+  const flowKeys = FLOW_STEPS.filter((s) => s.key !== "account").map((s) => s.key);
   const flowSteps = steps.filter((s) => flowKeys.includes(s.key));
   const allResolved = flowSteps.every((s) => s.done || s.skipped);
 
@@ -32,9 +32,6 @@ export function SetupDashboard() {
   const statusLabel = remaining <= 1 ? "Almost ready" : `${remaining} steps left`;
   const doneCount = steps.filter((s) => s.done).length;
 
-  const next = nextStepAfter(current.key);
-  const nextHint =
-    current.key === "cycle" ? CYCLE_SUBSTEPS[1] : next ? `${next.label} — ${LAUNCH_COPY[next.key].ctaTitle}` : null;
 
   const handleCta = () => {
     if (current.href) navigate(current.href);
