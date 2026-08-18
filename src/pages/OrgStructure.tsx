@@ -234,10 +234,27 @@ const OrgStructure = () => {
         path="/org/structure"
       />
       {isOnboarding ? (
-        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+        <OnboardingStepFrame
+          stepKey="structure"
+          eyebrow="Organization"
+          title="Build your organization"
+          subtitle="Create the structure your people and reviews will use."
+          statusLabel={
+            units.length > 0
+              ? `${units.length} ${units.length === 1 ? "unit" : "units"} across ${sortedTypes.length} ${
+                  sortedTypes.length === 1 ? "level" : "levels"
+                } ready`
+              : "Add at least one unit to continue."
+          }
+          continueLabel="Continue to people"
+          caption="You can update your structure later."
+        >
+          {pageInner}
+        </OnboardingStepFrame>
       ) : (
         <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
       )}
+
     </>
   );
 };
