@@ -70,6 +70,83 @@ export type Database = {
           },
         ]
       }
+      audit_events: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_profile_id: string | null
+          actor_role: string | null
+          created_at: string
+          cycle_id: string | null
+          employee_id: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+          organization_id: string
+          summary: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_profile_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          employee_id?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          summary?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_profile_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          employee_id?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "appraisal_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cycle_participants: {
         Row: {
           acknowledged_at: string | null
@@ -526,6 +603,19 @@ export type Database = {
       is_manager_of_participant: {
         Args: { p_participant_id: string }
         Returns: boolean
+      }
+      log_audit_event: {
+        Args: {
+          p_action: string
+          p_cycle_id?: string
+          p_employee_id?: string
+          p_entity_id?: string
+          p_entity_type: string
+          p_metadata?: Json
+          p_organization_id: string
+          p_summary?: string
+        }
+        Returns: string
       }
       participant_final_submitted: {
         Args: { p_participant_id: string }
