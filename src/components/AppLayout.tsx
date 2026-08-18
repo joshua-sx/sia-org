@@ -4,6 +4,7 @@ import { OnboardingProvider } from "@/components/onboarding/OnboardingContext";
 import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
 import OnboardingFooter from "@/components/onboarding/OnboardingFooter";
 import OnboardingSkipControl from "@/components/onboarding/OnboardingSkipControl";
+import NotificationBell from "@/components/NotificationBell";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <SidebarTrigger className="text-[hsl(var(--ink-subtle))] hover:text-foreground" />
               <div className="ml-auto flex items-center gap-4 text-xs text-[hsl(var(--ink-muted))]">
                 <OnboardingSkipControl />
+                <NotificationBell />
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-green))]" />
                   <span>Live</span>

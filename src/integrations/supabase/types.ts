@@ -414,6 +414,93 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          cycle_id: string | null
+          id: string
+          kind: string
+          link: string | null
+          organization_id: string
+          participant_id: string | null
+          read_at: string | null
+          recipient_profile_id: string
+          sender_name: string | null
+          sender_profile_id: string | null
+          task_kind: string | null
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          kind?: string
+          link?: string | null
+          organization_id: string
+          participant_id?: string | null
+          read_at?: string | null
+          recipient_profile_id: string
+          sender_name?: string | null
+          sender_profile_id?: string | null
+          task_kind?: string | null
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          kind?: string
+          link?: string | null
+          organization_id?: string
+          participant_id?: string | null
+          read_at?: string | null
+          recipient_profile_id?: string
+          sender_name?: string | null
+          sender_profile_id?: string | null
+          task_kind?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "appraisal_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "cycle_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_profile_id_fkey"
+            columns: ["recipient_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_profile_id_fkey"
+            columns: ["sender_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_unit_types: {
         Row: {
           created_at: string | null
@@ -634,6 +721,15 @@ export type Database = {
       current_user_role: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
       cycle_close_readiness: { Args: { p_cycle_id: string }; Returns: Json }
+      cycle_nudge_history: {
+        Args: { p_cycle_id: string }
+        Returns: {
+          last_sent_at: string
+          participant_id: string
+          task_kind: string
+          times_sent: number
+        }[]
+      }
       cycle_org: { Args: { p_cycle_id: string }; Returns: string }
       goal_participant: { Args: { p_goal_id: string }; Returns: string }
       is_employee_of_participant: {
@@ -666,6 +762,31 @@ export type Database = {
         Returns: boolean
       }
       participant_org: { Args: { p_participant_id: string }; Returns: string }
+      send_cycle_nudge: {
+        Args: { p_participant_id: string; p_task_kind: string }
+        Returns: {
+          body: string | null
+          created_at: string
+          cycle_id: string | null
+          id: string
+          kind: string
+          link: string | null
+          organization_id: string
+          participant_id: string | null
+          read_at: string | null
+          recipient_profile_id: string
+          sender_name: string | null
+          sender_profile_id: string | null
+          task_kind: string | null
+          title: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "notifications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_assessment_stage: {
         Args: { p_participant_id: string; p_stage: string }
         Returns: {
