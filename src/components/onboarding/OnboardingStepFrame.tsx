@@ -168,20 +168,20 @@ export function OnboardingStepFrame({
         )}
         {secondary && <div className="mt-3 flex justify-center">{secondary}</div>}
 
-        <div className="mt-8 h-px w-full bg-[hsl(var(--hairline))]" />
-        <div className="mt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            disabled={!previous}
-            onClick={() => previous && navigate(previous.href)}
-            className="text-[hsl(var(--ink-muted))]"
-          >
-            <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Back
-          </Button>
-        </div>
+        {previous && (
+          <div className="mt-6 flex justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => navigate(previous.href)}
+              className="text-[hsl(var(--ink-muted))]"
+            >
+              <ArrowLeft className="mr-1.5 h-4 w-4" />
+              Back to {previous.label}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
