@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { LAUNCH_COPY, CYCLE_SUBSTEPS } from "@/content/onboardingCopy";
+import { LAUNCH_COPY } from "@/content/onboardingCopy";
 import { OnboardingStepFrame, FLOW_STEPS } from "@/components/onboarding/OnboardingStepFrame";
 import { OnboardingPipeline } from "@/components/onboarding/OnboardingPipeline";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
@@ -14,7 +14,7 @@ import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 
 export function SetupDashboard() {
   const navigate = useNavigate();
-  const { steps, finishSetup, nextStepAfter, saving } = useOnboarding();
+  const { steps, finishSetup, saving } = useOnboarding();
   const { data: units = [] } = useOrgUnits();
   const { data: employees = [] } = useEmployees();
   const { data: cycles = [] } = useAppraisalCycles();
