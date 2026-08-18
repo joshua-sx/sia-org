@@ -30,6 +30,7 @@ import { CycleReportsPanel } from "@/components/appraisals/CycleReportsPanel";
 import { CycleWindowsSummary } from "@/components/appraisals/CycleWindowsSummary";
 import { DraftLaunchPanel } from "@/components/appraisals/DraftLaunchPanel";
 import { CycleCompletionPanel } from "@/components/appraisals/CycleCompletionPanel";
+import { CycleActivityLog } from "@/components/appraisals/CycleActivityLog";
 import { cycleTrackerSteps } from "@/lib/trackerSteps";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
