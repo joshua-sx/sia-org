@@ -17,6 +17,9 @@ export interface AppraisalCycle {
   acknowledgement_due: string;
   created_at: string;
   updated_at: string;
+  closed_at: string | null;
+  closed_by: string | null;
+  close_note: string | null;
 }
 
 export function useAppraisalCycles() {
