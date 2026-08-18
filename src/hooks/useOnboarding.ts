@@ -103,8 +103,11 @@ export function useOnboarding() {
   // completed or deliberately skipped — so the guided flow never drops the user
   // half-way through. `setup_complete` is the persisted "reached the end" flag.
   const allStepsResolved = orderedFlags.every((f) => f.done || f.skipped);
-  const setupComplete =
-    !!organization && (allStepsResolved || !!organization?.setup_complete);
+  // Onboarding only ends once the user reaches the final review step and
+  // confirms it — resolving every step surfaces that review screen, it does
+  // not silently exit the flow.
+  const setupComplete = !!organization && !!organization?.setup_complete;
+
   const isOnboarding = !!organization && !setupComplete;
 
   type OrgPatch = Partial<{
