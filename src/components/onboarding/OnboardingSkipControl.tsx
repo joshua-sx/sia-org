@@ -14,7 +14,7 @@ import { useOnboardingContext } from "./OnboardingContext";
 /** Optional skip control for the app header during onboarding. */
 export function OnboardingSkipControl() {
   const navigate = useNavigate();
-  const { isOnboarding, steps, markSkipped, nextStepAfter, saving } = useOnboarding();
+  const { isOnboarding, steps, markSkipped, finishSetup, nextStepAfter, saving } = useOnboarding();
   const { activeStep } = useOnboardingContext();
   const { data: employees = [] } = useEmployees();
   const [open, setOpen] = useState(false);
@@ -34,7 +34,7 @@ export function OnboardingSkipControl() {
       toast.info(`Skipped ${step.label} — you can come back any time.`);
       setOpen(false);
       if (next?.href) navigate(next.href);
-      else navigate("/dashboard");
+      else await finishSetup();
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Could not skip step";
       toast.error(message);

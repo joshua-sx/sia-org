@@ -30,6 +30,9 @@
     --accent-red: 4 81% 56%;
     --accent-yellow: 45 97% 51%;
     --accent-green: 137 55% 43%;
+    /* People / Employees identity accent */
+    --accent-purple: 268 72% 56%;
+    --accent-purple-ink: 268 55% 38%;
 
     --primary: 217 89% 61%;
     --primary-foreground: 0 0% 100%;
@@ -71,6 +74,9 @@
     --foreground: 210 20% 98%;
 
     --ink-strong: 210 20% 98%;
+
+    --accent-purple: 268 78% 70%;
+    --accent-purple-ink: 268 78% 78%;
 
     --card: 220 25% 10%;
     --card-foreground: 210 20% 98%;
