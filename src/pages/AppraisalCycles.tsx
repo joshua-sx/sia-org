@@ -9,8 +9,7 @@ import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCyc
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
-import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
-import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
@@ -55,18 +54,7 @@ const AppraisalCycles = () => {
 
   const pageInner = (
     <>
-      {showOnboardingChrome ? (
-        <OnboardingStepHeader
-          eyebrow="LAUNCH"
-          eyebrowAccent="--accent-green"
-          title="Create your first cycle"
-          subtitle="Set the name, scoring, and review windows."
-          criteriaAccent="--accent-green"
-          criteria={[
-            { label: "Cycle launched", met: hasLaunchedCycle },
-          ]}
-        />
-      ) : (
+      {!showOnboardingChrome && (
         <PageHeader
           title="Appraisal cycles"
           subtitle={
@@ -180,7 +168,23 @@ const AppraisalCycles = () => {
   );
 
   return showOnboardingChrome ? (
-    <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+    <OnboardingStepFrame
+      stepKey="cycle"
+      eyebrow="Cycle"
+      title="Create your first cycle"
+      subtitle="Set the timeline, review stages, and scoring."
+      statusLabel={
+        cycleReady
+          ? "Cycle launched and ready"
+          : cycles.length > 0
+            ? "Launch your cycle to continue."
+            : "Create and launch a cycle to continue."
+      }
+      continueLabel="Review setup"
+      caption="Nothing will be sent until you launch."
+    >
+      {pageInner}
+    </OnboardingStepFrame>
   ) : (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
   );
