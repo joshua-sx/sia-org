@@ -133,12 +133,7 @@ export function useOnboarding() {
   const markComplete = (key: OnboardingStepKey) => {
     if (key === "structure") return updateOrg.mutateAsync({ structure_complete: true, structure_skipped: false });
     if (key === "people") return updateOrg.mutateAsync({ people_complete: true, people_skipped: false });
-    if (key === "cycle")
-      return updateOrg.mutateAsync({
-        cycle_complete: true,
-        cycle_skipped: false,
-        setup_complete: true,
-      });
+    if (key === "cycle") return updateOrg.mutateAsync({ cycle_complete: true, cycle_skipped: false });
     return Promise.resolve();
   };
 
