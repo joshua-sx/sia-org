@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PageHead } from "@/components/PageHead";
-import { Button } from "@/components/ui/button";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
