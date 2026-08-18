@@ -174,14 +174,9 @@ const AppraisalCycles = () => {
       title="Create your first cycle"
       subtitle="Set the timeline, review stages, and scoring."
       statusLabel={
-        cycleReady
-          ? "Cycle launched and ready"
-          : cycles.length > 0
-            ? "Launch your cycle to continue."
-            : "Create and launch a cycle to continue."
+        cycleReady ? "Cycle launched" : cycles.length > 0 ? "Cycle not launched yet" : "No cycle yet"
       }
       continueLabel="Review setup"
-      caption="Nothing will be sent until you launch."
     >
       {pageInner}
     </OnboardingStepFrame>
