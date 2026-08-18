@@ -36,6 +36,7 @@ export const NAV_LINKS = [
   { label: "Pricing", href: "#pricing" },
 ];
 
+/** Marketing claims. Several items are aspirational — see PRODUCT.md “Shipped vs not”. */
 export const FEATURES = [
   {
     icon: Target,
