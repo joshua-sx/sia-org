@@ -17,6 +17,9 @@ export type Database = {
       appraisal_cycles: {
         Row: {
           acknowledgement_due: string
+          close_note: string | null
+          closed_at: string | null
+          closed_by: string | null
           created_at: string
           final_window_end: string
           final_window_start: string
@@ -32,6 +35,9 @@ export type Database = {
         }
         Insert: {
           acknowledgement_due: string
+          close_note?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           final_window_end: string
           final_window_start: string
@@ -47,6 +53,9 @@ export type Database = {
         }
         Update: {
           acknowledgement_due?: string
+          close_note?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           final_window_end?: string
           final_window_start?: string
@@ -61,6 +70,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "appraisal_cycles_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "appraisal_cycles_organization_id_fkey"
             columns: ["organization_id"]
@@ -586,10 +602,38 @@ export type Database = {
         Args: { p_ack?: boolean; p_participant_id: string; p_stage: string }
         Returns: undefined
       }
+      close_cycle: {
+        Args: { p_cycle_id: string; p_force?: boolean; p_note?: string }
+        Returns: {
+          acknowledgement_due: string
+          close_note: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          final_window_end: string
+          final_window_start: string
+          goal_window_end: string
+          goal_window_start: string
+          id: string
+          interim_window_end: string
+          interim_window_start: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appraisal_cycles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_user_employee_id: { Args: never; Returns: string }
       current_user_org_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
+      cycle_close_readiness: { Args: { p_cycle_id: string }; Returns: Json }
       cycle_org: { Args: { p_cycle_id: string }; Returns: string }
       goal_participant: { Args: { p_goal_id: string }; Returns: string }
       is_employee_of_participant: {
