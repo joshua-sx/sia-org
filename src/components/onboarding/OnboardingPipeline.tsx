@@ -53,11 +53,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
         const isDone = step.status === "done";
         const isSkipped = step.status === "skipped";
 
-        const nodeStyle = isDone
-          ? { backgroundColor: "hsl(var(--accent-green) / 0.14)", color: "hsl(var(--accent-green))" }
-          : isSkipped
-          ? { backgroundColor: "hsl(var(--accent-purple) / 0.14)", color: "hsl(var(--accent-purple-ink))" }
-          : isCurrent
+        const nodeStyle = isCurrent
           ? {
               backgroundColor: `hsl(var(${step.accent}) / 0.14)`,
               color: `hsl(var(${step.accent}))`,
