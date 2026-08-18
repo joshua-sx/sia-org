@@ -28,7 +28,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md" }: Onboardin
         const nodeStyle = isDone
           ? { backgroundColor: "hsl(var(--accent-green) / 0.14)", color: "hsl(var(--accent-green))" }
           : isSkipped
-          ? { backgroundColor: "hsl(var(--accent-yellow) / 0.14)", color: "hsl(45, 55%, 32%)" }
+          ? { backgroundColor: "hsl(var(--accent-purple) / 0.14)", color: "hsl(var(--accent-purple-ink))" }
           : isCurrent
           ? {
               backgroundColor: `hsl(var(${step.accent}) / 0.14)`,

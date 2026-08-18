@@ -109,10 +109,10 @@ const OrgEmployees = () => {
       {isOnboarding ? (
         <OnboardingStepHeader
           eyebrow="PEOPLE"
-          eyebrowAccent="--accent-yellow"
+          eyebrowAccent="--accent-purple"
           title="Add your team"
           subtitle="Import a CSV or add people manually."
-          criteriaAccent="--accent-yellow"
+          criteriaAccent="--accent-purple"
           criteria={[
             { label: "At least 1 employee added", met: employees.length >= 1 },
             {
@@ -132,12 +132,12 @@ const OrgEmployees = () => {
         <div
           className="rounded-xl border p-4 mb-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
           style={{
-            backgroundColor: "hsl(var(--accent-yellow) / 0.08)",
-            borderColor: "hsl(var(--accent-yellow) / 0.35)",
+            backgroundColor: "hsl(var(--accent-purple) / 0.08)",
+            borderColor: "hsl(var(--accent-purple) / 0.35)",
           }}
         >
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-yellow))" }} />
+            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-purple))" }} />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">People needs attention</p>
               <p className="mt-1 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">

@@ -119,7 +119,7 @@ const Dashboard = () => {
                 ) : item.skipped ? (
                   <button
                     onClick={() => resume(item.key)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(45,55%,32%)] bg-[hsl(var(--accent-yellow)/0.14)] hover:bg-[hsl(var(--accent-yellow)/0.22)] active:scale-[0.96]"
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(var(--accent-purple-ink))] bg-[hsl(var(--accent-purple)/0.14)] hover:bg-[hsl(var(--accent-purple)/0.22)] active:scale-[0.96]"
                     style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
                   >
                     <Minus className="h-3 w-3" /> Resume

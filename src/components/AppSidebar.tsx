@@ -32,7 +32,7 @@ import { BrandMark } from "@/components/BrandMark";
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, accent: "--accent-blue" },
   { title: "Org Structure", url: "/org/structure", icon: Building2, accent: "--accent-red" },
-  { title: "Employees", url: "/org/employees", icon: Users, accent: "--accent-yellow" },
+  { title: "Employees", url: "/org/employees", icon: Users, accent: "--accent-purple" },
   { title: "Appraisals", url: "/appraisals", icon: CalendarClock, accent: "--accent-green" },
 ];
 
