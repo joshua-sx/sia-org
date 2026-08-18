@@ -149,6 +149,15 @@ export function useOnboarding() {
     return Promise.resolve();
   };
 
+  /**
+   * Persist "the user reached the end of setup" and land them on the dashboard
+   * with the completion screen. This is the single exit from onboarding.
+   */
+  const finishSetup = async () => {
+    await updateOrg.mutateAsync({ setup_complete: true });
+    navigate("/dashboard", { state: { setupJustCompleted: true } });
+  };
+
   const resume = (key: OnboardingStepKey) => {
     const step = steps.find((s) => s.key === key);
     if (step?.href) navigate(step.href);
