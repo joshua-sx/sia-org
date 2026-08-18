@@ -21,7 +21,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </a>
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0">
-            <header className="h-12 flex items-center gap-3 border-b border-[hsl(var(--hairline))] bg-[hsl(var(--surface))]/80 backdrop-blur px-4 shrink-0">
+            <header className="sticky top-0 z-50 h-12 flex items-center gap-3 border-b border-[hsl(var(--hairline))] bg-[hsl(var(--surface))]/80 backdrop-blur px-4 shrink-0">
               <SidebarTrigger className="text-[hsl(var(--ink-subtle))] hover:text-foreground" />
               <div className="ml-auto flex items-center gap-4 text-xs text-[hsl(var(--ink-muted))]">
                 <OnboardingSkipControl />
@@ -32,7 +32,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </div>
               </div>
             </header>
-            <main id="main-content" className="flex-1 overflow-auto flex flex-col">
+            <main id="main-content" className="flex-1 flex flex-col">
               <div className="flex-1">{children}</div>
             </main>
           </div>
