@@ -5,14 +5,23 @@ import { Button } from "@/components/ui/button";
 import { useOnboarding, type OnboardingStepKey } from "@/hooks/useOnboarding";
 import { useOnboardingContext } from "./OnboardingContext";
 
-/** Display order of the guided setup, excluding the implicit "account" step and
- * including the final review screen that lives on the dashboard. */
-export const FLOW_STEPS: { key: OnboardingStepKey | "review"; href: string; accent: string }[] = [
-  { key: "structure", href: "/org/structure", accent: "--accent-red" },
-  { key: "people", href: "/org/employees", accent: "--accent-purple" },
-  { key: "cycle", href: "/appraisals", accent: "--accent-green" },
-  { key: "review", href: "/dashboard", accent: "--accent-blue" },
+/** The four stages of setup, each owning one SIA brand color, matching the
+ * sidebar: Dashboard (blue) → Org Structure (red) → Employees (purple) →
+ * Appraisals (green). The final review lives back on the Dashboard. */
+export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; accent: string }[] = [
+  { key: "account", label: "Dashboard", href: "/dashboard", accent: "--accent-blue" },
+  { key: "structure", label: "Org Structure", href: "/org/structure", accent: "--accent-red" },
+  { key: "people", label: "Employees", href: "/org/employees", accent: "--accent-purple" },
+  { key: "cycle", label: "Appraisals", href: "/appraisals", accent: "--accent-green" },
 ];
+
+/** Shared color rule for every setup progress indicator. */
+export function stepSegmentColor(opts: { accent: string; state: "done" | "current" | "upcoming" | "skipped" }) {
+  if (opts.state === "current") return `hsl(var(${opts.accent}))`;
+  if (opts.state === "done") return `hsl(var(${opts.accent}) / 0.45)`;
+  return "hsl(var(--hairline))";
+}
+
 
 interface OnboardingStepFrameProps {
   stepKey: OnboardingStepKey | "review";
