@@ -191,6 +191,7 @@ export function useOnboarding() {
     isOnboarding,
     markComplete,
     markSkipped,
+    finishSetup,
     resume,
     goToNext,
     nextStepAfter,
