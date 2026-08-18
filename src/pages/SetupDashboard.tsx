@@ -125,46 +125,67 @@ export function SetupDashboard() {
   return (
     <>
       {head}
-      <div className="px-6 py-12 md:py-16">
-        <div className="mx-auto w-full max-w-[560px] text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[hsl(var(--accent-blue))]">
-            Setup
-          </p>
-
-          <p className="mt-6 text-sm text-[hsl(var(--ink-muted))]">{statusLabel}</p>
-          <div className="mt-3">
-            <OnboardingPipeline steps={steps} currentKey={current.key} variant="bars" />
-          </div>
-
-          <h1 className="mt-8 font-[Space_Grotesk] text-[34px] md:text-[40px] leading-[1.1] font-semibold tracking-[-1px] text-foreground text-balance">
-            {copy.ctaTitle}
-          </h1>
-          <p className="mx-auto mt-3 max-w-[44ch] text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] text-pretty">
-            {copy.ctaBody}
-          </p>
-
-          <div className="mt-9 flex flex-col items-center gap-3">
-            <Button
-              onClick={handleCta}
-              className="h-12 w-full max-w-[300px] text-[15px] font-medium active:scale-[0.96] transition-transform"
+      <OnboardingStepFrame
+        stepKey="account"
+        eyebrow="Setup"
+        title={copy.ctaTitle}
+        subtitle={copy.ctaBody}
+        statusLabel={statusLabel}
+        statusMet={remaining <= 1}
+        continueLabel={copy.ctaLabel}
+        onContinue={handleCta}
+        secondary={
+          doneCount > 1 ? (
+            <button
+              onClick={() => finishSetup()}
+              disabled={saving}
+              className="min-h-10 rounded-md px-3 py-2 text-sm font-medium text-[hsl(var(--accent-blue))] transition-colors hover:text-[hsl(var(--accent-blue))]/80 disabled:opacity-60"
             >
-              {copy.ctaLabel}
-            </Button>
-            {doneCount > 1 && (
-              <button
-                onClick={() => finishSetup()}
-                disabled={saving}
-                className="min-h-10 rounded-md px-3 py-2 text-sm font-medium text-[hsl(var(--accent-blue))] transition-colors hover:text-[hsl(var(--accent-blue))]/80 disabled:opacity-60"
-              >
-                Review completed setup
-              </button>
-            )}
-          </div>
-
+              Review completed setup
+            </button>
+          ) : undefined
+        }
+      >
+        <div className="rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] shadow-[0_1px_2px_rgba(0,0,0,0.03)] divide-y divide-[hsl(var(--hairline))]">
+          {steps
+            .filter((s) => s.key !== "account")
+            .map((s) => {
+              const flow = FLOW_STEPS.find((f) => f.key === s.key);
+              const isCurrent = s.key === current.key;
+              return (
+                <div key={s.key} className="flex items-center gap-4 px-5 py-4">
+                  <CheckCircle2
+                    className="h-5 w-5 shrink-0"
+                    style={{
+                      color: s.done
+                        ? "hsl(var(--accent-green))"
+                        : isCurrent && flow
+                        ? `hsl(var(${flow.accent}))`
+                        : "hsl(var(--ink-subtle))",
+                    }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground">{s.label}</p>
+                    <p className="mt-0.5 truncate text-sm text-[hsl(var(--ink-muted))]">
+                      {s.done ? "Complete" : s.skipped ? "Skipped" : isCurrent ? "Up next" : "Not started"}
+                    </p>
+                  </div>
+                  {s.href && (
+                    <Link
+                      to={s.href}
+                      className="rounded-md px-2 py-1 text-sm font-medium text-[hsl(var(--accent-blue))] hover:text-[hsl(var(--accent-blue))]/80"
+                    >
+                      {s.done ? "Edit" : "Open"}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
         </div>
-      </div>
+      </OnboardingStepFrame>
     </>
   );
 }
+
 
 export default SetupDashboard;
