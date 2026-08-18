@@ -103,7 +103,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
               <span
                 className={`${lineOffset} h-[2px] flex-1 rounded-full`}
                 style={{
-                  backgroundColor: step.status === "done" ? "hsl(var(--accent-green) / 0.5)" : "hsl(var(--hairline))",
+                  backgroundColor: "hsl(var(--hairline))",
                   transitionProperty: "background-color",
                   transitionDuration: "200ms",
                 }}
