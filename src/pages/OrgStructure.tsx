@@ -154,19 +154,7 @@ const OrgStructure = () => {
 
   const pageInner = (
     <>
-      {isOnboarding ? (
-        <OnboardingStepHeader
-          eyebrow="STRUCTURE"
-          eyebrowAccent="--accent-red"
-          title="Build your organization"
-          subtitle="Add levels first, then place your units."
-          criteriaAccent="--accent-red"
-          criteria={[
-            { label: "At least 1 level defined", met: unitTypes.length >= 1 },
-            { label: "At least 1 unit created", met: units.length > 0 },
-          ]}
-        />
-      ) : (
+      {!isOnboarding && (
         <PageHeader
           title="Organization structure"
           subtitle="Create and manage the divisions, departments, and teams within your organization."
@@ -185,6 +173,7 @@ const OrgStructure = () => {
           }
         />
       )}
+
 
       {isOnboarding && (
         <div className="flex flex-wrap gap-2 mb-6">
