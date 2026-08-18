@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download, FileText, Filter } from "lucide-react";
+import { BellRing, Download, FileText, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,11 +34,20 @@ import {
   exportOverdueTasksCsv,
   filterParticipantRows,
   statusLabel,
+  type ParticipantReportRow,
   type StatusFilter,
   type TaskStatus,
 } from "@/lib/cycleReports";
 import { buildAncestryMap, unitBreadcrumb } from "@/lib/orgHierarchy";
 import { friendlyError } from "@/lib/siaErrors";
+import { useCycleNudges, type NudgeTaskKind } from "@/hooks/useCycleNudges";
+
+const TASK_LABEL: Record<NudgeTaskKind, string> = {
+  goals: "Set goals",
+  interim: "Interim assessment",
+  final: "Final assessment",
+  acknowledgement: "Acknowledgement",
+};
 
 const STATUS_CHIP: Record<TaskStatus, string> = {
   complete: "text-[hsl(var(--accent-green))] bg-[hsl(var(--accent-green)/0.1)]",
@@ -67,10 +76,13 @@ interface Props {
 }
 
 export function CycleReportsPanel({ cycle, participants, goalWeights, employees, units }: Props) {
-  const { organization } = useAuth();
+  const { organization, profile } = useAuth();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [managerFilter, setManagerFilter] = useState<string>("all");
   const [exportingPdfId, setExportingPdfId] = useState<string | null>(null);
+  const [nudgingKey, setNudgingKey] = useState<string | null>(null);
+  const { cooldownUntil, sendNudge } = useCycleNudges(cycle.id);
+  const canNudge = profile?.role === "hr_admin" && cycle.status === "active";
 
   const unitByEmployeeId = useMemo(() => {
     const ancestry = buildAncestryMap(units);
@@ -113,6 +125,18 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
       toast.error(friendlyError(err, "Could not export PDF"));
     } finally {
       setExportingPdfId(null);
+    }
+  };
+
+  const handleNudge = async (participantId: string, taskKind: NudgeTaskKind, who: string) => {
+    setNudgingKey(`${participantId}:${taskKind}`);
+    try {
+      await sendNudge({ participantId, taskKind });
+      toast.success(`Reminder sent to ${who}`);
+    } catch (err) {
+      toast.error(friendlyError(err, "Could not send the reminder"));
+    } finally {
+      setNudgingKey(null);
     }
   };
 
@@ -198,13 +222,17 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
               <th className="px-3 py-2.5 font-medium">Interim</th>
               <th className="px-3 py-2.5 font-medium">Final</th>
               <th className="px-3 py-2.5 font-medium">Ack</th>
+              {canNudge && <th className="px-3 py-2.5 font-medium">Remind</th>}
               <th className="px-5 py-2.5 font-medium text-right">Record</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[hsl(var(--hairline))]">
             {filteredRows.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-sm text-[hsl(var(--ink-muted))]">
+                <td
+                  colSpan={canNudge ? 8 : 7}
+                  className="px-5 py-8 text-center text-sm text-[hsl(var(--ink-muted))]"
+                >
                   No participants match this filter.
                 </td>
               </tr>
@@ -233,6 +261,16 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
                     <td className="px-3 py-3">
                       <StatusChip status={row.acknowledgement} />
                     </td>
+                    {canNudge && (
+                      <td className="px-3 py-3">
+                        <NudgeCell
+                          row={row}
+                          cooldownUntil={cooldownUntil}
+                          busyKey={nudgingKey}
+                          onNudge={handleNudge}
+                        />
+                      </td>
+                    )}
                     <td className="px-5 py-3 text-right">
                       {participant && canExport ? (
                         <Button
@@ -257,6 +295,88 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
         </table>
       </div>
     </div>
+  );
+}
+
+/**
+ * A reminder only makes sense for work that is actually late, so the cell is
+ * driven off the row's overdue tasks. Goals/interim/final chase the manager;
+ * acknowledgement chases the employee.
+ */
+function NudgeCell({
+  row,
+  cooldownUntil,
+  busyKey,
+  onNudge,
+}: {
+  row: ParticipantReportRow;
+  cooldownUntil: (participantId: string, taskKind: string) => Date | null;
+  busyKey: string | null;
+  onNudge: (participantId: string, taskKind: NudgeTaskKind, who: string) => Promise<void>;
+}) {
+  const tasks = (row.frozen ? [] : row.overdueTasks) as NudgeTaskKind[];
+
+  if (tasks.length === 0) {
+    return <span className="text-[11px] text-[hsl(var(--ink-subtle))]">—</span>;
+  }
+
+  const recipientFor = (task: NudgeTaskKind) =>
+    task === "acknowledgement" ? row.employeeName : row.managerName;
+
+  if (tasks.length === 1) {
+    const task = tasks[0];
+    const until = cooldownUntil(row.participantId, task);
+    const busy = busyKey === `${row.participantId}:${task}`;
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 text-xs text-[hsl(var(--accent-red))] hover:bg-[hsl(var(--accent-red)/0.1)] hover:text-[hsl(var(--accent-red))]"
+        disabled={busy || !!until}
+        title={
+          until
+            ? `Already reminded — you can send another after ${until.toLocaleString()}`
+            : `Remind ${recipientFor(task)} about ${TASK_LABEL[task].toLowerCase()}`
+        }
+        onClick={() => void onNudge(row.participantId, task, recipientFor(task))}
+      >
+        <BellRing className="mr-1 h-3.5 w-3.5" />
+        {busy ? "Sending…" : until ? "Sent" : "Remind"}
+      </Button>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-xs text-[hsl(var(--accent-red))] hover:bg-[hsl(var(--accent-red)/0.1)] hover:text-[hsl(var(--accent-red))]"
+        >
+          <BellRing className="mr-1 h-3.5 w-3.5" />
+          Remind ({tasks.length})
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>Overdue tasks</DropdownMenuLabel>
+        {tasks.map((task) => {
+          const until = cooldownUntil(row.participantId, task);
+          return (
+            <DropdownMenuItem
+              key={task}
+              disabled={!!until}
+              onClick={() => void onNudge(row.participantId, task, recipientFor(task))}
+            >
+              <span className="flex-1">{TASK_LABEL[task]}</span>
+              <span className="ml-2 text-[10px] uppercase tracking-wide text-[hsl(var(--ink-subtle))]">
+                {until ? "Sent" : recipientFor(task).split(" ")[0]}
+              </span>
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
