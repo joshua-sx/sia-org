@@ -111,25 +111,18 @@ export function OnboardingStepFrame({
             {eyebrow}
           </p>
           <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] tabular-nums">
-            Step {index + 1} of {FLOW_STEPS.length}
+            {isReview ? "Review" : `Step ${index + 1} of ${FLOW_STEPS.length}`}
           </p>
           <ol className="mt-3 flex items-center justify-center gap-2" aria-label="Setup progress">
             {FLOW_STEPS.map((s, i) => {
-              const st = statusOf(s.key);
-              const color =
-                i < index || st === "done"
-                  ? "hsl(var(--accent-green))"
-                  : st === "skipped"
-                  ? "hsl(var(--accent-purple) / 0.5)"
-                  : i === index
-                  ? "hsl(var(--accent-blue))"
-                  : "hsl(var(--hairline))";
+              const state = stateOf(s.key, i);
               return (
                 <li key={s.key}>
+                  <span className="sr-only">{s.label}</span>
                   <span
                     className="block h-[4px] w-10 rounded-full md:w-14"
                     style={{
-                      backgroundColor: color,
+                      backgroundColor: stepSegmentColor({ accent: s.accent, state }),
                       transitionProperty: "background-color",
                       transitionDuration: "200ms",
                     }}
@@ -139,6 +132,7 @@ export function OnboardingStepFrame({
               );
             })}
           </ol>
+
 
           <h1 className="mt-8 font-[Space_Grotesk] text-[30px] leading-[1.08] font-semibold tracking-[-1px] text-foreground text-balance md:text-[44px]">
             {title}
