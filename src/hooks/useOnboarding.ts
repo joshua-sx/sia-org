@@ -79,7 +79,7 @@ export function useOnboarding() {
       key: "people",
       label: "People",
       icon: Users,
-      accent: "--accent-yellow",
+      accent: "--accent-purple",
       href: "/org/employees",
       status: resolveStatus(2),
       done: peopleDone,
@@ -98,12 +98,13 @@ export function useOnboarding() {
   ];
 
   const completedCount = steps.filter((s) => s.done).length;
-  // Structure is the only required step. Once it's done (or the org was
-  // already marked setup_complete by the previous flow), the user exits
-  // onboarding — People and Launch are optional and can be resumed from
-  // the dashboard checklist.
+  // Structure is the only step the user cannot skip, but finishing it does NOT
+  // end setup. Onboarding runs until every step has been explicitly resolved —
+  // completed or deliberately skipped — so the guided flow never drops the user
+  // half-way through. `setup_complete` is the persisted "reached the end" flag.
+  const allStepsResolved = orderedFlags.every((f) => f.done || f.skipped);
   const setupComplete =
-    !!organization && (structureDone || !!organization?.setup_complete);
+    !!organization && (allStepsResolved || !!organization?.setup_complete);
   const isOnboarding = !!organization && !setupComplete;
 
   type OrgPatch = Partial<{
