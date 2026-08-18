@@ -6,16 +6,47 @@ interface OnboardingPipelineProps {
   steps: OnboardingStep[];
   currentKey: OnboardingStepKey;
   size?: "sm" | "md";
+  /** "nodes" = icon rail (default). "bars" = minimal segmented progress bars. */
+  variant?: "nodes" | "bars";
 }
 
 /** Single visual grammar for "where am I in setup" — used both as the slim
  * top-of-page strip and the Setup Dashboard hero. Keep it the only one. */
-export function OnboardingPipeline({ steps, currentKey, size = "md" }: OnboardingPipelineProps) {
+export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "nodes" }: OnboardingPipelineProps) {
   const nodeDim = size === "sm" ? "h-7 w-7" : "h-10 w-10";
   const iconDim = size === "sm" ? "h-3.5 w-3.5" : "h-[18px] w-[18px]";
   const labelClass = size === "sm" ? "text-[10px]" : "text-[11px]";
   const colWidth = size === "sm" ? "w-11" : "w-16";
   const lineOffset = size === "sm" ? "mt-3.5" : "mt-5";
+
+  if (variant === "bars") {
+    return (
+      <ol className="flex items-center justify-center gap-2" aria-label="Setup progress">
+        {steps.map((step) => {
+          const isCurrent = step.key === currentKey;
+          const color =
+            step.status === "done"
+              ? "hsl(var(--accent-green))"
+              : step.status === "skipped"
+              ? "hsl(var(--accent-purple) / 0.5)"
+              : isCurrent
+              ? `hsl(var(${step.accent}))`
+              : "hsl(var(--hairline))";
+          return (
+            <li key={step.key}>
+              <span className="sr-only">{step.label}</span>
+              <span
+                className="block h-[3px] w-9 rounded-full"
+                style={{ backgroundColor: color, transitionProperty: "background-color", transitionDuration: "200ms" }}
+                aria-hidden
+              />
+            </li>
+          );
+        })}
+      </ol>
+    );
+  }
+
 
   return (
     <ol className="flex items-start" aria-label="Setup progress">
