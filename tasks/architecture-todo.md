@@ -12,13 +12,13 @@ verification. This list does not replace the interface-design todo in
 - [x] Task 1 — Drop via_profile FOR ALL; add org to HR WITH CHECK (`20260818010000`)
 - [x] Task 2 — Pin `profiles_update` WITH CHECK (`20260818010001`)
 - [x] Task 3 — Restrictive unit isolation uses helper only (`20260818010002`)
-- [ ] Checkpoint A — employee cannot mutate org structure; approval (needs staging apply)
+- [x] Checkpoint A — Phase 1 live on Lovable Cloud (user confirmed 18 Aug 2026)
 
-## Phase 2: Launch and participant integrity (`fix/arch-phase-2-launch-integrity`)
-- [ ] Task 4 — Same-org + active employee checks in `launch_appraisal_cycle`
-- [ ] Task 5 — Unique partial index: one active cycle per org
-- [ ] Task 6 — Same-org trigger on `cycle_participants`
-- [ ] Checkpoint B — cannot attach foreign employees; approval
+## Phase 2: Launch and participant integrity (`cursor/arch-phase-2-launch-integrity-bf21`)
+- [x] Task 4 — Same-org + active employee checks in `launch_appraisal_cycle` (`20260818020000`)
+- [x] Task 5 — Unique partial index: one active cycle per org (`20260818020001`)
+- [x] Task 6 — Same-org trigger on `cycle_participants` (`20260818020002`)
+- [ ] Checkpoint B — cannot attach foreign employees; approval (apply on Lovable Cloud)
 
 ## Phase 3: Cycle write guards (`fix/arch-phase-3-cycle-guards`)
 - [ ] Task 7 — `guard_cycle_writes` status machine
