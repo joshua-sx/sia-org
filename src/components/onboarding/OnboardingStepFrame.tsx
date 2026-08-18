@@ -61,20 +61,22 @@ export function OnboardingStepFrame({
   const { steps, markComplete, finishSetup, saving } = useOnboarding();
   const { readiness } = useOnboardingContext();
 
-  const index = FLOW_STEPS.findIndex((s) => s.key === stepKey);
-  const current = FLOW_STEPS[index];
-  const previous = index > 0 ? FLOW_STEPS[index - 1] : null;
-  const next = index < FLOW_STEPS.length - 1 ? FLOW_STEPS[index + 1] : null;
+  const isReview = stepKey === "review";
+  const index = isReview ? FLOW_STEPS.length - 1 : FLOW_STEPS.findIndex((s) => s.key === stepKey);
+  const current = isReview ? FLOW_STEPS[0] : FLOW_STEPS[index];
+  const previous = !isReview && index > 0 ? FLOW_STEPS[index - 1] : null;
+  const next = !isReview && index < FLOW_STEPS.length - 1 ? FLOW_STEPS[index + 1] : null;
 
-  const statusOf = (key: OnboardingStepKey | "review") => {
-    if (key === "review") return "pending";
+  const stateOf = (key: OnboardingStepKey, i: number): "done" | "current" | "upcoming" | "skipped" => {
+    if (isReview) return "done";
     const s = steps.find((st) => st.key === key);
-    if (s?.done) return "done";
+    if (i === index) return "current";
     if (s?.skipped) return "skipped";
-    return "pending";
+    if (s?.done || i < index) return "done";
+    return "upcoming";
   };
 
-  const r = stepKey === "review" ? undefined : readiness[stepKey];
+  const r = isReview ? undefined : readiness[stepKey as OnboardingStepKey];
   const ready = statusMet || !!r?.ready;
 
   const handleContinue = async () => {
@@ -83,18 +85,20 @@ export function OnboardingStepFrame({
         await onContinue();
         return;
       }
-      if (stepKey === "review") {
+      if (isReview) {
         await finishSetup();
         return;
       }
-      const step = steps.find((s) => s.key === stepKey);
-      if (!step?.done && !step?.skipped) await markComplete(stepKey);
+      const key = stepKey as OnboardingStepKey;
+      const step = steps.find((s) => s.key === key);
+      if (!step?.done && !step?.skipped) await markComplete(key);
       if (next) navigate(next.href);
-      else await finishSetup();
+      else navigate("/dashboard");
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Could not complete this step");
     }
   };
+
 
   return (
     <div className="px-5 py-10 md:px-10 md:py-14">
