@@ -9,8 +9,7 @@ import { useEmployees, type Employee } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
-import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
-import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import EmployeeEmptyState from "@/components/employees/EmployeeEmptyState";
 import EmployeeTable from "@/components/employees/EmployeeTable";
 import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
@@ -106,22 +105,7 @@ const OrgEmployees = () => {
 
   const pageInner = (
     <>
-      {isOnboarding ? (
-        <OnboardingStepHeader
-          eyebrow="PEOPLE"
-          eyebrowAccent="--accent-purple"
-          title="Add your team"
-          subtitle="Import a CSV or add people manually."
-          criteriaAccent="--accent-purple"
-          criteria={[
-            { label: "At least 1 employee added", met: employees.length >= 1 },
-            {
-              label: "At least one manager relationship set (once you have 2+ people)",
-              met: hasManagerLink || employees.length <= 1,
-            },
-          ]}
-        />
-      ) : (
+      {!isOnboarding && (
         <PageHeader
           title="Add your employees"
           subtitle="Add employees manually or import a CSV to build your reporting structure and prepare for appraisal cycles. No invitations will be sent during setup."
@@ -209,7 +193,17 @@ const OrgEmployees = () => {
         path="/org/employees"
       />
       {isOnboarding ? (
-        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+        <OnboardingStepFrame
+          stepKey="people"
+          eyebrow="People"
+          title="Add your people"
+          subtitle="Add your team and place each person in the organization."
+          statusLabel={readyHint}
+          continueLabel="Continue to cycle"
+          caption="Invitations will not be sent yet."
+        >
+          {pageInner}
+        </OnboardingStepFrame>
       ) : (
         <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
       )}

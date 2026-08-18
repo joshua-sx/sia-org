@@ -9,8 +9,7 @@ import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnits, buildTree, OrgUnitTreeNode } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
-import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
-import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import SetupWizard from "@/components/org/SetupWizard";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
@@ -154,19 +153,7 @@ const OrgStructure = () => {
 
   const pageInner = (
     <>
-      {isOnboarding ? (
-        <OnboardingStepHeader
-          eyebrow="STRUCTURE"
-          eyebrowAccent="--accent-red"
-          title="Build your organization"
-          subtitle="Add levels first, then place your units."
-          criteriaAccent="--accent-red"
-          criteria={[
-            { label: "At least 1 level defined", met: unitTypes.length >= 1 },
-            { label: "At least 1 unit created", met: units.length > 0 },
-          ]}
-        />
-      ) : (
+      {!isOnboarding && (
         <PageHeader
           title="Organization structure"
           subtitle="Create and manage the divisions, departments, and teams within your organization."
@@ -185,6 +172,7 @@ const OrgStructure = () => {
           }
         />
       )}
+
 
       {isOnboarding && (
         <div className="flex flex-wrap gap-2 mb-6">
@@ -245,10 +233,27 @@ const OrgStructure = () => {
         path="/org/structure"
       />
       {isOnboarding ? (
-        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+        <OnboardingStepFrame
+          stepKey="structure"
+          eyebrow="Organization"
+          title="Build your organization"
+          subtitle="Create the structure your people and reviews will use."
+          statusLabel={
+            units.length > 0
+              ? `${units.length} ${units.length === 1 ? "unit" : "units"} across ${sortedTypes.length} ${
+                  sortedTypes.length === 1 ? "level" : "levels"
+                } ready`
+              : "Add at least one unit to continue."
+          }
+          continueLabel="Continue to people"
+          caption="You can update your structure later."
+        >
+          {pageInner}
+        </OnboardingStepFrame>
       ) : (
         <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
       )}
+
     </>
   );
 };

@@ -1,8 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingContext";
-import OnboardingStrip from "@/components/onboarding/OnboardingStrip";
-import OnboardingFooter from "@/components/onboarding/OnboardingFooter";
 import OnboardingSkipControl from "@/components/onboarding/OnboardingSkipControl";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -35,9 +33,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </div>
             </header>
             <main id="main-content" className="flex-1 overflow-auto flex flex-col">
-              <OnboardingStrip />
               <div className="flex-1">{children}</div>
-              <OnboardingFooter />
             </main>
           </div>
         </div>
