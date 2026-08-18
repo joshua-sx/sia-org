@@ -18,7 +18,6 @@ export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; 
 /** Shared color rule for every setup progress indicator. */
 export function stepSegmentColor(opts: { accent: string; state: "done" | "current" | "upcoming" | "skipped" }) {
   if (opts.state === "current") return `hsl(var(${opts.accent}))`;
-  if (opts.state === "done") return `hsl(var(${opts.accent}) / 0.45)`;
   return "hsl(var(--hairline))";
 }
 

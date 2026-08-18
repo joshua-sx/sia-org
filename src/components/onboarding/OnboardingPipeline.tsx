@@ -53,11 +53,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
         const isDone = step.status === "done";
         const isSkipped = step.status === "skipped";
 
-        const nodeStyle = isDone
-          ? { backgroundColor: "hsl(var(--accent-green) / 0.14)", color: "hsl(var(--accent-green))" }
-          : isSkipped
-          ? { backgroundColor: "hsl(var(--accent-purple) / 0.14)", color: "hsl(var(--accent-purple-ink))" }
-          : isCurrent
+        const nodeStyle = isCurrent
           ? {
               backgroundColor: `hsl(var(${step.accent}) / 0.14)`,
               color: `hsl(var(${step.accent}))`,
@@ -107,7 +103,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
               <span
                 className={`${lineOffset} h-[2px] flex-1 rounded-full`}
                 style={{
-                  backgroundColor: step.status === "done" ? "hsl(var(--accent-green) / 0.5)" : "hsl(var(--hairline))",
+                  backgroundColor: "hsl(var(--hairline))",
                   transitionProperty: "background-color",
                   transitionDuration: "200ms",
                 }}
