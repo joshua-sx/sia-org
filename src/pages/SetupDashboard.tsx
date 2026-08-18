@@ -144,31 +144,23 @@ export function SetupDashboard() {
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3">
-            <Button onClick={handleCta} className="h-12 w-full max-w-[300px] text-[15px] font-medium">
+            <Button
+              onClick={handleCta}
+              className="h-12 w-full max-w-[300px] text-[15px] font-medium active:scale-[0.96] transition-transform"
+            >
               {copy.ctaLabel}
             </Button>
             {doneCount > 1 && (
               <button
                 onClick={() => finishSetup()}
                 disabled={saving}
-                className="rounded-md px-2 py-1 text-sm font-medium text-[hsl(var(--accent-blue))] transition-colors hover:text-[hsl(var(--accent-blue))]/80 disabled:opacity-60"
+                className="min-h-10 rounded-md px-3 py-2 text-sm font-medium text-[hsl(var(--accent-blue))] transition-colors hover:text-[hsl(var(--accent-blue))]/80 disabled:opacity-60"
               >
                 Review completed setup
               </button>
             )}
           </div>
 
-          <div className="mt-7 flex items-center justify-center gap-2 text-xs text-[hsl(var(--ink-subtle))]">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Invitations are only sent after you review and confirm launch.</span>
-          </div>
-
-          {nextHint && (
-            <>
-              <div className="mx-auto mt-8 h-px w-full max-w-[400px] bg-[hsl(var(--hairline))]" />
-              <p className="mt-5 text-sm text-[hsl(var(--ink-muted))]">Next: {nextHint}</p>
-            </>
-          )}
         </div>
       </div>
     </>
