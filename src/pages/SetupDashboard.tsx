@@ -7,7 +7,7 @@ import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { LAUNCH_COPY } from "@/content/onboardingCopy";
 import { OnboardingStepFrame, FLOW_STEPS } from "@/components/onboarding/OnboardingStepFrame";
-import { OnboardingPipeline } from "@/components/onboarding/OnboardingPipeline";
+
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
