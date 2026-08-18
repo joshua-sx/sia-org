@@ -49,6 +49,9 @@ const cycle: AppraisalCycle = {
   acknowledgement_due: "2999-04-01",
   created_at: "2026-01-01",
   updated_at: "2026-01-01",
+  closed_at: null,
+  closed_by: null,
+  close_note: null,
 };
 
 const goals = [
