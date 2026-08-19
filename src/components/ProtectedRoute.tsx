@@ -25,7 +25,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!session) return <Navigate to="/login" replace />;
-  if (!profile) return <Navigate to="/complete-signup" replace />;
+  if (!profile) return <Navigate to="/onboarding/setup" replace />;
   return <>{children}</>;
 };
 

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BrandMark } from "@/components/BrandMark";
+import { useOnboarding } from "@/hooks/useOnboarding";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, accent: "--accent-blue" },
@@ -36,10 +37,20 @@ const navItems = [
   { title: "Appraisals", url: "/appraisals", icon: CalendarClock, accent: "--accent-green" },
 ];
 
+/** During setup the sidebar mirrors the four onboarding steps. */
+const onboardingItems = [
+  { title: "Setup", url: "/onboarding/setup", icon: LayoutDashboard, accent: "--accent-blue" },
+  { title: "Structure", url: "/org/structure", icon: Building2, accent: "--accent-red" },
+  { title: "People", url: "/org/employees", icon: Users, accent: "--accent-purple" },
+  { title: "Cycle", url: "/appraisals", icon: CalendarClock, accent: "--accent-green" },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { profile, organization, signOut } = useAuth();
+  const { isOnboarding } = useOnboarding();
+  const items = isOnboarding ? onboardingItems : navItems;
 
   const initials = profile?.full_name
     ?.split(" ")
@@ -74,12 +85,12 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className={collapsed ? "items-center gap-1" : undefined}>
-              {navItems.map((item) => (
+              {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/dashboard"}
+                      end={item.url === "/dashboard" || item.url === "/onboarding/setup"}
                       aria-label={collapsed ? item.title : undefined}
                       title={collapsed ? item.title : undefined}
                       className={

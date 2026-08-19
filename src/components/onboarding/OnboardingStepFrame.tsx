@@ -1,103 +1,140 @@
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useOnboarding, type OnboardingStepKey } from "@/hooks/useOnboarding";
-import { useOnboardingContext } from "./OnboardingContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import type { OnboardingStepKey } from "@/hooks/useOnboarding";
 
-/** The four stages of setup, each owning one SIA brand color, matching the
- * sidebar: Dashboard (blue) → Org Structure (red) → Employees (purple) →
- * Appraisals (green). The final review lives back on the Dashboard. */
+/** The four onboarding stages, each owning one SIA brand color, matching the
+ *  sidebar: Setup (blue) → Structure (red) → People (purple) → Cycle (green). */
 export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; accent: string }[] = [
-  { key: "account", label: "Dashboard", href: "/dashboard", accent: "--accent-blue" },
-  { key: "structure", label: "Org Structure", href: "/org/structure", accent: "--accent-red" },
-  { key: "people", label: "Employees", href: "/org/employees", accent: "--accent-purple" },
-  { key: "cycle", label: "Appraisals", href: "/appraisals", accent: "--accent-green" },
+  { key: "account", label: "Setup", href: "/onboarding/setup", accent: "--accent-blue" },
+  { key: "structure", label: "Structure", href: "/org/structure", accent: "--accent-red" },
+  { key: "people", label: "People", href: "/org/employees", accent: "--accent-purple" },
+  { key: "cycle", label: "Cycle", href: "/appraisals", accent: "--accent-green" },
 ];
 
-/** Shared color rule for every setup progress indicator. */
-export function stepSegmentColor(opts: { accent: string; state: "done" | "current" | "upcoming" | "skipped" }) {
+export type SegmentState = "done" | "current" | "upcoming";
+
+/** Shared color rule for every setup progress indicator: only the current
+ *  step carries its brand color, everything else stays neutral. */
+export function stepSegmentColor(opts: { accent: string; state: SegmentState | "skipped" }) {
   if (opts.state === "current") return `hsl(var(${opts.accent}))`;
+  if (opts.state === "done") return "hsl(var(--ink-subtle))";
   return "hsl(var(--hairline))";
 }
 
+/** Back + primary action, adjacent and right-aligned. One shared footer for
+ *  every onboarding screen — never a full-width CTA. */
+export function OnboardingActionFooter({
+  backHref,
+  backLabel = "Back",
+  primaryLabel,
+  onPrimary,
+  primaryDisabled = false,
+  disabledReason,
+  loading = false,
+  loadingLabel = "Saving…",
+  primaryType = "button",
+}: {
+  backHref?: string | null;
+  backLabel?: string;
+  primaryLabel: string;
+  onPrimary?: () => void;
+  primaryDisabled?: boolean;
+  disabledReason?: string;
+  loading?: boolean;
+  loadingLabel?: string;
+  primaryType?: "button" | "submit";
+}) {
+  const navigate = useNavigate();
+
+  const primary = (
+    <Button
+      type={primaryType}
+      onClick={onPrimary}
+      disabled={primaryDisabled || loading}
+      className="h-10 min-w-[120px] transition-transform duration-150 active:scale-[0.96]"
+    >
+      {loading ? loadingLabel : primaryLabel}
+    </Button>
+  );
+
+  return (
+    <div className="mt-8 flex items-center justify-end gap-2.5 border-t border-[hsl(var(--hairline))] pt-5">
+      {backHref && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => navigate(backHref)}
+          className="h-10 min-w-[96px] transition-transform duration-150 active:scale-[0.96]"
+        >
+          {backLabel}
+        </Button>
+      )}
+      {primaryDisabled && disabledReason ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span tabIndex={0} className="inline-flex rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              {primary}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs">
+            {disabledReason}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        primary
+      )}
+    </div>
+  );
+}
 
 interface OnboardingStepFrameProps {
-  stepKey: OnboardingStepKey | "review";
-  eyebrow: string;
+  stepKey: OnboardingStepKey;
+  /** Screen heading. */
   title: string;
+  /** One concise supporting sentence. */
   subtitle: string;
-  /** Inline readiness line shown above the primary button. */
-  statusLabel?: string;
-  statusMet?: boolean;
-  continueLabel: string;
-  onContinue?: () => void | Promise<void>;
-  continueDisabled?: boolean;
-  /** Small reassurance caption under the primary button. */
-  caption?: string;
-  /** Optional secondary action rendered under the caption. */
-  secondary?: React.ReactNode;
+  /** Primary footer action label. */
+  primaryLabel: string;
+  onPrimary?: () => void;
+  primaryDisabled?: boolean;
+  /** Named on the disabled primary as an accessible tooltip. */
+  disabledReason?: string;
+  loading?: boolean;
+  loadingLabel?: string;
+  /** Completion state of each step, for the progress segments. */
+  completedKeys?: OnboardingStepKey[];
+  /** Hide the shared footer (a nested flow owns its own actions). */
+  hideFooter?: boolean;
   children: React.ReactNode;
 }
 
-/** The single layout every onboarding step uses: centered header, one card,
- * one readiness line, one primary action, then a quiet Back link. */
+/** The single layout every onboarding screen uses: centered header with four
+ *  progress segments, left-aligned working content, one shared action footer. */
 export function OnboardingStepFrame({
   stepKey,
-  eyebrow,
   title,
   subtitle,
-  statusLabel,
-  statusMet = false,
-  continueLabel,
-  onContinue,
-  continueDisabled = false,
-  caption,
-  secondary,
+  primaryLabel,
+  onPrimary,
+  primaryDisabled = false,
+  disabledReason,
+  loading = false,
+  loadingLabel,
+  completedKeys = [],
+  hideFooter = false,
   children,
 }: OnboardingStepFrameProps) {
-  const navigate = useNavigate();
-  const { steps, markComplete, finishSetup, saving } = useOnboarding();
-  const { readiness } = useOnboardingContext();
+  const index = FLOW_STEPS.findIndex((s) => s.key === stepKey);
+  const current = FLOW_STEPS[index] ?? FLOW_STEPS[0];
+  const previous = index > 0 ? FLOW_STEPS[index - 1] : null;
 
-  const isReview = stepKey === "review";
-  const index = isReview ? FLOW_STEPS.length - 1 : FLOW_STEPS.findIndex((s) => s.key === stepKey);
-  const current = isReview ? FLOW_STEPS[0] : FLOW_STEPS[index];
-  const previous = !isReview && index > 0 ? FLOW_STEPS[index - 1] : null;
-  const next = !isReview && index < FLOW_STEPS.length - 1 ? FLOW_STEPS[index + 1] : null;
-
-  const stateOf = (key: OnboardingStepKey, i: number): "done" | "current" | "upcoming" | "skipped" => {
-    if (isReview) return "done";
-    const s = steps.find((st) => st.key === key);
+  const stateOf = (i: number): SegmentState => {
     if (i === index) return "current";
-    if (s?.skipped) return "skipped";
-    if (s?.done || i < index) return "done";
+    if (i < index || completedKeys.includes(FLOW_STEPS[i].key)) return "done";
     return "upcoming";
   };
-
-  const r = isReview ? undefined : readiness[stepKey as OnboardingStepKey];
-  const ready = statusMet || !!r?.ready;
-
-  const handleContinue = async () => {
-    try {
-      if (onContinue) {
-        await onContinue();
-        return;
-      }
-      if (isReview) {
-        await finishSetup();
-        return;
-      }
-      const key = stepKey as OnboardingStepKey;
-      const step = steps.find((s) => s.key === key);
-      if (!step?.done && !step?.skipped) await markComplete(key);
-      if (next) navigate(next.href);
-      else navigate("/dashboard");
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Could not complete this step");
-    }
-  };
-
 
   return (
     <div className="px-5 py-10 md:px-10 md:py-14">
@@ -105,82 +142,58 @@ export function OnboardingStepFrame({
         <div className="text-center">
           <p
             className="text-[11px] font-semibold uppercase tracking-[0.14em]"
-            style={{ color: `hsl(var(${current?.accent ?? "--accent-blue"}))` }}
+            style={{ color: `hsl(var(${current.accent}))` }}
           >
-            {eyebrow}
+            {current.label}
           </p>
-          <p className="mt-2 text-sm text-[hsl(var(--ink-muted))] tabular-nums">
-            {isReview ? "Review" : `Step ${index + 1} of ${FLOW_STEPS.length}`}
-          </p>
-          <ol className="mt-3 flex items-center justify-center gap-2" aria-label="Setup progress">
+
+          <ol className="mt-3 flex items-center justify-center gap-2">
+            <li className="sr-only">{`Step ${index + 1} of ${FLOW_STEPS.length}: ${current.label}`}</li>
             {FLOW_STEPS.map((s, i) => {
-              const state = stateOf(s.key, i);
+              const state = stateOf(i);
               return (
-                <li key={s.key}>
-                  <span className="sr-only">{s.label}</span>
+                <li
+                  key={s.key}
+                  aria-hidden
+                  aria-current={state === "current" ? "step" : undefined}
+                  className="flex items-center gap-1"
+                >
                   <span
                     className="block h-[4px] w-10 rounded-full md:w-14"
                     style={{
                       backgroundColor: stepSegmentColor({ accent: s.accent, state }),
                       transitionProperty: "background-color",
-                      transitionDuration: "200ms",
+                      transitionDuration: "150ms",
                     }}
-                    aria-hidden
                   />
+                  {state === "done" && (
+                    <Check className="h-3 w-3 shrink-0 text-[hsl(var(--ink-subtle))]" strokeWidth={2.5} />
+                  )}
                 </li>
               );
             })}
           </ol>
 
-
-          <h1 className="mt-8 font-[Space_Grotesk] text-[30px] leading-[1.08] font-semibold tracking-[-1px] text-foreground text-balance md:text-[44px]">
+          <h1 className="mt-8 font-[Space_Grotesk] text-[30px] leading-[1.08] font-semibold tracking-[-1px] text-foreground text-balance md:text-[40px]">
             {title}
           </h1>
-          <p className="mx-auto mt-3 max-w-[52ch] text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] text-pretty">
+          <p className="mx-auto mt-3 max-w-[56ch] text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] text-pretty">
             {subtitle}
           </p>
         </div>
 
         <div className="mt-8 text-left">{children}</div>
 
-        {(statusLabel || r?.hint) && (
-          <div className="mt-7 flex items-center justify-center gap-2 text-sm text-[hsl(var(--ink-muted))]">
-            <CheckCircle2
-              className="h-4 w-4 shrink-0"
-              style={{ color: ready ? "hsl(var(--accent-green))" : "hsl(var(--ink-subtle))" }}
-            />
-            <span className="text-pretty">{statusLabel ?? r?.hint}</span>
-          </div>
-        )}
-
-        <div className="mt-4">
-          <Button
-            onClick={handleContinue}
-            disabled={continueDisabled || saving || (!ready && stepKey !== "review")}
-            className="h-12 w-full text-[15px] font-medium active:scale-[0.99] transition-transform"
-          >
-            {continueLabel}
-          </Button>
-        </div>
-
-        {caption && (
-          <p className="mt-3 text-center text-sm text-[hsl(var(--ink-subtle))]">{caption}</p>
-        )}
-        {secondary && <div className="mt-3 flex justify-center">{secondary}</div>}
-
-        {previous && (
-          <div className="mt-6 flex justify-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              type="button"
-              onClick={() => navigate(previous.href)}
-              className="text-[hsl(var(--ink-muted))]"
-            >
-              <ArrowLeft className="mr-1.5 h-4 w-4" />
-              Back to {previous.label}
-            </Button>
-          </div>
+        {!hideFooter && (
+          <OnboardingActionFooter
+            backHref={previous?.href ?? null}
+            primaryLabel={primaryLabel}
+            onPrimary={onPrimary}
+            primaryDisabled={primaryDisabled}
+            disabledReason={disabledReason}
+            loading={loading}
+            loadingLabel={loadingLabel}
+          />
         )}
       </div>
     </div>

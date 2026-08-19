@@ -6,15 +6,17 @@ interface PageHeadProps {
   title: string;
   description: string;
   path: string;
+  /** Authenticated product screens should never be indexed. */
+  noIndex?: boolean;
 }
 
-export function PageHead({ title, description, path }: PageHeadProps) {
+export function PageHead({ title, description, path, noIndex = false }: PageHeadProps) {
   const url = `${BASE_URL}${path}`;
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      {noIndex ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={url} />}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />

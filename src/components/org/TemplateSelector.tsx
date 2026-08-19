@@ -31,10 +31,18 @@ export const TEMPLATES: HierarchyTemplate[] = [
 interface Props {
   selected: string | null;
   onSelect: (key: string) => void;
+  /** Suggested by the industry chosen during Setup. Never auto-selected. */
+  recommendedKey?: string | null;
 }
 
-const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTemplate; active: boolean; onSelect: () => void }) => {
+const TemplateCard = ({
+  template,
+  active,
+  recommended = false,
+  onSelect,
+}: { template: HierarchyTemplate; active: boolean; recommended?: boolean; onSelect: () => void }) => {
   const Icon = template.icon;
+
 
   return (
     <button
@@ -53,6 +61,13 @@ const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTempl
       >
         <Check className="h-3 w-3 text-primary-foreground" />
       </div>
+
+      {recommended && !active && (
+        <span className="absolute top-3 right-3 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          Recommended
+        </span>
+      )}
+
 
       {/* Icon + Name */}
       <div className="flex items-center gap-2.5 mb-1.5">
@@ -95,15 +110,17 @@ const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTempl
   );
 };
 
-const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect }, ref) => (
-  <div ref={ref} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect, recommendedKey = null }, ref) => (
+  <div ref={ref} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
     {TEMPLATES.map((t) => (
       <TemplateCard
         key={t.key}
         template={t}
         active={selected === t.key}
+        recommended={recommendedKey === t.key}
         onSelect={() => onSelect(t.key)}
       />
+
     ))}
   </div>
 ));

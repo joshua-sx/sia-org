@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import { useEmployees } from "@/hooks/useEmployees";
+import { toast } from "sonner";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
@@ -22,7 +23,7 @@ const AppraisalCycles = () => {
   const navigate = useNavigate();
   const { data: cycles = [], isLoading, isError, error, refetch } = useAppraisalCycles();
   const { data: employees = [] } = useEmployees();
-  const { isOnboarding, steps } = useOnboarding();
+  const { isOnboarding, steps, markComplete, finishSetup } = useOnboarding();
   const [formOpen, setFormOpen] = useState(false);
 
   const isHr = profile?.role === "hr_admin";
@@ -170,13 +171,19 @@ const AppraisalCycles = () => {
   return showOnboardingChrome ? (
     <OnboardingStepFrame
       stepKey="cycle"
-      eyebrow="Cycle"
       title="Create your first cycle"
-      subtitle="Set the timeline, review stages, and scoring."
-      statusLabel={
-        cycleReady ? "Cycle launched" : cycles.length > 0 ? "Cycle not launched yet" : "No cycle yet"
-      }
-      continueLabel="Review setup"
+      subtitle="Set the review timeline. Nothing is sent until you launch it."
+      primaryLabel="Finish setup"
+      primaryDisabled={cycles.length === 0}
+      disabledReason="Create a cycle to finish setup."
+      onPrimary={async () => {
+        try {
+          await markComplete("cycle");
+          await finishSetup();
+        } catch (e: unknown) {
+          toast.error(e instanceof Error ? e.message : "Could not finish setup");
+        }
+      }}
     >
       {pageInner}
     </OnboardingStepFrame>

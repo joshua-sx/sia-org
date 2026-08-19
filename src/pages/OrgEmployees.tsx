@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
@@ -39,7 +39,8 @@ const OrgEmployees = () => {
     deleteEmployee,
   } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { isOnboarding } = useOnboarding();
+  const { isOnboarding, markComplete } = useOnboarding();
+  const navigate = useNavigate();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -58,11 +59,12 @@ const OrgEmployees = () => {
   // A single employee has nobody to report to — a manager link isn't
   // possible yet, so don't gate on it until there's a second person.
   const ready = employees.length >= 1 && (hasManagerLink || employees.length === 1);
-  const readyHint = employees.length === 0
-    ? "Add at least 1 employee to continue."
+  const blockingReason = employees.length === 0
+    ? "No employees added yet. Add at least one employee to continue."
     : !hasManagerLink && employees.length > 1
-      ? "Assign a manager relationship to continue."
-      : `${employees.length} ${employees.length === 1 ? "person" : "people"} added — ready to continue.`;
+      ? "Assign the required manager relationships to continue."
+      : undefined;
+  const readyHint = blockingReason ?? `${employees.length} ${employees.length === 1 ? "person" : "people"} added — ready to continue.`;
 
   useStepReadiness("people", ready, readyHint);
 
@@ -188,19 +190,28 @@ const OrgEmployees = () => {
   return (
     <>
       <PageHead
-        title="Employees | SIA"
+        title={isOnboarding ? "Add people | SIA" : "Employees | SIA"}
         description="Add and manage employees and manager relationships for your organization."
         path="/org/employees"
+        noIndex={isOnboarding}
       />
       {isOnboarding ? (
         <OnboardingStepFrame
           stepKey="people"
-          eyebrow="People"
           title="Add your people"
-          subtitle="Add your team and place each person in the organization."
-          statusLabel={readyHint}
-          continueLabel="Continue"
-          caption="No one is emailed until you launch a cycle."
+          subtitle="Import your employee list or add people one at a time."
+          primaryLabel="Continue"
+          primaryDisabled={!ready}
+          disabledReason={blockingReason}
+          onPrimary={async () => {
+            try {
+              await markComplete("people");
+            } catch (e: unknown) {
+              toast.error(e instanceof Error ? e.message : "Could not save this step");
+              return;
+            }
+            navigate("/appraisals");
+          }}
         >
           {pageInner}
         </OnboardingStepFrame>

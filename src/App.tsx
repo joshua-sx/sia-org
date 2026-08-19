@@ -22,6 +22,7 @@ import OAuthConsent from "./pages/OAuthConsent";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import CompleteSignup from "./pages/CompleteSignup";
+import OnboardingSetup from "./pages/OnboardingSetup";
 import BlogPerformanceManagementExamples from "./pages/BlogPerformanceManagementExamples";
 import OnboardingPreview from "./pages/dev/OnboardingPreview";
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/complete-signup" element={<CompleteSignup />} />
+            <Route path="/onboarding/setup" element={<OnboardingSetup />} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             {devRoutes}
             <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />

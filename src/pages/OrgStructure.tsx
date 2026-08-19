@@ -11,6 +11,7 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import SetupWizard from "@/components/org/SetupWizard";
+import OnboardingStructureBuilder from "@/components/org/OnboardingStructureBuilder";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
 import AddUnitModal from "@/components/org/AddUnitModal";
@@ -20,7 +21,7 @@ import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const OrgStructure = () => {
-  const { profile } = useAuth();
+  const { profile, organization } = useAuth();
   const navigate = useNavigate();
   const { markComplete, isOnboarding } = useOnboarding();
   const {
@@ -132,22 +133,51 @@ const OrgStructure = () => {
   }
 
   if (showWizard) {
+    const finishStructure = async () => {
+      try {
+        await markComplete("structure");
+      } catch (e: unknown) {
+        toast.error(e instanceof Error ? e.message : "Could not mark step complete");
+      }
+      setWizardDone(true);
+      navigate(isOnboarding ? "/org/employees" : "/dashboard");
+    };
+
+    if (isOnboarding) {
+      return (
+        <>
+          <PageHead
+            title="Set up structure | SIA"
+            description="Build the org hierarchy that powers your appraisal cycles."
+            path="/org/structure"
+            noIndex
+          />
+          <OnboardingStepFrame
+            stepKey="structure"
+            title="Build your organization"
+            subtitle="Choose a structure, then add the teams and departments your people belong to."
+            primaryLabel="Continue"
+            hideFooter
+          >
+            <OnboardingStructureBuilder
+              industry={organization?.industry}
+              onComplete={finishStructure}
+              createTypes={createTypes}
+              addUnit={addUnit}
+            />
+          </OnboardingStepFrame>
+        </>
+      );
+    }
+
     return (
       <SetupWizard
-        isOnboarding={isOnboarding}
-        onComplete={async () => {
-          try {
-            await markComplete("structure");
-          } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : "Could not mark step complete";
-            toast.error(message);
-          }
-          setWizardDone(true);
-          navigate(isOnboarding ? "/org/employees" : "/dashboard");
-        }}
+        isOnboarding={false}
+        onComplete={finishStructure}
         createTypes={createTypes}
         addUnit={addUnit}
       />
+
     );
   }
 
@@ -228,23 +258,28 @@ const OrgStructure = () => {
   return (
     <>
       <PageHead
-        title="Organization structure | SIA"
+        title={isOnboarding ? "Set up structure | SIA" : "Organization structure | SIA"}
         description="Build the org hierarchy that powers your appraisal cycles."
         path="/org/structure"
+        noIndex={isOnboarding}
       />
       {isOnboarding ? (
         <OnboardingStepFrame
           stepKey="structure"
-          eyebrow="Organization"
           title="Build your organization"
-          subtitle="Create the structure your people and reviews will use."
-          statusLabel={
-            units.length > 0
-              ? `${units.length} ${units.length === 1 ? "unit" : "units"} ready`
-              : "No units yet"
-          }
-          continueLabel="Continue"
-          caption="You can update your structure later."
+          subtitle="Choose a structure, then add the teams and departments your people belong to."
+          primaryLabel="Continue"
+          primaryDisabled={units.length === 0}
+          disabledReason="Add at least one organization unit to continue."
+          onPrimary={async () => {
+            try {
+              await markComplete("structure");
+            } catch (e: unknown) {
+              toast.error(e instanceof Error ? e.message : "Could not save this step");
+              return;
+            }
+            navigate("/org/employees");
+          }}
         >
           {pageInner}
         </OnboardingStepFrame>
@@ -255,6 +290,7 @@ const OrgStructure = () => {
     </>
   );
 };
+
 
 export default OrgStructure;
 

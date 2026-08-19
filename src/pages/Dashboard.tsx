@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
@@ -9,7 +9,6 @@ import { DashboardAppraisalCard } from "@/components/appraisals/DashboardApprais
 import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
-import { SetupDashboard } from "@/pages/SetupDashboard";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
@@ -31,9 +30,13 @@ const Dashboard = () => {
   const justCompleted =
     (location.state as { setupJustCompleted?: boolean } | null)?.setupJustCompleted === true;
 
-  if (!setupComplete) {
-    return <SetupDashboard />;
+  // The real Dashboard only exists after onboarding. While setup is
+  // incomplete, send the admin to the step they're on.
+  if (!setupComplete && !justCompleted) {
+    const nextStep = steps.find((s) => !s.done && !s.skipped && s.href) ?? steps[1];
+    return <Navigate to={nextStep?.href ?? "/org/structure"} replace />;
   }
+
 
   const firstName = profile?.full_name?.split(" ")[0];
   const remaining = steps.filter((s) => !s.done);
