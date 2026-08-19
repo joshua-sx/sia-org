@@ -150,7 +150,7 @@ const AppraisalCycles = () => {
                     Goals {formatWindow(cycle.goal_window_start, cycle.goal_window_end)} · Interim{" "}
                     {formatWindow(cycle.interim_window_start, cycle.interim_window_end)} · Final{" "}
                     {formatWindow(cycle.final_window_start, cycle.final_window_end)} · Acknowledge by{" "}
-                    {cycle.acknowledgement_due}
+                    {formatDate(cycle.acknowledgement_due)}
                   </p>
                 </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-[hsl(var(--ink-subtle))]" />
