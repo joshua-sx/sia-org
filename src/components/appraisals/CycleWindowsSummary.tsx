@@ -1,4 +1,4 @@
-import { formatWindow, windowState } from "@/lib/cycleSchema";
+import { formatDate, formatWindow, windowState } from "@/lib/cycleSchema";
 
 export function CycleWindowsSummary({
   cycle,
@@ -49,7 +49,7 @@ export function CycleWindowsSummary({
       })}
       <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4">
         <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Acknowledgement due</p>
-        <p className="mt-1 text-sm font-medium text-foreground tabular-nums">{cycle.acknowledgement_due}</p>
+        <p className="mt-1 text-sm font-medium text-foreground tabular-nums">{formatDate(cycle.acknowledgement_due)}</p>
       </div>
     </div>
   );
