@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { cycleFormSchema, windowState, canAcknowledge, type CycleFormValues } from "@/lib/cycleSchema";
+import {
+  cycleFormSchema,
+  formatDate,
+  formatWindow,
+  windowState,
+  canAcknowledge,
+  type CycleFormValues,
+} from "@/lib/cycleSchema";
 
 function validForm(): CycleFormValues {
   return {
