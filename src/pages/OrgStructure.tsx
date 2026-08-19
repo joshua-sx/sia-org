@@ -11,6 +11,7 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import SetupWizard from "@/components/org/SetupWizard";
+import OnboardingStructureBuilder from "@/components/org/OnboardingStructureBuilder";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
 import AddUnitModal from "@/components/org/AddUnitModal";
@@ -20,7 +21,7 @@ import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const OrgStructure = () => {
-  const { profile } = useAuth();
+  const { profile, organization } = useAuth();
   const navigate = useNavigate();
   const { markComplete, isOnboarding } = useOnboarding();
   const {
