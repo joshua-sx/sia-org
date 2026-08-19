@@ -45,7 +45,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/complete-signup" element={<CompleteSignup />} />
-            <Route path="/onboarding/setup" element={<OnboardingSetup />} />
+            <Route path="/onboarding/setup" element={<SessionRoute><AppLayout><OnboardingSetup /></AppLayout></SessionRoute>} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             {devRoutes}
             <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
