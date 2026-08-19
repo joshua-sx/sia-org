@@ -108,9 +108,33 @@ export function windowState(start: string, end: string, today = todayISO()): Win
   return "open";
 }
 
-export function formatWindow(start: string, end: string): string {
-  return `${start} → ${end}`;
+const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
+const dateWithYearFormatter = new Intl.DateTimeFormat(undefined, {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+
+/** Format a single ISO date for display, e.g. "Jul 8, 2026". */
+export function formatDate(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  return dateWithYearFormatter.format(d);
 }
+
+/**
+ * Format a date window for display, e.g. "Jul 8 → Jul 18, 2026".
+ * Omits the year on the start date when it matches the end date's year,
+ * and includes both years when they differ.
+ */
+export function formatWindow(start: string, end: string): string {
+  const startDate = new Date(`${start}T00:00:00`);
+  const endDate = new Date(`${end}T00:00:00`);
+  const sameYear = startDate.getFullYear() === endDate.getFullYear();
+  const startStr = sameYear ? dateFormatter.format(startDate) : dateWithYearFormatter.format(startDate);
+  const endStr = dateWithYearFormatter.format(endDate);
+  return `${startStr} → ${endStr}`;
+}
+
 
 /**
  * Whether the employee may acknowledge their review right now. Mirrors the
