@@ -62,6 +62,13 @@ const TemplateCard = ({
         <Check className="h-3 w-3 text-primary-foreground" />
       </div>
 
+      {recommended && !active && (
+        <span className="absolute top-3 right-3 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          Recommended
+        </span>
+      )}
+
+
       {/* Icon + Name */}
       <div className="flex items-center gap-2.5 mb-1.5">
         <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
