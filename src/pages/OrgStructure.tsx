@@ -132,22 +132,51 @@ const OrgStructure = () => {
   }
 
   if (showWizard) {
+    const finishStructure = async () => {
+      try {
+        await markComplete("structure");
+      } catch (e: unknown) {
+        toast.error(e instanceof Error ? e.message : "Could not mark step complete");
+      }
+      setWizardDone(true);
+      navigate(isOnboarding ? "/org/employees" : "/dashboard");
+    };
+
+    if (isOnboarding) {
+      return (
+        <>
+          <PageHead
+            title="Set up structure | SIA"
+            description="Build the org hierarchy that powers your appraisal cycles."
+            path="/org/structure"
+            noIndex
+          />
+          <OnboardingStepFrame
+            stepKey="structure"
+            title="Build your organization"
+            subtitle="Choose a structure, then add the teams and departments your people belong to."
+            primaryLabel="Continue"
+            hideFooter
+          >
+            <OnboardingStructureBuilder
+              industry={organization?.industry}
+              onComplete={finishStructure}
+              createTypes={createTypes}
+              addUnit={addUnit}
+            />
+          </OnboardingStepFrame>
+        </>
+      );
+    }
+
     return (
       <SetupWizard
-        isOnboarding={isOnboarding}
-        onComplete={async () => {
-          try {
-            await markComplete("structure");
-          } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : "Could not mark step complete";
-            toast.error(message);
-          }
-          setWizardDone(true);
-          navigate(isOnboarding ? "/org/employees" : "/dashboard");
-        }}
+        isOnboarding={false}
+        onComplete={finishStructure}
         createTypes={createTypes}
         addUnit={addUnit}
       />
+
     );
   }
 
