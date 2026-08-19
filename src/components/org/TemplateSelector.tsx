@@ -110,15 +110,17 @@ const TemplateCard = ({
   );
 };
 
-const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect }, ref) => (
-  <div ref={ref} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+const TemplateSelector = React.forwardRef<HTMLDivElement, Props>(({ selected, onSelect, recommendedKey = null }, ref) => (
+  <div ref={ref} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
     {TEMPLATES.map((t) => (
       <TemplateCard
         key={t.key}
         template={t}
         active={selected === t.key}
+        recommended={recommendedKey === t.key}
         onSelect={() => onSelect(t.key)}
       />
+
     ))}
   </div>
 ));
