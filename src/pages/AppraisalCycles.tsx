@@ -17,6 +17,7 @@ import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { OrgScoringSettingsCard } from "@/components/appraisals/OrgScoringSettingsCard";
 import { formatDate, formatWindow } from "@/lib/cycleSchema";
 import { QueryError, QueryLoading } from "@/components/QueryState";
+import { playSetupCompleteCue } from "@/lib/completionSounds";
 
 const AppraisalCycles = () => {
   const { profile } = useAuth();
@@ -179,6 +180,7 @@ const AppraisalCycles = () => {
       onPrimary={async () => {
         try {
           await markComplete("cycle");
+          playSetupCompleteCue();
           await finishSetup();
         } catch (e: unknown) {
           toast.error(e instanceof Error ? e.message : "Could not finish setup");

@@ -17,6 +17,7 @@ import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModa
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
+import { playSuccessCue } from "@/lib/completionSounds";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -210,6 +211,7 @@ const OrgEmployees = () => {
               toast.error(e instanceof Error ? e.message : "Could not save this step");
               return;
             }
+            playSuccessCue();
             navigate("/appraisals");
           }}
         >

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { PageHead } from "@/components/PageHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 export const INDUSTRIES = ["Government", "Aviation", "Healthcare", "Education", "Finance", "Hospitality", "Other"];
 const COUNTRIES = [
@@ -85,6 +86,7 @@ export default function OnboardingSetup() {
       return;
     }
     await supabase.auth.refreshSession();
+    playSuccessCue();
     window.location.href = "/org/structure";
   };
 

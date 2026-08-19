@@ -21,6 +21,7 @@ import {
 import { friendlyError } from "@/lib/siaErrors";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import { useEmployees } from "@/hooks/useEmployees";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 interface Props {
   open: boolean;
@@ -103,6 +104,7 @@ export function CycleFormModal({ open, onOpenChange, editing, onSaved }: Props) 
         const cycle = editing
           ? await updateCycle.mutateAsync({ id: editing.id, values })
           : await createCycle.mutateAsync(values);
+        playSuccessCue();
         toast.success(editing ? "Cycle updated" : "Cycle created");
         onOpenChange(false);
         onSaved?.(cycle);

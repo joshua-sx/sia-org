@@ -19,6 +19,7 @@ import CsvImportModal from "@/components/org/CsvImportModal";
 import EditLevelsModal from "@/components/org/EditLevelsModal";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 const OrgStructure = () => {
   const { profile, organization } = useAuth();
@@ -278,6 +279,7 @@ const OrgStructure = () => {
               toast.error(e instanceof Error ? e.message : "Could not save this step");
               return;
             }
+            playSuccessCue();
             navigate("/org/employees");
           }}
         >
@@ -293,4 +295,3 @@ const OrgStructure = () => {
 
 
 export default OrgStructure;
-

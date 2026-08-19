@@ -11,6 +11,7 @@ import TreePreview from "./TreePreview";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 /** Maps the industry chosen during Setup to a sensible template suggestion. */
 export function recommendedTemplateFor(industry?: string | null): string | null {
@@ -110,6 +111,7 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
       return;
     }
     setSaving(false);
+    playSuccessCue();
     await onComplete();
   };
 
