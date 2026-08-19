@@ -8,15 +8,17 @@ const STATUS_ACCENT: Record<CycleStatus, string> = {
 
 export function CycleStatusBadge({ status }: { status: CycleStatus }) {
   const accent = STATUS_ACCENT[status] ?? "--accent-blue";
+  // Yellow is too light for foreground text — use its readable ink variant.
+  const ink = accent === "--accent-yellow" ? "--accent-yellow-ink" : accent;
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium"
       style={{
         backgroundColor: `hsl(var(${accent}) / 0.12)`,
-        color: `hsl(var(${accent}))`,
+        color: `hsl(var(${ink}))`,
       }}
     >
-      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${accent}))` }} />
+      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${ink}))` }} />
       {CYCLE_STATUS_LABELS[status] ?? status}
     </span>
   );

@@ -69,7 +69,7 @@ const AssessmentDetail = () => {
         <ArrowLeft className="h-3.5 w-3.5" /> All assessments
       </Link>
 
-      <p className="mt-3 mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-yellow))] uppercase tracking-wider">
+      <p className="mt-3 mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-yellow-ink))] uppercase tracking-wider">
         <ClipboardCheck className="h-3.5 w-3.5" />
         Appraisals
       </p>

@@ -29,6 +29,8 @@
     --accent-blue: 217 89% 61%;
     --accent-red: 4 81% 56%;
     --accent-yellow: 45 97% 51%;
+    /* Readable ink variant for yellow used as foreground text/glyphs */
+    --accent-yellow-ink: 38 92% 30%;
     --accent-green: 137 55% 43%;
     /* People / Employees identity accent */
     --accent-purple: 268 72% 56%;
@@ -77,6 +79,8 @@
 
     --accent-purple: 268 78% 70%;
     --accent-purple-ink: 268 78% 78%;
+
+    --accent-yellow-ink: 45 90% 68%;
 
     --card: 220 25% 10%;
     --card-foreground: 210 20% 98%;
