@@ -60,7 +60,7 @@ export function OnboardingActionFooter({
   );
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-[hsl(var(--hairline))] pt-5">
+    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-[hsl(var(--hairline))] py-5">
       {backHref && (
         <Button
           type="button"
