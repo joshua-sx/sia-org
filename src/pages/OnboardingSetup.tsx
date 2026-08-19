@@ -27,7 +27,7 @@ interface SetupForm {
 /** Step 1 of onboarding. Creates the organization and the administrator profile. */
 export default function OnboardingSetup() {
   const navigate = useNavigate();
-  const { user, profile, loading } = useAuth();
+  const { user, profile, organization, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<SetupForm>({
     first_name: "",
@@ -41,17 +41,20 @@ export default function OnboardingSetup() {
   useEffect(() => {
     if (loading) return;
     if (!user) { navigate("/login", { replace: true }); return; }
-    if (profile) { navigate("/org/structure", { replace: true }); return; }
-    const name = (user.user_metadata?.full_name || user.user_metadata?.name || "") as string;
-    if (name) {
-      const parts = name.trim().split(/\s+/);
-      setForm((f) => ({
-        ...f,
-        first_name: f.first_name || parts[0] || "",
-        last_name: f.last_name || parts.slice(1).join(" "),
-      }));
-    }
-  }, [user, profile, loading, navigate]);
+    // The workspace may already exist (returning admin revisiting step 1) —
+    // show the saved details instead of bouncing off the page.
+    const name = (profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || "") as string;
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    setForm((f) => ({
+      first_name: f.first_name || parts[0] || "",
+      last_name: f.last_name || parts.slice(1).join(" "),
+      org_name: f.org_name || organization?.name || "",
+      country: f.country || organization?.country || "",
+      industry: f.industry || organization?.industry || "",
+    }));
+  }, [user, profile, organization, loading, navigate]);
+
+  const alreadySetUp = !!profile && !!organization;
 
   const validate = () => {
     const errs: Partial<Record<keyof SetupForm, string>> = {};
@@ -65,6 +68,7 @@ export default function OnboardingSetup() {
   };
 
   const submit = async () => {
+    if (alreadySetUp) { navigate("/org/structure"); return; }
     if (!validate()) return;
     setSubmitting(true);
     // The backend still stores a single `full_name`; join at the API boundary.
