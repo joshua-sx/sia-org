@@ -160,7 +160,7 @@ export function deriveScreen(state: PreviewFlowState): DerivedScreen {
         globalStep: 3,
         completedThrough: 2,
         eyebrow: "PEOPLE",
-        eyebrowAccent: "--accent-yellow",
+        eyebrowAccent: "--accent-purple",
         title: "Add your team",
         subtitle: "Import a CSV or add people manually.",
         criteria: [
@@ -181,7 +181,7 @@ export function deriveScreen(state: PreviewFlowState): DerivedScreen {
         globalStep: 3,
         completedThrough: 2,
         eyebrow: "PEOPLE",
-        eyebrowAccent: "--accent-yellow",
+        eyebrowAccent: "--accent-purple",
         localStepLabel: "PEOPLE · CHECK 3 OF 3",
         title:
           openIssues.length > 0
@@ -291,7 +291,7 @@ export const PIPELINE_KEY_BY_GLOBAL_STEP: Record<1 | 2 | 3 | 4, OnboardingStepKe
 const PIPELINE_STEP_META: { key: OnboardingStepKey; label: string; icon: OnboardingStep["icon"]; accent: string }[] = [
   { key: "account", label: "Account", icon: UserCircle2, accent: "--accent-blue" },
   { key: "structure", label: "Structure", icon: Building2, accent: "--accent-red" },
-  { key: "people", label: "People", icon: Users, accent: "--accent-yellow" },
+  { key: "people", label: "People", icon: Users, accent: "--accent-purple" },
   { key: "cycle", label: "Launch", icon: CalendarClock, accent: "--accent-green" },
 ];
 

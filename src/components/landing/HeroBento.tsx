@@ -1,77 +1,136 @@
-import { Target, CheckCircle2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { COLORS, cardBase } from "./constants";
-import { FadeBlock, IconTile } from "./primitives";
+import { motion } from "framer-motion";
+import { Check, FileSpreadsheet, Mail, Users } from "lucide-react";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
+import { COLORS, GROTESK } from "./constants";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+function SourceCard({
+  icon: Icon,
+  label,
+  detail,
+  className,
+  delay,
+}: {
+  icon: typeof FileSpreadsheet;
+  label: string;
+  detail: string;
+  className: string;
+  delay: number;
+}) {
+  const reduceMotion = usePrefersReducedMotion();
+
+  return (
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, delay, ease }}
+      className={`absolute hidden items-center gap-3 rounded-2xl bg-white/90 px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_18px_50px_-24px_rgba(0,0,0,0.22)] outline outline-1 outline-black/5 backdrop-blur md:flex ${className}`}
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black/[0.04] text-black/55">
+        <Icon size={17} strokeWidth={1.7} />
+      </span>
+      <span>
+        <span className="block text-sm font-medium text-black/80">{label}</span>
+        <span className="mt-0.5 block text-xs text-black/45">{detail}</span>
+      </span>
+    </motion.div>
+  );
+}
 
 export function HeroBento() {
+  const reduceMotion = usePrefersReducedMotion();
+
   return (
-    <div className="mt-14 md:mt-20 grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-4 md:gap-5 md:auto-rows-[180px]">
-      <FadeBlock custom={0} className={cn(cardBase, "md:col-span-4 md:row-span-2 overflow-hidden flex flex-col")}>
-        <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/[0.06]">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-          <span className="ml-3 text-xs text-black/60">SIA — Q3 Appraisal Cycle</span>
-        </div>
-        <div className="p-5 md:p-7 grid grid-cols-3 gap-5 flex-1">
-          {[
-            { label: "Completion", value: "87%", bar: 87, color: COLORS.blue },
-            { label: "Submitted", value: "342", bar: 68, color: COLORS.green },
-            { label: "Avg. Rating", value: "4.2", bar: 84, color: COLORS.yellow },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col gap-2">
-              <span className="text-[11px] uppercase tracking-wide text-black/60 font-medium">{s.label}</span>
-              <span className="text-3xl font-bold tracking-tight tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                {s.value}
-              </span>
-              <div className="w-full h-1.5 bg-black/[0.05] rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${s.bar}%`, backgroundColor: s.color }} />
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="px-5 md:px-7 pb-6 space-y-2">
-          {[
-            { name: "Engineering", pct: 92, color: COLORS.blue },
-            { name: "Operations", pct: 78, color: COLORS.green },
-            { name: "Customer Success", pct: 64, color: COLORS.yellow },
-          ].map((r) => (
-            <div key={r.name} className="flex items-center gap-4 text-xs">
-              <span className="w-40 text-black/70 truncate">{r.name}</span>
-              <div className="flex-1 h-1 bg-black/[0.05] rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${r.pct}%`, backgroundColor: r.color }} />
-              </div>
-              <span className="tabular-nums text-black/50 w-8 text-right">{r.pct}%</span>
-            </div>
-          ))}
-        </div>
-      </FadeBlock>
+    <div
+      className="relative mx-auto mt-14 max-w-[1040px] py-8 md:mt-20 md:min-h-[520px] md:py-16"
+      aria-label="An appraisal cycle moving from scattered work into one clear view"
+    >
+      <div
+        aria-hidden
+        className="absolute inset-x-[12%] top-[8%] h-[78%] rounded-full blur-3xl"
+        style={{ background: `radial-gradient(circle, ${COLORS.blue}18 0%, ${COLORS.blue}08 40%, transparent 72%)` }}
+      />
 
-      <FadeBlock custom={1} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col justify-between")}>
-        <IconTile icon={Target} color={COLORS.blue} />
-        <div>
-          <div className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            1,284
+      <SourceCard icon={FileSpreadsheet} label="Goals spreadsheet" detail="Last updated yesterday" className="left-0 top-12 -rotate-2" delay={0.22} />
+      <SourceCard icon={Mail} label="Reminder emails" detail="Seven still to send" className="right-0 top-24 rotate-2" delay={0.32} />
+      <SourceCard icon={Users} label="Manager updates" detail="Waiting on replies" className="bottom-12 left-10 rotate-1" delay={0.42} />
+
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.75, delay: 0.1, ease }}
+        className="relative mx-auto w-full max-w-[690px] overflow-hidden rounded-[28px] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.04),0_32px_90px_-42px_rgba(0,0,0,0.28)] outline outline-1 outline-black/[0.07]"
+      >
+        <div className="flex items-center justify-between border-b border-black/[0.06] px-5 py-4 md:px-7">
+          <div className="flex items-center gap-2">
+            <span className="flex gap-[3px]" aria-hidden>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.purple }} />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+            </span>
+            <span className="text-xs font-semibold tracking-tight text-black/70">SIA</span>
           </div>
-          <div className="text-xs text-black/50 mt-1">Goals cascaded this quarter</div>
-        </div>
-      </FadeBlock>
-
-      <FadeBlock custom={2} className={cn(cardBase, "md:col-span-2 p-5 flex flex-col gap-3")}>
-        <div className="flex items-center gap-2">
-          <CheckCircle2 size={16} style={{ color: COLORS.green }} />
-          <span className="text-xs font-medium text-black/70">Review submitted</span>
-        </div>
-        <div className="text-sm text-black/60 leading-snug">
-          <span className="font-medium text-black">Priya M.</span> completed her 360° review for Q3
-        </div>
-        <div className="flex gap-1.5 mt-auto">
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ backgroundColor: `${COLORS.green}1A`, color: COLORS.green }}>
-            On time
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-black/60">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+            On track
           </span>
-          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-black/[0.05] text-black/60">Manager</span>
         </div>
-      </FadeBlock>
+
+        <div className="p-5 md:p-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/40">Annual review</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-black md:text-3xl" style={{ fontFamily: GROTESK }}>
+                Everyone knows what comes next.
+              </h2>
+            </div>
+            <div className="shrink-0">
+              <span className="text-4xl font-semibold tracking-[-0.04em] tabular-nums text-black" style={{ fontFamily: GROTESK }}>74%</span>
+              <span className="ml-2 text-sm text-black/45">complete</span>
+            </div>
+          </div>
+
+          <div className="mt-7 h-2 overflow-hidden rounded-full bg-black/[0.05]">
+            <motion.div
+              initial={reduceMotion ? { width: "74%" } : { width: "0%" }}
+              animate={{ width: "74%" }}
+              transition={{ duration: 0.9, delay: 0.5, ease }}
+              className="h-full rounded-full"
+              style={{ backgroundColor: COLORS.blue }}
+            />
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {[
+              ["Goals", "Complete", COLORS.blue],
+              ["Reviews", "In progress", COLORS.purple],
+              ["Sign-off", "Up next", COLORS.green],
+            ].map(([label, status, color], index) => (
+              <motion.div
+                key={label}
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.55 + index * 0.08, ease }}
+                className="rounded-2xl bg-[#f7f7f8] p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-black/75">{label}</span>
+                  {index === 0 ? (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full text-white" style={{ backgroundColor: color }}>
+                      <Check size={12} strokeWidth={2.2} />
+                    </span>
+                  ) : (
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+                  )}
+                </div>
+                <p className="mt-5 text-xs text-black/60">{status}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

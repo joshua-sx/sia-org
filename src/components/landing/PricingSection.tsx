@@ -173,7 +173,7 @@ export function PricingSection() {
                 />
                 <div
                   className="absolute top-1/2 left-1/3 w-56 h-56 rounded-full blur-3xl -translate-y-1/2"
-                  style={{ backgroundColor: `${COLORS.yellow}1F` }}
+                  style={{ backgroundColor: `${COLORS.purple}1F` }}
                 />
               </div>
 

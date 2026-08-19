@@ -2,65 +2,63 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
-import { COLORS, fadeUp, GROTESK } from "./constants";
+import { COLORS, GROTESK } from "./constants";
 import { Section } from "./primitives";
 import { HeroBento } from "./HeroBento";
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export function LandingHero() {
   const reduceMotion = usePrefersReducedMotion();
 
-  const heroContent = (
-    <>
-      <span className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-black/50 mb-6">
-        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
-        Performance management for structured orgs
-      </span>
-      <h1
-        className="text-[clamp(44px,6.5vw,78px)] leading-[1.02] tracking-[-0.03em] mb-7 text-balance font-semibold"
-        style={{ fontFamily: GROTESK }}
-      >
-        Run appraisals that actually work.
-      </h1>
-      <p className="text-lg md:text-xl text-black/60 max-w-[640px] mx-auto leading-relaxed mb-10 text-pretty">
-        One system for goal-setting, 360° reviews, and performance analytics — built for government, aviation, healthcare, and education.
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <Link
-          to="/signup"
-          className="inline-flex items-center gap-2 bg-black text-white font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm shadow-[0_1px_2px_rgba(0,0,0,0.08),0_8px_24px_-12px_rgba(0,0,0,0.25)]"
-        >
-          Get started free <ArrowRight size={16} />
-        </Link>
-        <button
-          onClick={() =>
-            document.querySelector("#how")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" })
-          }
-          className="inline-flex items-center gap-2 text-sm font-medium text-black/80 hover:text-black bg-white border border-black/[0.12] hover:border-black/[0.24] px-6 py-3 rounded-full transition-colors"
-        >
-          See how it works
-        </button>
-      </div>
-    </>
-  );
-
   return (
-    <div className="pt-32 pb-20 md:pt-44 md:pb-32 bg-white">
+    <div className="relative overflow-hidden bg-white pb-20 pt-32 md:pb-28 md:pt-44">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-0 h-[540px] w-[900px] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: `radial-gradient(circle, ${COLORS.blue}12 0%, transparent 68%)` }}
+      />
       <Section>
-        {reduceMotion ? (
-          <div className="max-w-[860px] mx-auto text-center">{heroContent}</div>
-        ) : (
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-[860px] mx-auto text-center">
-            {heroContent}
+        <motion.div
+          initial={reduceMotion ? false : "hidden"}
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
+          className="relative mx-auto max-w-[980px] text-center"
+        >
+          <motion.h1
+            variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease } } }}
+            className="text-balance text-[clamp(48px,7.6vw,92px)] font-semibold leading-[0.98] tracking-[-0.055em] text-black"
+            style={{ fontFamily: GROTESK }}
+          >
+            Performance reviews should move people forward.
+          </motion.h1>
+          <motion.p
+            variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } } }}
+            className="mx-auto mb-10 mt-8 max-w-[650px] text-pretty text-lg leading-relaxed text-black/60 md:text-xl"
+          >
+            One clear place for goals, feedback, and every step in between.
+          </motion.p>
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease } } }}
+            className="flex flex-wrap items-center justify-center gap-3"
+          >
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white shadow-[0_1px_2px_rgba(0,0,0,0.1),0_12px_30px_-16px_rgba(0,0,0,0.4)] transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            >
+              Get started <ArrowRight size={16} strokeWidth={1.8} />
+            </Link>
+            <button
+              type="button"
+              onClick={() => document.querySelector("#why")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" })}
+              className="rounded-full border border-black/[0.12] bg-white px-6 py-3 text-sm font-medium text-black/75 transition-[color,border-color,transform] duration-150 hover:border-black/25 hover:text-black active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            >
+              See how SIA works
+            </button>
           </motion.div>
-        )}
+        </motion.div>
 
-        {reduceMotion ? (
-          <HeroBento />
-        ) : (
-          <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } }}>
-            <HeroBento />
-          </motion.div>
-        )}
+        <HeroBento />
       </Section>
     </div>
   );
