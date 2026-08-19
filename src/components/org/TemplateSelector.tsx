@@ -31,10 +31,18 @@ export const TEMPLATES: HierarchyTemplate[] = [
 interface Props {
   selected: string | null;
   onSelect: (key: string) => void;
+  /** Suggested by the industry chosen during Setup. Never auto-selected. */
+  recommendedKey?: string | null;
 }
 
-const TemplateCard = ({ template, active, onSelect }: { template: HierarchyTemplate; active: boolean; onSelect: () => void }) => {
+const TemplateCard = ({
+  template,
+  active,
+  recommended = false,
+  onSelect,
+}: { template: HierarchyTemplate; active: boolean; recommended?: boolean; onSelect: () => void }) => {
   const Icon = template.icon;
+
 
   return (
     <button
