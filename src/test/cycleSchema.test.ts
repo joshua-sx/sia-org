@@ -74,6 +74,26 @@ describe("windowState", () => {
   });
 });
 
+describe("formatWindow", () => {
+  it("formats a same-month window as 'Jul 8 → Jul 18, 2026'", () => {
+    expect(formatWindow("2026-07-08", "2026-07-18")).toBe("Jul 8 → Jul 18, 2026");
+  });
+
+  it("formats a different-month same-year window as 'Jul 30 → Aug 1, 2026'", () => {
+    expect(formatWindow("2026-07-30", "2026-08-01")).toBe("Jul 30 → Aug 1, 2026");
+  });
+
+  it("formats a year-spanning window as 'Dec 28, 2026 → Jan 3, 2027'", () => {
+    expect(formatWindow("2026-12-28", "2027-01-03")).toBe("Dec 28, 2026 → Jan 3, 2027");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats a single date as 'Jul 8, 2026'", () => {
+    expect(formatDate("2026-07-08")).toBe("Jul 8, 2026");
+  });
+});
+
 describe("canAcknowledge", () => {
   it("is false before the overall score exists", () => {
     expect(canAcknowledge({ overall_score: null, acknowledged_at: null })).toBe(false);
