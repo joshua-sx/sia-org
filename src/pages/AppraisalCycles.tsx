@@ -15,7 +15,7 @@ import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { OrgScoringSettingsCard } from "@/components/appraisals/OrgScoringSettingsCard";
-import { formatWindow } from "@/lib/cycleSchema";
+import { formatDate, formatWindow } from "@/lib/cycleSchema";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const AppraisalCycles = () => {
