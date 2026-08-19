@@ -137,7 +137,7 @@ export function OnboardingStepFrame({
   };
 
   return (
-    <div className="px-5 py-6 md:px-10 md:py-10">
+    <div className="px-5 pt-6 md:px-10 md:pt-10">
       <div className="mx-auto w-full max-w-5xl">
         <div className="text-center">
           <p
