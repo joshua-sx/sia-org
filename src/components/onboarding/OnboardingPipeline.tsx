@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Check, Minus } from "lucide-react";
+import { Minus } from "lucide-react";
 import type { OnboardingStep, OnboardingStepKey } from "@/hooks/useOnboarding";
 import { stepSegmentColor } from "./OnboardingStepFrame";
 
