@@ -170,13 +170,19 @@ const AppraisalCycles = () => {
   return showOnboardingChrome ? (
     <OnboardingStepFrame
       stepKey="cycle"
-      eyebrow="Cycle"
       title="Create your first cycle"
-      subtitle="Set the timeline, review stages, and scoring."
-      statusLabel={
-        cycleReady ? "Cycle launched" : cycles.length > 0 ? "Cycle not launched yet" : "No cycle yet"
-      }
-      continueLabel="Review setup"
+      subtitle="Set the review timeline. Nothing is sent until you launch it."
+      primaryLabel="Finish setup"
+      primaryDisabled={cycles.length === 0}
+      disabledReason="Create a cycle to finish setup."
+      onPrimary={async () => {
+        try {
+          await markComplete("cycle");
+          await finishSetup();
+        } catch (e: unknown) {
+          toast.error(e instanceof Error ? e.message : "Could not finish setup");
+        }
+      }}
     >
       {pageInner}
     </OnboardingStepFrame>

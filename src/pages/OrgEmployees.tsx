@@ -39,7 +39,7 @@ const OrgEmployees = () => {
     deleteEmployee,
   } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { isOnboarding } = useOnboarding();
+  const { isOnboarding, markComplete } = useOnboarding();
   const navigate = useNavigate();
 
   const [formOpen, setFormOpen] = useState(false);
