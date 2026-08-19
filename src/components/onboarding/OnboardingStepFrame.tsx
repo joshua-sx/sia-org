@@ -60,7 +60,7 @@ export function OnboardingActionFooter({
   );
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-[hsl(var(--hairline))] pt-5">
+    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-[hsl(var(--hairline))] py-5">
       {backHref && (
         <Button
           type="button"
@@ -137,7 +137,7 @@ export function OnboardingStepFrame({
   };
 
   return (
-    <div className="px-5 py-6 md:px-10 md:py-10">
+    <div className="px-5 pt-6 md:px-10 md:pt-10">
       <div className="mx-auto w-full max-w-5xl">
         <div className="text-center">
           <p
