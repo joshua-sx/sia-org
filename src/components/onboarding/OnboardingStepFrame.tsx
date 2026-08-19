@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { OnboardingStepKey } from "@/hooks/useOnboarding";
