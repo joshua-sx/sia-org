@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import { useEmployees } from "@/hooks/useEmployees";
+import { toast } from "sonner";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
@@ -22,7 +23,7 @@ const AppraisalCycles = () => {
   const navigate = useNavigate();
   const { data: cycles = [], isLoading, isError, error, refetch } = useAppraisalCycles();
   const { data: employees = [] } = useEmployees();
-  const { isOnboarding, steps } = useOnboarding();
+  const { isOnboarding, steps, markComplete, finishSetup } = useOnboarding();
   const [formOpen, setFormOpen] = useState(false);
 
   const isHr = profile?.role === "hr_admin";
