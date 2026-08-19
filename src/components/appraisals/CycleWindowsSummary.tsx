@@ -1,4 +1,4 @@
-import { formatWindow, windowState } from "@/lib/cycleSchema";
+import { formatDate, formatWindow, windowState } from "@/lib/cycleSchema";
 
 export function CycleWindowsSummary({
   cycle,
