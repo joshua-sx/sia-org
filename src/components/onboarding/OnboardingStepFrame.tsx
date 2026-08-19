@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { OnboardingStepKey } from "@/hooks/useOnboarding";
@@ -16,10 +15,11 @@ export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; 
 export type SegmentState = "done" | "current" | "upcoming";
 
 /** Shared color rule for every setup progress indicator: only the current
- *  step carries its brand color, everything else stays neutral. */
+ *  step carries its brand color, completed steps are black, and upcoming
+ *  steps stay neutral. */
 export function stepSegmentColor(opts: { accent: string; state: SegmentState | "skipped" }) {
   if (opts.state === "current") return `hsl(var(${opts.accent}))`;
-  if (opts.state === "done") return "hsl(var(--ink-subtle))";
+  if (opts.state === "done") return "hsl(var(--foreground))";
   return "hsl(var(--hairline))";
 }
 
@@ -166,11 +166,8 @@ export function OnboardingStepFrame({
                       transitionDuration: "150ms",
                     }}
                   />
-                  {state === "done" && (
-                    <Check className="h-3 w-3 shrink-0 text-[hsl(var(--ink-subtle))]" strokeWidth={2.5} />
-                  )}
-                </li>
-              );
+              </li>
+            );
             })}
           </ol>
 

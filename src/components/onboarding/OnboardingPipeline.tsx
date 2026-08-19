@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Check, Minus } from "lucide-react";
+import { Minus } from "lucide-react";
 import type { OnboardingStep, OnboardingStepKey } from "@/hooks/useOnboarding";
 import { stepSegmentColor } from "./OnboardingStepFrame";
 
@@ -59,7 +59,9 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
               color: `hsl(var(${step.accent}))`,
               boxShadow: `0 0 0 2px hsl(var(${step.accent}) / 0.35)`,
             }
-          : { color: "hsl(var(--ink-subtle))", border: "1px solid hsl(var(--hairline))" };
+          : isDone
+            ? { color: "hsl(var(--foreground))", border: "1px solid hsl(var(--foreground))" }
+            : { color: "hsl(var(--ink-subtle))", border: "1px solid hsl(var(--hairline))" };
 
         const canClick = step.href && (isDone || isSkipped || isCurrent);
 
@@ -69,17 +71,11 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
               className={`flex ${nodeDim} items-center justify-center rounded-full`}
               style={{ ...nodeStyle, transitionProperty: "background-color, box-shadow, color", transitionDuration: "200ms" }}
             >
-              {isDone ? (
-                <Check className={iconDim} strokeWidth={3} />
-              ) : isSkipped ? (
-                <Minus className={iconDim} />
-              ) : (
-                <Icon className={iconDim} />
-              )}
+              {isSkipped ? <Minus className={iconDim} /> : <Icon className={iconDim} />}
             </span>
             <span
               className={`${labelClass} font-medium leading-none ${
-                isCurrent ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
+                isCurrent || isDone ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
               }`}
             >
               {step.label}
