@@ -203,7 +203,15 @@ const OrgEmployees = () => {
           primaryLabel="Continue"
           primaryDisabled={!ready}
           disabledReason={blockingReason}
-          onPrimary={() => navigate("/appraisals")}
+          onPrimary={async () => {
+            try {
+              await markComplete("people");
+            } catch (e: unknown) {
+              toast.error(e instanceof Error ? e.message : "Could not save this step");
+              return;
+            }
+            navigate("/appraisals");
+          }}
         >
           {pageInner}
         </OnboardingStepFrame>
