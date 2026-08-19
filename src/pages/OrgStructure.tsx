@@ -228,23 +228,28 @@ const OrgStructure = () => {
   return (
     <>
       <PageHead
-        title="Organization structure | SIA"
+        title={isOnboarding ? "Set up structure | SIA" : "Organization structure | SIA"}
         description="Build the org hierarchy that powers your appraisal cycles."
         path="/org/structure"
+        noIndex={isOnboarding}
       />
       {isOnboarding ? (
         <OnboardingStepFrame
           stepKey="structure"
-          eyebrow="Organization"
           title="Build your organization"
-          subtitle="Create the structure your people and reviews will use."
-          statusLabel={
-            units.length > 0
-              ? `${units.length} ${units.length === 1 ? "unit" : "units"} ready`
-              : "No units yet"
-          }
-          continueLabel="Continue"
-          caption="You can update your structure later."
+          subtitle="Choose a structure, then add the teams and departments your people belong to."
+          primaryLabel="Continue"
+          primaryDisabled={units.length === 0}
+          disabledReason="Add at least one organization unit to continue."
+          onPrimary={async () => {
+            try {
+              await markComplete("structure");
+            } catch (e: unknown) {
+              toast.error(e instanceof Error ? e.message : "Could not save this step");
+              return;
+            }
+            navigate("/org/employees");
+          }}
         >
           {pageInner}
         </OnboardingStepFrame>
@@ -255,6 +260,7 @@ const OrgStructure = () => {
     </>
   );
 };
+
 
 export default OrgStructure;
 
