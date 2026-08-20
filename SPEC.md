@@ -1,8 +1,11 @@
 # Spec: Performance Appraisal Cycles
 
+> Product positioning, roles, and shipped-vs-not: **[`PRODUCT.md`](PRODUCT.md)** (source of truth).
+> This file is the cycle **feature** spec. Schema sketches below have drifted — live columns live in `supabase/migrations/` (e.g. `goals.participant_id`, `goals.weight`, not `cycle_participant_id` / `weight_pct`).
+
 ## Objective
 
-SIA's onboarding flow already promises a fourth setup step — "Launch" / create your first appraisal cycle — but it currently routes to a placeholder ("coming soon") toast. This feature builds the real thing: HR admins configure and run an annual, multi-stage performance appraisal cycle for their organization; managers set goals and submit assessments; employees acknowledge their final results.
+HR admins configure and run a multi-stage performance appraisal cycle; managers set goals and submit assessments; employees acknowledge their final results. The onboarding “Launch” step should land on real cycle creation, not a placeholder.
 
 **Users:**
 - **HR Admin** — configures cycle windows and org-wide scoring weights, launches the cycle, sees org-wide progress.
