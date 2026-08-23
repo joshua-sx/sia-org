@@ -27,6 +27,7 @@ import {
 } from "@/lib/employeeSchema";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
 import UnitPicker from "./UnitPicker";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 interface Props {
   open: boolean;
@@ -107,6 +108,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
       const saved = editing
         ? await updateEmployee.mutateAsync({ id: editing.id, values })
         : await createEmployee.mutateAsync(values);
+      playSuccessCue();
       onSaved?.(saved);
 
       if (keepOpen && !editing) {

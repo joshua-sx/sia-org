@@ -25,7 +25,7 @@ export function AppraisalsTabs() {
           to={tab.to}
           end={tab.end}
           className="relative -mb-px rounded-t-md px-3 py-2 text-sm text-[hsl(var(--ink-muted))] transition-colors hover:text-foreground"
-          activeClassName="!text-foreground font-medium after:absolute after:inset-x-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[hsl(var(--accent-yellow))]"
+          activeClassName="!text-foreground font-medium after:absolute after:inset-x-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[hsl(var(--accent-yellow-ink))]"
         >
           {tab.label}
         </NavLink>

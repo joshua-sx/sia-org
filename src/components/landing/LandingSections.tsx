@@ -1,239 +1,185 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUp, Sparkles, Twitter, Linkedin, Github } from "lucide-react";
+import { ArrowRight, Check, Linkedin, Twitter } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  AI_QUICK_ACTIONS,
-  COLORS,
-  FEATURES,
-  FOOTER_COLUMNS,
-  GROTESK,
-  INDUSTRIES,
-  STEPS,
-  cardBase,
-} from "./constants";
-import { FadeBlock, IconTile, Section, SectionReveal } from "./primitives";
-import { PricingSection } from "./PricingSection";
+import { COLORS, GROTESK, INDUSTRIES } from "./constants";
+import { Section, SectionReveal } from "./primitives";
+
+const outcomes = [
+  {
+    title: "Everyone knows what to do.",
+    text: "Each person sees their next step, their deadline, and what comes after.",
+    color: COLORS.blue,
+  },
+  {
+    title: "Nothing important gets lost.",
+    text: "Goals, reviews, feedback, and final records stay together from start to finish.",
+    color: COLORS.red,
+  },
+  {
+    title: "HR can see the whole picture.",
+    text: "See what is moving, what needs attention, and where to step in.",
+    color: COLORS.green,
+  },
+];
+
+const journey = [
+  {
+    number: "01",
+    title: "Set the direction.",
+    text: "Bring your organization, people, and review plan together.",
+    color: COLORS.blue,
+  },
+  {
+    number: "02",
+    title: "Keep everyone moving.",
+    text: "Give every person a clear next step and see where help is needed.",
+    color: COLORS.purple,
+  },
+  {
+    number: "03",
+    title: "Finish with confidence.",
+    text: "Close the cycle knowing every review and final record is where it belongs.",
+    color: COLORS.green,
+  },
+];
 
 export function LandingSections() {
   return (
     <>
-      <div id="solution" className="py-24 md:py-32 bg-white">
+      <div id="why" className="bg-black py-24 text-white md:py-36">
         <Section>
-          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
-            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">Product</span>
-            <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              One system for every phase.
+          <SectionReveal className="mx-auto max-w-[920px] text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">The problem</p>
+            <h2 className="mt-6 text-balance text-[clamp(38px,6vw,72px)] font-semibold leading-[1.02] tracking-[-0.045em]" style={{ fontFamily: GROTESK }}>
+              The review isn’t the hard part. Keeping it moving is.
             </h2>
-            <p className="text-black/60 text-pretty">Goals, reviews, analytics, and structure — connected, not scattered.</p>
-          </SectionReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {FEATURES.map((f, i) => (
-              <SectionReveal key={f.label} className={f.span}>
-                <FadeBlock custom={i} className={cn(cardBase, "p-6 h-full flex flex-col gap-4")}>
-                  <IconTile icon={f.icon} color={f.color} />
-                  <div className="flex flex-col gap-2">
-                    <span className="text-[11px] uppercase tracking-wide font-medium" style={{ color: f.color }}>
-                      {f.label}
-                    </span>
-                    <h3 className="text-xl font-semibold tracking-tight text-balance" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      {f.title}
-                    </h3>
-                    <p className="text-sm text-black/60 leading-relaxed text-pretty">{f.desc}</p>
-                  </div>
-                </FadeBlock>
-              </SectionReveal>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      <div id="who" className="py-24 md:py-32 bg-[#fafafa]">
-        <Section>
-          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
-            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">For</span>
-            <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Built for structured organizations.
-            </h2>
-            <p className="text-black/60 text-pretty">SIA works wherever performance reviews follow a formal structure.</p>
-          </SectionReveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-            {INDUSTRIES.map((ind, i) => (
-              <SectionReveal key={ind.name}>
-                <FadeBlock custom={i} className={cn(cardBase, "p-6 flex flex-col gap-4 h-full")}>
-                  <IconTile icon={ind.icon} color={ind.color} />
-                  <div>
-                    <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      {ind.name}
-                    </h3>
-                    <p className="text-sm text-black/65 leading-relaxed mt-1">{ind.desc}</p>
-                  </div>
-                </FadeBlock>
-              </SectionReveal>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      <div id="how" className="py-24 md:py-32 bg-white">
-        <Section>
-          <SectionReveal className="text-center max-w-[640px] mx-auto mb-14">
-            <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">How it works</span>
-            <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-balance"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Up and running in four steps.
-            </h2>
-            <p className="text-black/60 text-pretty">From account creation to your first cycle in under an hour.</p>
-          </SectionReveal>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {STEPS.map((s, i) => (
-              <SectionReveal key={s.num}>
-                <FadeBlock custom={i} className="flex flex-col items-center text-center gap-3">
-                  <span
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white tabular-nums"
-                    style={{ backgroundColor: s.color, fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {s.num}
-                  </span>
-                  <h3 className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    {s.title}
-                  </h3>
-                  <p className="text-sm text-black/65 leading-relaxed">{s.desc}</p>
-                </FadeBlock>
-              </SectionReveal>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      <div id="ask-sia" className="py-24 md:py-32 bg-white">
-        <Section>
-          <SectionReveal className="text-center max-w-[720px] mx-auto mb-12">
-            <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wide font-medium text-black/50 mb-4">
-              <Sparkles size={12} style={{ color: COLORS.blue }} />
-              Coming soon — Sia AI
-            </span>
-            <h2
-              className="text-[clamp(34px,5vw,60px)] leading-[1.05] tracking-[-0.03em] mb-5 text-balance font-semibold"
-              style={{ fontFamily: GROTESK }}
-            >
-              Ask Sia what's happening in your cycle.
-            </h2>
-            <p className="text-black/60 leading-relaxed text-pretty max-w-[560px] mx-auto">
-              Turn goals, reviews, feedback, and structure into answers your leadership team can act on.
+            <p className="mx-auto mt-7 max-w-[660px] text-pretty text-lg leading-relaxed text-white/60 md:text-xl">
+              Documents in one place. Deadlines in another. Updates buried in email. HR is left holding everything together.
             </p>
           </SectionReveal>
 
-          <SectionReveal className="max-w-[820px] mx-auto">
-            <div className="rounded-[28px] border border-black/[0.08] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_60px_-20px_rgba(0,0,0,0.12)] p-5 md:p-6">
-              <div className="min-h-[104px] flex items-start">
-                <p className="text-base md:text-lg text-black/35 leading-relaxed">
-                  Ask about appraisal progress, team performance, overdue reviews, or goal outcomes…
-                </p>
-              </div>
-              <div className="flex items-center justify-between pt-3">
-                <span className="inline-flex items-center gap-1.5 text-xs text-black/60">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-                  <span className="ml-1">Sia AI · Preview</span>
-                </span>
-                <button
-                  type="button"
-                  disabled
-                  aria-disabled="true"
-                  aria-label="Ask Sia (coming soon)"
-                  title="Coming soon"
-                  className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center opacity-50 cursor-not-allowed"
-                >
-                  <ArrowUp size={16} />
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2.5 mt-6">
-              {AI_QUICK_ACTIONS.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  disabled
-                  aria-disabled="true"
-                  title="Coming soon"
-                  className="text-sm text-black/60 bg-white border border-black/[0.08] px-4 py-2 rounded-full cursor-not-allowed"
-                >
-                  {a}
-                </button>
+          <div className="mx-auto mt-16 grid max-w-[980px] gap-px overflow-hidden rounded-[28px] bg-white/[0.12] outline outline-1 outline-white/[0.1] md:grid-cols-3">
+            {[
+              ["01", "Files everywhere"],
+              ["02", "Deadlines that slip"],
+              ["03", "HR doing the chasing"],
+            ].map(([number, label], index) => (
+              <SectionReveal key={number} className="h-full">
+                <div className={cn("h-full bg-[#0b0b0c] p-7 md:min-h-[220px] md:p-9", index === 1 && "bg-[#0e0e0f]")}>
+                  <span className="text-xs font-medium tabular-nums text-white/30">{number}</span>
+                  <p className="mt-20 text-2xl font-medium tracking-[-0.025em] text-white/90" style={{ fontFamily: GROTESK }}>{label}</p>
+                </div>
+              </SectionReveal>
+            ))}
+          </div>
+        </Section>
+      </div>
+
+      <div id="solution" className="bg-white py-24 md:py-36">
+        <Section>
+          <SectionReveal className="mx-auto max-w-[820px] text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/45">With SIA</p>
+            <h2 className="mt-5 text-balance text-[clamp(40px,6vw,74px)] font-semibold leading-[1] tracking-[-0.05em] text-black" style={{ fontFamily: GROTESK }}>
+              One place. One clear path.
+            </h2>
+            <p className="mx-auto mt-7 max-w-[590px] text-pretty text-lg leading-relaxed text-black/60">
+              SIA turns appraisal season into a process people can understand and complete.
+            </p>
+          </SectionReveal>
+
+          <div className="mt-16 grid gap-5 md:grid-cols-3">
+            {outcomes.map((outcome) => (
+              <SectionReveal key={outcome.title} className="h-full">
+                <div className="h-full rounded-[24px] bg-[#f6f6f7] p-7 outline outline-1 outline-black/[0.04] md:min-h-[300px] md:p-9">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full text-white" style={{ backgroundColor: outcome.color }}>
+                    <Check size={16} strokeWidth={2} />
+                  </span>
+                  <h3 className="mt-20 text-2xl font-semibold leading-tight tracking-[-0.03em] text-black" style={{ fontFamily: GROTESK }}>
+                    {outcome.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-black/60">{outcome.text}</p>
+                </div>
+              </SectionReveal>
+            ))}
+          </div>
+        </Section>
+      </div>
+
+      <div id="how" className="bg-[#f5f5f7] py-24 md:py-36">
+        <Section>
+          <SectionReveal className="max-w-[760px]">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/45">How it works</p>
+            <h2 className="mt-5 text-balance text-[clamp(38px,5.5vw,68px)] font-semibold leading-[1.02] tracking-[-0.045em] text-black" style={{ fontFamily: GROTESK }}>
+              From first step to final sign-off.
+            </h2>
+          </SectionReveal>
+
+          <div className="mt-14 divide-y divide-black/[0.09] border-y border-black/[0.09]">
+            {journey.map((item) => (
+              <SectionReveal key={item.number}>
+                <div className="grid gap-5 py-8 md:grid-cols-[100px_1fr_1fr] md:items-center md:py-11">
+                  <span className="text-sm font-medium tabular-nums" style={{ color: item.color }}>{item.number}</span>
+                  <h3 className="text-2xl font-semibold tracking-[-0.03em] text-black md:text-3xl" style={{ fontFamily: GROTESK }}>{item.title}</h3>
+                  <p className="max-w-[430px] text-base leading-relaxed text-black/60">{item.text}</p>
+                </div>
+              </SectionReveal>
+            ))}
+          </div>
+        </Section>
+      </div>
+
+      <div id="who" className="bg-white py-24 md:py-36">
+        <Section>
+          <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+            <SectionReveal>
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/45">Built for real organizations</p>
+              <h2 className="mt-5 max-w-[680px] text-balance text-[clamp(38px,5.3vw,66px)] font-semibold leading-[1.02] tracking-[-0.045em] text-black" style={{ fontFamily: GROTESK }}>
+                Your organization has structure. SIA respects it.
+              </h2>
+              <p className="mt-7 max-w-[580px] text-pretty text-lg leading-relaxed text-black/60">
+                Teams, departments, reporting lines, and responsibilities stay clear—so the review fits the way your organization already works.
+              </p>
+              <p className="mt-6 max-w-[580px] text-sm leading-relaxed text-black/45">
+                Built in the Caribbean for organizations that need clarity, accountability, and records they can trust.
+              </p>
+            </SectionReveal>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {INDUSTRIES.map((industry) => (
+                <SectionReveal key={industry.name} className="h-full">
+                  <div className="flex h-full min-h-[150px] flex-col justify-between rounded-[22px] bg-[#f7f7f8] p-6 outline outline-1 outline-black/[0.04]">
+                    <industry.icon size={20} strokeWidth={1.6} style={{ color: industry.color }} />
+                    <div>
+                      <h3 className="font-semibold tracking-[-0.01em] text-black" style={{ fontFamily: GROTESK }}>{industry.name}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-black/50">{industry.desc}</p>
+                    </div>
+                  </div>
+                </SectionReveal>
               ))}
             </div>
-          </SectionReveal>
+          </div>
         </Section>
       </div>
 
-      <div className="py-24 md:py-32 bg-[#fafafa]">
-        <Section>
-          <SectionReveal>
-            <div className={cn(cardBase, "p-8 md:p-12 max-w-[820px] mx-auto text-center")}>
-              <div className="flex justify-center gap-1.5 mb-5">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.blue }} />
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.red }} />
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.green }} />
-              </div>
-              <span className="inline-block text-xs uppercase tracking-wide font-medium text-black/50 mb-3">
-                Built for the Caribbean
-              </span>
-              <h2
-                className="text-[clamp(24px,3vw,36px)] font-bold tracking-[-0.02em] leading-[1.15] mb-4 text-balance"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-              >
-                Built for the way Caribbean government orgs actually run appraisals.
-              </h2>
-              <p className="text-black/60 leading-relaxed max-w-[620px] mx-auto text-pretty">
-                Designed around the real hierarchies, cycles, and review formats used across ministries, health authorities, and statutory bodies — not adapted from generic HR software.
-              </p>
-            </div>
-          </SectionReveal>
-        </Section>
-      </div>
-
-      <PricingSection />
-
-      <div className="py-24 md:py-32 bg-black">
-        <Section className="text-center">
-          <SectionReveal>
-            <h2
-              className="text-[clamp(32px,4.5vw,54px)] font-bold tracking-[-0.02em] leading-[1.05] mb-4 text-white text-balance"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Your next{" "}
-              <span className="relative inline-block">
-                cycle
-                <svg
-                  aria-hidden
-                  viewBox="0 0 100 10"
-                  preserveAspectRatio="none"
-                  className="absolute left-0 right-0 -bottom-1 w-full h-2"
-                >
-                  <path d="M0,6 Q50,10 100,4" fill="none" stroke={COLORS.blue} strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
-              </span>{" "}
-              starts here.
+      <div className="bg-white px-5 pb-6 md:px-8 md:pb-8">
+        <Section className="relative overflow-hidden rounded-[32px] bg-black px-6 py-20 text-center text-white md:px-10 md:py-28">
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-0 h-80 w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+            style={{ background: `radial-gradient(circle, ${COLORS.blue}45 0%, transparent 68%)` }}
+          />
+          <SectionReveal className="relative mx-auto max-w-[820px]">
+            <h2 className="text-balance text-[clamp(40px,6vw,72px)] font-semibold leading-[1] tracking-[-0.05em]" style={{ fontFamily: GROTESK }}>
+              Better reviews start with a clearer process.
             </h2>
-            <p className="text-white/60 max-w-[480px] mx-auto mb-8 text-pretty">
-              Set up your org structure, configure your first cycle, and run appraisals that matter.
+            <p className="mx-auto mt-6 max-w-[540px] text-pretty text-lg leading-relaxed text-white/60">
+              Bring everyone together and keep your next appraisal moving.
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 bg-white text-black font-medium px-6 py-3 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] text-sm"
+              className="mt-9 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
             >
-              Get started free <ArrowRight size={16} />
+              Get started <ArrowRight size={16} strokeWidth={1.8} />
             </Link>
           </SectionReveal>
         </Section>
@@ -244,69 +190,33 @@ export function LandingSections() {
 
 export function LandingFooter() {
   return (
-    <footer className="bg-black text-white">
-      <Section className="pt-20 md:pt-28 pb-10">
-        <div className="max-w-[820px] mb-16 md:mb-24">
-          <h2
-            className="text-[clamp(36px,5.5vw,68px)] leading-[1.05] tracking-[-0.03em] text-balance font-semibold"
-            style={{ fontFamily: GROTESK }}
-          >
-            Structured reviews.
-            <br />
-            <span className="text-white/60">Smarter organizations.</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8 mb-16">
-          {FOOTER_COLUMNS.map((col) => (
-            <div key={col.heading}>
-              <h3 className="text-sm font-semibold text-white mb-4 tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                {col.heading}
-              </h3>
-              <ul className="flex flex-col gap-3">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    {link.href ? (
-                      <a href={link.href} className="text-sm text-white/55 hover:text-white transition-colors">
-                        {link.label}
-                      </a>
-                    ) : (
-                      <span className="text-sm text-white/35">{link.label}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div className="max-w-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="flex gap-[3px]">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
-                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
+    <footer className="bg-white text-black">
+      <Section className="py-12 md:py-16">
+        <div className="flex flex-col gap-10 border-t border-black/[0.08] pt-10 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex gap-[3px]" aria-hidden>
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.purple }} />
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
               </span>
-              <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                SIA
-              </span>
+              <span className="text-lg font-semibold tracking-tight" style={{ fontFamily: GROTESK }}>SIA</span>
             </div>
-            <p className="text-sm text-white/70 leading-relaxed">
-              Performance appraisal software for structured organizations. Built in the Caribbean.
-            </p>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-black/60">Performance reviews that move people forward.</p>
           </div>
-          <div className="flex flex-col md:items-end gap-4">
-            <div className="flex items-center gap-4 text-white/35">
-              <span aria-label="Twitter (coming soon)" title="Coming soon"><Twitter size={16} /></span>
-              <span aria-label="LinkedIn (coming soon)" title="Coming soon"><Linkedin size={16} /></span>
-              <span aria-label="GitHub (coming soon)" title="Coming soon"><Github size={16} /></span>
+
+          <div className="flex flex-col gap-5 md:items-end">
+            <div className="flex items-center gap-5 text-sm text-black/60">
+              <Link to="/login" className="transition-colors hover:text-black">Sign in</Link>
+              <Link to="/signup" className="transition-colors hover:text-black">Get started</Link>
+              <span>Privacy</span>
+              <span>Terms</span>
             </div>
-            <div className="flex items-center gap-5 text-xs text-white/60">
-              <span>© {new Date().getFullYear()} SIA</span>
-              <span className="text-white/35">Privacy</span>
-              <span className="text-white/35">Terms</span>
+            <div className="flex items-center gap-4 text-black/60">
+              <span aria-hidden="true" title="Twitter coming soon"><Twitter size={15} strokeWidth={1.6} /></span>
+              <span aria-hidden="true" title="LinkedIn coming soon"><Linkedin size={15} strokeWidth={1.6} /></span>
+              <span className="text-xs">© {new Date().getFullYear()} SIA</span>
             </div>
           </div>
         </div>

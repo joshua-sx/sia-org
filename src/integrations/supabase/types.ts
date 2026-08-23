@@ -17,6 +17,9 @@ export type Database = {
       appraisal_cycles: {
         Row: {
           acknowledgement_due: string
+          close_note: string | null
+          closed_at: string | null
+          closed_by: string | null
           created_at: string
           final_window_end: string
           final_window_start: string
@@ -32,6 +35,9 @@ export type Database = {
         }
         Insert: {
           acknowledgement_due: string
+          close_note?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           final_window_end: string
           final_window_start: string
@@ -47,6 +53,9 @@ export type Database = {
         }
         Update: {
           acknowledgement_due?: string
+          close_note?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           final_window_end?: string
           final_window_start?: string
@@ -62,7 +71,91 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "appraisal_cycles_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appraisal_cycles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_events: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_profile_id: string | null
+          actor_role: string | null
+          created_at: string
+          cycle_id: string | null
+          employee_id: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+          organization_id: string
+          summary: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_profile_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          employee_id?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+          organization_id: string
+          summary?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_profile_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          employee_id?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "appraisal_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -321,6 +414,93 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          cycle_id: string | null
+          id: string
+          kind: string
+          link: string | null
+          organization_id: string
+          participant_id: string | null
+          read_at: string | null
+          recipient_profile_id: string
+          sender_name: string | null
+          sender_profile_id: string | null
+          task_kind: string | null
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          kind?: string
+          link?: string | null
+          organization_id: string
+          participant_id?: string | null
+          read_at?: string | null
+          recipient_profile_id: string
+          sender_name?: string | null
+          sender_profile_id?: string | null
+          task_kind?: string | null
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          kind?: string
+          link?: string | null
+          organization_id?: string
+          participant_id?: string | null
+          read_at?: string | null
+          recipient_profile_id?: string
+          sender_name?: string | null
+          sender_profile_id?: string | null
+          task_kind?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "appraisal_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "cycle_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_profile_id_fkey"
+            columns: ["recipient_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_profile_id_fkey"
+            columns: ["sender_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_unit_types: {
         Row: {
           created_at: string | null
@@ -509,10 +689,47 @@ export type Database = {
         Args: { p_ack?: boolean; p_participant_id: string; p_stage: string }
         Returns: undefined
       }
+      close_cycle: {
+        Args: { p_cycle_id: string; p_force?: boolean; p_note?: string }
+        Returns: {
+          acknowledgement_due: string
+          close_note: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          final_window_end: string
+          final_window_start: string
+          goal_window_end: string
+          goal_window_start: string
+          id: string
+          interim_window_end: string
+          interim_window_start: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appraisal_cycles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_user_employee_id: { Args: never; Returns: string }
       current_user_org_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
+      cycle_close_readiness: { Args: { p_cycle_id: string }; Returns: Json }
+      cycle_nudge_history: {
+        Args: { p_cycle_id: string }
+        Returns: {
+          last_sent_at: string
+          participant_id: string
+          task_kind: string
+          times_sent: number
+        }[]
+      }
       cycle_org: { Args: { p_cycle_id: string }; Returns: string }
       goal_participant: { Args: { p_goal_id: string }; Returns: string }
       is_employee_of_participant: {
@@ -527,11 +744,49 @@ export type Database = {
         Args: { p_participant_id: string }
         Returns: boolean
       }
+      log_audit_event: {
+        Args: {
+          p_action: string
+          p_cycle_id?: string
+          p_employee_id?: string
+          p_entity_id?: string
+          p_entity_type: string
+          p_metadata?: Json
+          p_organization_id: string
+          p_summary?: string
+        }
+        Returns: string
+      }
       participant_final_submitted: {
         Args: { p_participant_id: string }
         Returns: boolean
       }
       participant_org: { Args: { p_participant_id: string }; Returns: string }
+      send_cycle_nudge: {
+        Args: { p_participant_id: string; p_task_kind: string }
+        Returns: {
+          body: string | null
+          created_at: string
+          cycle_id: string | null
+          id: string
+          kind: string
+          link: string | null
+          organization_id: string
+          participant_id: string | null
+          read_at: string | null
+          recipient_profile_id: string
+          sender_name: string | null
+          sender_profile_id: string | null
+          task_kind: string | null
+          title: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "notifications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_assessment_stage: {
         Args: { p_participant_id: string; p_stage: string }
         Returns: {

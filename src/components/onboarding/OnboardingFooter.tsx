@@ -6,8 +6,15 @@ import { OnboardingNavFooter } from "./OnboardingNavFooter";
 
 export function OnboardingFooter() {
   const navigate = useNavigate();
-  const { isOnboarding, steps, markComplete, previousStepBefore, nextStepAfter, saving } =
-    useOnboarding();
+  const {
+    isOnboarding,
+    steps,
+    markComplete,
+    finishSetup,
+    previousStepBefore,
+    nextStepAfter,
+    saving,
+  } = useOnboarding();
   const { activeStep, readiness, footerSuppressed } = useOnboardingContext();
 
   if (!isOnboarding || !activeStep || footerSuppressed) return null;
@@ -18,23 +25,28 @@ export function OnboardingFooter() {
   const r = readiness[activeStep] ?? { ready: false };
   const previous = previousStepBefore(activeStep);
   const next = nextStepAfter(activeStep);
+  const isLast = !next;
   const isAlreadyDone = step.done || step.skipped;
 
-  const goToNextOrDashboard = () => {
-    if (next?.href) navigate(next.href);
-    else navigate("/dashboard");
-  };
-
-  const handleComplete = async () => {
-    if (!r.ready && !isAlreadyDone) {
-      toast.message(r.hint ?? "Complete this step to continue.");
+  const advance = async () => {
+    if (next?.href) {
+      navigate(next.href);
       return;
     }
+    await finishSetup();
+  };
+
+  const handleContinue = async () => {
     try {
-      await markComplete(activeStep);
-      const isLast = !next;
-      toast.success(isLast ? "Setup complete — welcome to SIA." : `${step.label} step complete.`);
-      goToNextOrDashboard();
+      if (!isAlreadyDone) {
+        if (!r.ready) {
+          toast.message(r.hint ?? "Complete this step to continue.");
+          return;
+        }
+        await markComplete(activeStep);
+        if (!isLast) toast.success(`${step.label} step complete.`);
+      }
+      await advance();
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Could not complete step";
       toast.error(message);
@@ -44,10 +56,10 @@ export function OnboardingFooter() {
   return (
     <OnboardingNavFooter
       onBack={() => previous?.href && navigate(previous.href)}
-      onContinue={isAlreadyDone ? goToNextOrDashboard : handleComplete}
+      onContinue={handleContinue}
       canGoBack={!!previous?.href}
       continueDisabled={!isAlreadyDone && (!r.ready || saving)}
-      hint={!isAlreadyDone ? r.hint : undefined}
+      continueLabel={isLast ? "Finish setup" : "Continue"}
     />
   );
 }

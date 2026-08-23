@@ -23,7 +23,7 @@ export function BrandMark({
       <span className="flex items-center gap-[3px]">
         <span className={`${dot} rounded-full bg-[hsl(var(--accent-blue))]`} />
         <span className={`${dot} rounded-full bg-[hsl(var(--accent-red))]`} />
-        <span className={`${dot} rounded-full bg-[hsl(var(--accent-yellow))]`} />
+        <span className={`${dot} rounded-full bg-[hsl(var(--accent-purple))]`} />
         <span className={`${dot} rounded-full bg-[hsl(var(--accent-green))]`} />
       </span>
     </Link>

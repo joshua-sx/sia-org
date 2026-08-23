@@ -14,7 +14,7 @@ export const EASE = [0.22, 1, 0.36, 1] as const;
 export const COLORS = {
   blue: "#4285F4",
   red: "#EA4335",
-  yellow: "#FBBC05",
+  purple: "#893EE0",
   green: "#34A853",
 } as const;
 
@@ -30,10 +30,9 @@ export const fadeUp = {
 };
 
 export const NAV_LINKS = [
-  { label: "Features", href: "#solution" },
-  { label: "Who It\u2019s For", href: "#who" },
-  { label: "How It Works", href: "#how" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Why SIA", href: "#why" },
+  { label: "How it works", href: "#how" },
+  { label: "Who it’s for", href: "#who" },
 ];
 
 export const FEATURES = [
@@ -55,7 +54,7 @@ export const FEATURES = [
   },
   {
     icon: BarChart3,
-    color: COLORS.yellow,
+    color: COLORS.purple,
     label: "Analytics",
     title: "See the full picture.",
     desc: "Dashboards, exportable reports, and trend analysis across departments.",
@@ -74,14 +73,14 @@ export const FEATURES = [
 export const INDUSTRIES = [
   { icon: Building2, color: COLORS.blue, name: "Government", desc: "Ministries, departments, statutory bodies." },
   { icon: Plane, color: COLORS.red, name: "Aviation", desc: "Airlines, airport authorities, MROs." },
-  { icon: Heart, color: COLORS.yellow, name: "Healthcare", desc: "Hospitals, clinics, health authorities." },
+  { icon: Heart, color: COLORS.purple, name: "Healthcare", desc: "Hospitals, clinics, health authorities." },
   { icon: GraduationCap, color: COLORS.green, name: "Education", desc: "Universities, school boards, training institutes." },
 ];
 
 export const STEPS = [
   { num: "1", color: COLORS.blue, title: "Define your structure", desc: "Set up your org hierarchy — ministries, divisions, units." },
   { num: "2", color: COLORS.red, title: "Configure cycles", desc: "Choose review type, frequency, and participants." },
-  { num: "3", color: COLORS.yellow, title: "Run appraisals", desc: "Employees and managers complete reviews in-app." },
+  { num: "3", color: COLORS.purple, title: "Run appraisals", desc: "Employees and managers complete reviews in-app." },
   { num: "4", color: COLORS.green, title: "Review & act", desc: "Analyze results, export reports, plan next steps." },
 ];
 

@@ -10,37 +10,31 @@ export interface LaunchCopy {
 
 export const LAUNCH_COPY: Record<OnboardingStepKey, LaunchCopy> = {
   account: {
-    headline: "Finish setting up your account",
-    subhead: "Confirm your profile so we can personalize your workspace.",
-    ctaTitle: "Complete your account",
-    ctaBody: "Add your details to unlock the rest of the setup flow.",
+    headline: "Set up your workspace",
+    subhead: "Three short steps and you are ready to run reviews.",
+    ctaTitle: "Set up your workspace",
+    ctaBody: "Three short steps and you are ready to run reviews.",
     ctaLabel: "Continue",
   },
   structure: {
     headline: "Shape your organization",
-    subhead:
-      "Define the levels of your organization — divisions, departments, teams — so reviews reflect how your company actually works.",
-    ctaTitle: "Set up your organization structure",
-    ctaBody:
-      "Pick a template or design your own levels, then add the first units. You can always expand it later.",
+    subhead: "Set up divisions, departments and teams so reviews follow your real structure.",
+    ctaTitle: "Build your organization",
+    ctaBody: "Start with a template or your own levels. You can change it later.",
     ctaLabel: "Continue",
   },
   people: {
-    headline: "Add your team to keep things moving",
-    subhead:
-      "Bring in the people who will take part in appraisal cycles. Import a CSV or add them one at a time.",
-    ctaTitle: "Add your employees",
-    ctaBody:
-      "Give each person a role and a manager so review workflows can route automatically.",
+    headline: "Add your people",
+    subhead: "Import a spreadsheet or add people one at a time.",
+    ctaTitle: "Add your people",
+    ctaBody: "Give each person a manager so reviews know where to go.",
     ctaLabel: "Continue",
   },
   cycle: {
-    headline: "You're one step away from launching reviews",
-    subhead:
-      "Your organization profile, structure, and employee data are ready. Create your first appraisal cycle to define how reviews will run.",
-    ctaTitle: "Create your first appraisal cycle",
-    ctaBody:
-      "Set the review timeline, then resolve participants and managers before you launch. You'll review everything before invitations go out.",
+    headline: "Create your first cycle",
+    subhead: "Set the timeline and stages for your first round of reviews.",
+    ctaTitle: "Create your first cycle",
+    ctaBody: "Set the timeline and stages. Nothing is sent yet.",
     ctaLabel: "Continue",
   },
 };

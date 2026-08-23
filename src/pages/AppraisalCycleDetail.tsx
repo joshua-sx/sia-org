@@ -30,6 +30,7 @@ import { CycleReportsPanel } from "@/components/appraisals/CycleReportsPanel";
 import { CycleWindowsSummary } from "@/components/appraisals/CycleWindowsSummary";
 import { DraftLaunchPanel } from "@/components/appraisals/DraftLaunchPanel";
 import { CycleCompletionPanel } from "@/components/appraisals/CycleCompletionPanel";
+import { CycleActivityLog } from "@/components/appraisals/CycleActivityLog";
 import { cycleTrackerSteps } from "@/lib/trackerSteps";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -219,20 +220,23 @@ const AppraisalCycleDetail = () => {
       ) : (
         <CycleCompletionPanel
           cycleId={cycle.id}
-          acknowledgementDue={cycle.acknowledgement_due}
           status={cycle.status}
+          closedAt={cycle.closed_at}
+          closeNote={cycle.close_note}
           isHr={isHr}
-          onComplete={async () => {
+          onComplete={async ({ force, note }) => {
             try {
-              await completeCycle.mutateAsync(cycle.id);
-              toast.success("Cycle completed");
+              await completeCycle.mutateAsync({ cycleId: cycle.id, force, note });
+              toast.success("Cycle closed and locked");
             } catch (err) {
-              toast.error(friendlyError(err, "Could not complete the cycle"));
+              toast.error(friendlyError(err, "Could not close the cycle"));
             }
           }}
           completing={completeCycle.isPending}
         />
       )}
+
+      {isHr && isLaunched && <CycleActivityLog cycleId={cycle.id} cycleName={cycle.name} />}
 
       <CycleFormModal open={editOpen} onOpenChange={setEditOpen} editing={cycle} />
 

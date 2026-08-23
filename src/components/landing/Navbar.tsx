@@ -35,7 +35,7 @@ export function Navbar() {
         Sign in
       </Link>
       <Link to="/signup" className="text-sm font-medium bg-black text-white px-5 py-2.5 rounded-full text-center" onClick={() => setMobileOpen(false)}>
-        Get started free
+        Get started
       </Link>
     </div>
   );
@@ -52,7 +52,7 @@ export function Navbar() {
           <span className="flex gap-[3px]">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.yellow }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.purple }} />
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
           </span>
           SIA
@@ -72,7 +72,7 @@ export function Navbar() {
             to="/signup"
             className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:opacity-90 active:scale-[0.96] transition-[opacity,scale] shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
           >
-            Get started free
+            Get started
           </Link>
         </div>
         <button

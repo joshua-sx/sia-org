@@ -9,9 +9,9 @@ import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnits, buildTree, OrgUnitTreeNode } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
-import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
-import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import SetupWizard from "@/components/org/SetupWizard";
+import OnboardingStructureBuilder from "@/components/org/OnboardingStructureBuilder";
 import OrgTree from "@/components/org/OrgTree";
 import UnitDetailPanel from "@/components/org/UnitDetailPanel";
 import AddUnitModal from "@/components/org/AddUnitModal";
@@ -19,9 +19,10 @@ import CsvImportModal from "@/components/org/CsvImportModal";
 import EditLevelsModal from "@/components/org/EditLevelsModal";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 const OrgStructure = () => {
-  const { profile } = useAuth();
+  const { profile, organization } = useAuth();
   const navigate = useNavigate();
   const { markComplete, isOnboarding } = useOnboarding();
   const {
@@ -133,40 +134,57 @@ const OrgStructure = () => {
   }
 
   if (showWizard) {
+    const finishStructure = async () => {
+      try {
+        await markComplete("structure");
+      } catch (e: unknown) {
+        toast.error(e instanceof Error ? e.message : "Could not mark step complete");
+      }
+      setWizardDone(true);
+      navigate(isOnboarding ? "/org/employees" : "/dashboard");
+    };
+
+    if (isOnboarding) {
+      return (
+        <>
+          <PageHead
+            title="Set up structure | SIA"
+            description="Build the org hierarchy that powers your appraisal cycles."
+            path="/org/structure"
+            noIndex
+          />
+          <OnboardingStepFrame
+            stepKey="structure"
+            title="Build your organization"
+            subtitle="Choose a structure, then add the teams and departments your people belong to."
+            primaryLabel="Continue"
+            hideFooter
+          >
+            <OnboardingStructureBuilder
+              industry={organization?.industry}
+              onComplete={finishStructure}
+              createTypes={createTypes}
+              addUnit={addUnit}
+            />
+          </OnboardingStepFrame>
+        </>
+      );
+    }
+
     return (
       <SetupWizard
-        isOnboarding={isOnboarding}
-        onComplete={async () => {
-          try {
-            await markComplete("structure");
-          } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : "Could not mark step complete";
-            toast.error(message);
-          }
-          setWizardDone(true);
-          navigate(isOnboarding ? "/org/employees" : "/dashboard");
-        }}
+        isOnboarding={false}
+        onComplete={finishStructure}
         createTypes={createTypes}
         addUnit={addUnit}
       />
+
     );
   }
 
   const pageInner = (
     <>
-      {isOnboarding ? (
-        <OnboardingStepHeader
-          eyebrow="STRUCTURE"
-          eyebrowAccent="--accent-red"
-          title="Build your organization"
-          subtitle="Add levels first, then place your units."
-          criteriaAccent="--accent-red"
-          criteria={[
-            { label: "At least 1 level defined", met: unitTypes.length >= 1 },
-            { label: "At least 1 unit created", met: units.length > 0 },
-          ]}
-        />
-      ) : (
+      {!isOnboarding && (
         <PageHeader
           title="Organization structure"
           subtitle="Create and manage the divisions, departments, and teams within your organization."
@@ -185,6 +203,7 @@ const OrgStructure = () => {
           }
         />
       )}
+
 
       {isOnboarding && (
         <div className="flex flex-wrap gap-2 mb-6">
@@ -240,18 +259,39 @@ const OrgStructure = () => {
   return (
     <>
       <PageHead
-        title="Organization structure | SIA"
+        title={isOnboarding ? "Set up structure | SIA" : "Organization structure | SIA"}
         description="Build the org hierarchy that powers your appraisal cycles."
         path="/org/structure"
+        noIndex={isOnboarding}
       />
       {isOnboarding ? (
-        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+        <OnboardingStepFrame
+          stepKey="structure"
+          title="Build your organization"
+          subtitle="Choose a structure, then add the teams and departments your people belong to."
+          primaryLabel="Continue"
+          primaryDisabled={units.length === 0}
+          disabledReason="Add at least one organization unit to continue."
+          onPrimary={async () => {
+            try {
+              await markComplete("structure");
+            } catch (e: unknown) {
+              toast.error(e instanceof Error ? e.message : "Could not save this step");
+              return;
+            }
+            playSuccessCue();
+            navigate("/org/employees");
+          }}
+        >
+          {pageInner}
+        </OnboardingStepFrame>
       ) : (
         <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
       )}
+
     </>
   );
 };
 
-export default OrgStructure;
 
+export default OrgStructure;

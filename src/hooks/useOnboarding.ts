@@ -79,7 +79,7 @@ export function useOnboarding() {
       key: "people",
       label: "People",
       icon: Users,
-      accent: "--accent-yellow",
+      accent: "--accent-purple",
       href: "/org/employees",
       status: resolveStatus(2),
       done: peopleDone,
@@ -98,12 +98,11 @@ export function useOnboarding() {
   ];
 
   const completedCount = steps.filter((s) => s.done).length;
-  // Structure is the only required step. Once it's done (or the org was
-  // already marked setup_complete by the previous flow), the user exits
-  // onboarding — People and Launch are optional and can be resumed from
-  // the dashboard checklist.
-  const setupComplete =
-    !!organization && (structureDone || !!organization?.setup_complete);
+  // Onboarding only ends once the user reaches the final review step and
+  // confirms it — resolving every step surfaces that review screen, it does
+  // not silently exit the flow.
+  const setupComplete = !!organization && !!organization?.setup_complete;
+
   const isOnboarding = !!organization && !setupComplete;
 
   type OrgPatch = Partial<{
@@ -132,12 +131,7 @@ export function useOnboarding() {
   const markComplete = (key: OnboardingStepKey) => {
     if (key === "structure") return updateOrg.mutateAsync({ structure_complete: true, structure_skipped: false });
     if (key === "people") return updateOrg.mutateAsync({ people_complete: true, people_skipped: false });
-    if (key === "cycle")
-      return updateOrg.mutateAsync({
-        cycle_complete: true,
-        cycle_skipped: false,
-        setup_complete: true,
-      });
+    if (key === "cycle") return updateOrg.mutateAsync({ cycle_complete: true, cycle_skipped: false });
     return Promise.resolve();
   };
 
@@ -146,6 +140,15 @@ export function useOnboarding() {
     if (key === "people") return updateOrg.mutateAsync({ people_skipped: true });
     if (key === "cycle") return updateOrg.mutateAsync({ cycle_skipped: true });
     return Promise.resolve();
+  };
+
+  /**
+   * Persist "the user reached the end of setup" and land them on the dashboard
+   * with the completion screen. This is the single exit from onboarding.
+   */
+  const finishSetup = async () => {
+    await updateOrg.mutateAsync({ setup_complete: true });
+    navigate("/dashboard", { state: { setupJustCompleted: true } });
   };
 
   const resume = (key: OnboardingStepKey) => {
@@ -181,6 +184,7 @@ export function useOnboarding() {
     isOnboarding,
     markComplete,
     markSkipped,
+    finishSetup,
     resume,
     goToNext,
     nextStepAfter,

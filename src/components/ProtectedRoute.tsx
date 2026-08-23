@@ -25,7 +25,16 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!session) return <Navigate to="/login" replace />;
-  if (!profile) return <Navigate to="/complete-signup" replace />;
+  if (!profile) return <Navigate to="/onboarding/setup" replace />;
+  return <>{children}</>;
+};
+
+/** Requires a session but not a profile — used by the first onboarding step. */
+export const SessionRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, loading } = useAuth();
+
+  if (loading) return <RouteLoadingScreen />;
+  if (!session) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 

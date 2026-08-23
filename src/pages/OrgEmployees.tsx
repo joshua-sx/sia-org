@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
@@ -9,8 +9,7 @@ import { useEmployees, type Employee } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
-import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
-import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
+import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import EmployeeEmptyState from "@/components/employees/EmployeeEmptyState";
 import EmployeeTable from "@/components/employees/EmployeeTable";
 import EmployeeFormModal from "@/components/employees/EmployeeFormModal";
@@ -18,6 +17,7 @@ import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModa
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
+import { playSuccessCue } from "@/lib/completionSounds";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +40,8 @@ const OrgEmployees = () => {
     deleteEmployee,
   } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { isOnboarding } = useOnboarding();
+  const { isOnboarding, markComplete } = useOnboarding();
+  const navigate = useNavigate();
 
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -59,11 +60,12 @@ const OrgEmployees = () => {
   // A single employee has nobody to report to — a manager link isn't
   // possible yet, so don't gate on it until there's a second person.
   const ready = employees.length >= 1 && (hasManagerLink || employees.length === 1);
-  const readyHint = employees.length === 0
-    ? "Add at least 1 employee to continue."
+  const blockingReason = employees.length === 0
+    ? "No employees added yet. Add at least one employee to continue."
     : !hasManagerLink && employees.length > 1
-      ? "Assign a manager relationship to continue."
-      : `${employees.length} ${employees.length === 1 ? "person" : "people"} added — ready to continue.`;
+      ? "Assign the required manager relationships to continue."
+      : undefined;
+  const readyHint = blockingReason ?? `${employees.length} ${employees.length === 1 ? "person" : "people"} added — ready to continue.`;
 
   useStepReadiness("people", ready, readyHint);
 
@@ -106,22 +108,7 @@ const OrgEmployees = () => {
 
   const pageInner = (
     <>
-      {isOnboarding ? (
-        <OnboardingStepHeader
-          eyebrow="PEOPLE"
-          eyebrowAccent="--accent-yellow"
-          title="Add your team"
-          subtitle="Import a CSV or add people manually."
-          criteriaAccent="--accent-yellow"
-          criteria={[
-            { label: "At least 1 employee added", met: employees.length >= 1 },
-            {
-              label: "At least one manager relationship set (once you have 2+ people)",
-              met: hasManagerLink || employees.length <= 1,
-            },
-          ]}
-        />
-      ) : (
+      {!isOnboarding && (
         <PageHeader
           title="Add your employees"
           subtitle="Add employees manually or import a CSV to build your reporting structure and prepare for appraisal cycles. No invitations will be sent during setup."
@@ -132,12 +119,12 @@ const OrgEmployees = () => {
         <div
           className="rounded-xl border p-4 mb-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
           style={{
-            backgroundColor: "hsl(var(--accent-yellow) / 0.08)",
-            borderColor: "hsl(var(--accent-yellow) / 0.35)",
+            backgroundColor: "hsl(var(--accent-purple) / 0.08)",
+            borderColor: "hsl(var(--accent-purple) / 0.35)",
           }}
         >
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-yellow))" }} />
+            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-purple))" }} />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">People needs attention</p>
               <p className="mt-1 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
@@ -204,12 +191,32 @@ const OrgEmployees = () => {
   return (
     <>
       <PageHead
-        title="Employees | SIA"
+        title={isOnboarding ? "Add people | SIA" : "Employees | SIA"}
         description="Add and manage employees and manager relationships for your organization."
         path="/org/employees"
+        noIndex={isOnboarding}
       />
       {isOnboarding ? (
-        <OnboardingPageShell>{pageInner}</OnboardingPageShell>
+        <OnboardingStepFrame
+          stepKey="people"
+          title="Add your people"
+          subtitle="Import your employee list or add people one at a time."
+          primaryLabel="Continue"
+          primaryDisabled={!ready}
+          disabledReason={blockingReason}
+          onPrimary={async () => {
+            try {
+              await markComplete("people");
+            } catch (e: unknown) {
+              toast.error(e instanceof Error ? e.message : "Could not save this step");
+              return;
+            }
+            playSuccessCue();
+            navigate("/appraisals");
+          }}
+        >
+          {pageInner}
+        </OnboardingStepFrame>
       ) : (
         <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
       )}

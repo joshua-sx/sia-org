@@ -1,21 +1,49 @@
 import { Link } from "react-router-dom";
-import { Check, Minus } from "lucide-react";
+import { Minus } from "lucide-react";
 import type { OnboardingStep, OnboardingStepKey } from "@/hooks/useOnboarding";
+import { stepSegmentColor } from "./OnboardingStepFrame";
 
 interface OnboardingPipelineProps {
   steps: OnboardingStep[];
   currentKey: OnboardingStepKey;
   size?: "sm" | "md";
+  /** "nodes" = icon rail (default). "bars" = minimal segmented progress bars. */
+  variant?: "nodes" | "bars";
 }
 
 /** Single visual grammar for "where am I in setup" — used both as the slim
  * top-of-page strip and the Setup Dashboard hero. Keep it the only one. */
-export function OnboardingPipeline({ steps, currentKey, size = "md" }: OnboardingPipelineProps) {
+export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "nodes" }: OnboardingPipelineProps) {
   const nodeDim = size === "sm" ? "h-7 w-7" : "h-10 w-10";
   const iconDim = size === "sm" ? "h-3.5 w-3.5" : "h-[18px] w-[18px]";
   const labelClass = size === "sm" ? "text-[10px]" : "text-[11px]";
   const colWidth = size === "sm" ? "w-11" : "w-16";
   const lineOffset = size === "sm" ? "mt-3.5" : "mt-5";
+
+  if (variant === "bars") {
+    return (
+      <ol className="flex items-center justify-center gap-2" aria-label="Setup progress">
+        {steps.map((step) => {
+          const isCurrent = step.key === currentKey;
+          const color = stepSegmentColor({
+            accent: step.accent,
+            state: isCurrent ? "current" : step.status === "done" ? "done" : step.status === "skipped" ? "skipped" : "upcoming",
+          });
+          return (
+            <li key={step.key}>
+              <span className="sr-only">{step.label}</span>
+              <span
+                className="block h-[4px] w-10 rounded-full md:w-14"
+                style={{ backgroundColor: color, transitionProperty: "background-color", transitionDuration: "200ms" }}
+                aria-hidden
+              />
+            </li>
+          );
+        })}
+      </ol>
+    );
+  }
+
 
   return (
     <ol className="flex items-start" aria-label="Setup progress">
@@ -25,17 +53,15 @@ export function OnboardingPipeline({ steps, currentKey, size = "md" }: Onboardin
         const isDone = step.status === "done";
         const isSkipped = step.status === "skipped";
 
-        const nodeStyle = isDone
-          ? { backgroundColor: "hsl(var(--accent-green) / 0.14)", color: "hsl(var(--accent-green))" }
-          : isSkipped
-          ? { backgroundColor: "hsl(var(--accent-yellow) / 0.14)", color: "hsl(45, 55%, 32%)" }
-          : isCurrent
+        const nodeStyle = isCurrent
           ? {
               backgroundColor: `hsl(var(${step.accent}) / 0.14)`,
               color: `hsl(var(${step.accent}))`,
               boxShadow: `0 0 0 2px hsl(var(${step.accent}) / 0.35)`,
             }
-          : { color: "hsl(var(--ink-subtle))", border: "1px solid hsl(var(--hairline))" };
+          : isDone
+            ? { color: "hsl(var(--foreground))", border: "1px solid hsl(var(--foreground))" }
+            : { color: "hsl(var(--ink-subtle))", border: "1px solid hsl(var(--hairline))" };
 
         const canClick = step.href && (isDone || isSkipped || isCurrent);
 
@@ -45,17 +71,11 @@ export function OnboardingPipeline({ steps, currentKey, size = "md" }: Onboardin
               className={`flex ${nodeDim} items-center justify-center rounded-full`}
               style={{ ...nodeStyle, transitionProperty: "background-color, box-shadow, color", transitionDuration: "200ms" }}
             >
-              {isDone ? (
-                <Check className={iconDim} strokeWidth={3} />
-              ) : isSkipped ? (
-                <Minus className={iconDim} />
-              ) : (
-                <Icon className={iconDim} />
-              )}
+              {isSkipped ? <Minus className={iconDim} /> : <Icon className={iconDim} />}
             </span>
             <span
               className={`${labelClass} font-medium leading-none ${
-                isCurrent ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
+                isCurrent || isDone ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
               }`}
             >
               {step.label}
@@ -79,7 +99,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md" }: Onboardin
               <span
                 className={`${lineOffset} h-[2px] flex-1 rounded-full`}
                 style={{
-                  backgroundColor: step.status === "done" ? "hsl(var(--accent-green) / 0.5)" : "hsl(var(--hairline))",
+                  backgroundColor: "hsl(var(--hairline))",
                   transitionProperty: "background-color",
                   transitionDuration: "200ms",
                 }}

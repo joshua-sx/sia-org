@@ -22,6 +22,11 @@ const SIA_MESSAGES: Record<string, string> = {
   SIA_CYCLE_ALREADY_ACTIVE: "Another cycle is already active — complete it before launching this one.",
   SIA_INVALID_PARTICIPANT: "A participant or manager is missing or isn't in this organization.",
   SIA_EMPLOYEE_NOT_ACTIVE: "Only active employees can be included in a launch.",
+  SIA_INVALID_TASK: "Unknown task type.",
+  SIA_NO_ACCOUNT: "That person doesn't have a sign-in account yet, so they can't be reminded.",
+  SIA_ALREADY_DONE: "That task is already complete — no reminder needed.",
+  SIA_NUDGE_COOLDOWN: "A reminder for this task was already sent in the last 24 hours.",
+  SIA_IMMUTABLE: "This record can't be changed.",
 };
 
 export function friendlyError(err: unknown, fallback = "Something went wrong"): string {

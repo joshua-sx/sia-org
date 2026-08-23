@@ -29,18 +29,18 @@ const STATUS_COLORS: Record<Employee["employment_status"], string> = {
 };
 
 function EmployeeStatusBadge({ status }: { status: Employee["employment_status"] }) {
+  const accent = STATUS_COLORS[status];
+  // Yellow is too light for foreground text — use its readable ink variant.
+  const ink = accent === "--accent-yellow" ? "--accent-yellow-ink" : accent;
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium"
       style={{
-        backgroundColor: `hsl(var(${STATUS_COLORS[status]}) / 0.12)`,
-        color: `hsl(var(${STATUS_COLORS[status]}))`,
+        backgroundColor: `hsl(var(${accent}) / 0.12)`,
+        color: `hsl(var(${ink}))`,
       }}
     >
-      <span
-        className="h-1.5 w-1.5 rounded-full"
-        style={{ backgroundColor: `hsl(var(${STATUS_COLORS[status]}))` }}
-      />
+      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${ink}))` }} />
       {EMPLOYMENT_STATUS_LABELS[status]}
     </span>
   );

@@ -1,11 +1,14 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { CheckCircle2, Circle, ChevronRight, Minus } from "lucide-react";
 import { useOnboarding, type OnboardingStatus } from "@/hooks/useOnboarding";
 import { DashboardAppraisalCard } from "@/components/appraisals/DashboardAppraisalCard";
-import { SetupDashboard } from "@/pages/SetupDashboard";
+import { StepSuccess } from "@/components/onboarding/StepSuccess";
+import { useEmployees } from "@/hooks/useEmployees";
+import { useOrgUnits } from "@/hooks/useOrgUnits";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
@@ -17,19 +20,63 @@ const STATUS_LABEL: Record<OnboardingStatus, string> = {
 
 const Dashboard = () => {
   const { profile, organization } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { steps, completedCount, totalSteps, resume, setupComplete } = useOnboarding();
+  const { data: employees = [] } = useEmployees();
+  const { data: units = [] } = useOrgUnits();
+  const [celebrationDismissed, setCelebrationDismissed] = useState(false);
 
-  if (!setupComplete) {
-    return <SetupDashboard />;
+  const justCompleted =
+    (location.state as { setupJustCompleted?: boolean } | null)?.setupJustCompleted === true;
+
+  // The real Dashboard only exists after onboarding. While setup is
+  // incomplete, send the admin to the step they're on.
+  if (!setupComplete && !justCompleted) {
+    const nextStep = steps.find((s) => !s.done && !s.skipped && s.href) ?? steps[1];
+    return <Navigate to={nextStep?.href ?? "/org/structure"} replace />;
   }
 
+
   const firstName = profile?.full_name?.split(" ")[0];
+  const remaining = steps.filter((s) => !s.done);
+
+  if (justCompleted && !celebrationDismissed) {
+    return (
+      <StepSuccess
+        eyebrow="SETUP COMPLETE"
+        title={`You're set up${firstName ? `, ${firstName}` : ""}`}
+        description={
+          remaining.length === 0
+            ? "Your organization, people, and first appraisal cycle are ready. Everything from here happens inside the cycle."
+            : "The essentials are in place. You skipped a few optional steps — you can pick them up from the dashboard checklist whenever you're ready."
+        }
+        stats={[
+          { value: units.length, label: "Units" },
+          { value: employees.length, label: "People" },
+          { value: `${completedCount}/${totalSteps}`, label: "Steps done" },
+        ]}
+        primaryLabel="Go to dashboard"
+        onPrimary={() => {
+          setCelebrationDismissed(true);
+          navigate("/dashboard", { replace: true, state: null });
+        }}
+        secondaryLabel="Open appraisals"
+        onSecondary={() => navigate("/appraisals")}
+      />
+    );
+  }
+
+  const subtitle =
+    remaining.length === 0
+      ? "You're all set. Ready to run your first appraisal cycle."
+      : `Setup is done. ${remaining.length} optional ${remaining.length === 1 ? "step is" : "steps are"} still open below.`;
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
       <PageHeader
         title={`Welcome${firstName ? `, ${firstName}` : ""}`}
-        subtitle="You're all set. Ready to run your first appraisal cycle."
+        subtitle={subtitle}
         actions={
           organization && (
             <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[220px]">
@@ -41,6 +88,7 @@ const Dashboard = () => {
       />
 
       <DashboardAppraisalCard className="mt-8" />
+
 
       <div className="mt-8 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
@@ -74,7 +122,7 @@ const Dashboard = () => {
                 ) : item.skipped ? (
                   <button
                     onClick={() => resume(item.key)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(45,55%,32%)] bg-[hsl(var(--accent-yellow)/0.14)] hover:bg-[hsl(var(--accent-yellow)/0.22)] active:scale-[0.96]"
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(var(--accent-purple-ink))] bg-[hsl(var(--accent-purple)/0.14)] hover:bg-[hsl(var(--accent-purple)/0.22)] active:scale-[0.96]"
                     style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
                   >
                     <Minus className="h-3 w-3" /> Resume

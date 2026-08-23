@@ -17,6 +17,9 @@ export interface AppraisalCycle {
   acknowledgement_due: string;
   created_at: string;
   updated_at: string;
+  closed_at: string | null;
+  closed_by: string | null;
+  close_note: string | null;
 }
 
 export function useAppraisalCycles() {
@@ -106,18 +109,35 @@ export function useAppraisalCycles() {
     },
   });
 
+  /**
+   * Closing goes through the close_cycle RPC, never a direct status update:
+   * the guard_cycle_closure trigger rejects direct writes so that every
+   * closure is validated, attributed and written to the audit log. Once
+   * closed, the cycle is permanently frozen and cannot be reopened.
+   */
   const completeCycle = useMutation({
-    mutationFn: async (id: string) => {
-      const { data, error } = await supabase
-        .from("appraisal_cycles")
-        .update({ status: "completed" })
-        .eq("id", id)
-        .select()
-        .single();
+    mutationFn: async ({
+      cycleId,
+      force = false,
+      note,
+    }: {
+      cycleId: string;
+      force?: boolean;
+      note?: string;
+    }) => {
+      const { data, error } = await supabase.rpc("close_cycle", {
+        p_cycle_id: cycleId,
+        p_force: force,
+        p_note: note ?? null,
+      });
       if (error) throw error;
-      return data as AppraisalCycle;
+      return data as unknown as AppraisalCycle;
     },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      qc.invalidateQueries({ queryKey: ["cycle_close_readiness"] });
+      qc.invalidateQueries({ queryKey: ["audit_events"] });
+    },
   });
 
   return { ...query, activeCycle, createCycle, updateCycle, deleteCycle, launchCycle, completeCycle };

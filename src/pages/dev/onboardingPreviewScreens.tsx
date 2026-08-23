@@ -40,7 +40,7 @@ function PreviewDashboardMock({ state }: { state: PreviewFlowState }) {
       key: "people",
       label: "People",
       icon: Users,
-      accent: "--accent-yellow",
+      accent: "--accent-purple",
       done: !state.peopleSkipped,
       skipped: state.peopleSkipped,
     },
@@ -312,8 +312,8 @@ export function PreviewScreenBody({
         <TaskCard>
           <div className="flex items-center justify-between mb-5 text-xs text-[hsl(var(--ink-subtle))]">
             <div className="flex gap-4">
-              <span className="font-medium text-[hsl(var(--accent-yellow))]">1 Upload CSV</span>
-              <span className={state.importChecked ? "font-medium text-[hsl(var(--accent-yellow))]" : ""}>
+              <span className="font-medium text-[hsl(var(--accent-purple))]">1 Upload CSV</span>
+              <span className={state.importChecked ? "font-medium text-[hsl(var(--accent-purple))]" : ""}>
                 2 Fix issues
               </span>
             </div>

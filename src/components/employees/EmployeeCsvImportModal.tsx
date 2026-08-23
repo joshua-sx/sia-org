@@ -21,6 +21,7 @@ import { parseCsv } from "@/lib/csv";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useEmployees } from "@/hooks/useEmployees";
+import { playSuccessCue } from "@/lib/completionSounds";
 
 interface Props {
   open: boolean;
@@ -104,6 +105,7 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
         unresolvedManagers,
       });
       onImported?.(inserted.length);
+      playSuccessCue();
       if (unresolvedManagers.length > 0) {
         toast.warning(
           `Imported ${inserted.length} of ${rows.length}. ${unresolvedManagers.length} manager email${unresolvedManagers.length === 1 ? "" : "s"} could not be matched.`
