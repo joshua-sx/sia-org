@@ -1,15 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, ArrowRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
-import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell";
-import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
-import { StepSuccess } from "@/components/onboarding/StepSuccess";
-import { useOnboardingContext } from "@/components/onboarding/OnboardingContext";
-import { friendlyError } from "@/lib/siaErrors";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
@@ -18,10 +13,10 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { friendlyError } from "@/lib/siaErrors";
+import { persistOrgStructure } from "@/lib/persistOrgStructure";
 
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Review"];
-const TOTAL_STEPS = 3;
 const STRUCTURE_ACCENT = "--accent-red";
 
 const LEVEL_DOT_COLORS = [
@@ -33,21 +28,13 @@ const LEVEL_DOT_COLORS = [
 ];
 
 interface SetupWizardProps {
-  isOnboarding?: boolean;
   onComplete: () => void;
   createTypes: UseMutationResult<OrgUnitType[], Error, { name: string; level: number }[]>;
   addUnit: UseMutationResult<OrgUnit, Error, { name: string; unit_type_id: string; parent_id?: string | null }>;
 }
 
-const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }: SetupWizardProps) => {
+const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => {
   const navigate = useNavigate();
-  const { setFooterSuppressed } = useOnboardingContext();
-
-  useEffect(() => {
-    if (!isOnboarding) return;
-    setFooterSuppressed(true);
-    return () => setFooterSuppressed(false);
-  }, [isOnboarding, setFooterSuppressed]);
 
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -90,37 +77,12 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
     setSaving(true);
 
     try {
-      // 1. Persist levels
-      const typeRows = confirmedLevels.map((name, i) => ({ name, level: i + 1 }));
-      const createdTypes = await createTypes.mutateAsync(typeRows);
-
-      // Build a map: level number → created type id
-      const levelToTypeId: Record<number, string> = {};
-      createdTypes.forEach((t) => { levelToTypeId[t.level] = t.id; });
-
-      // 2. Persist units depth-by-depth: siblings within a depth run in
-      // parallel, but a depth must finish before its children can reference
-      // the real parent ids it just created.
-      const persistNodes = async (nodes: UnitNode[], depth: number, parentId: string | null) => {
-        const typeId = levelToTypeId[depth + 1]; // levels are 1-indexed
-        if (!typeId) return;
-        const createdNodes = await Promise.all(
-          nodes.map((node) =>
-            addUnit.mutateAsync({ name: node.name, unit_type_id: typeId, parent_id: parentId }),
-          ),
-        );
-        await Promise.all(
-          nodes.map((node, i) =>
-            node.children.length > 0
-              ? persistNodes(node.children, depth + 1, createdNodes[i].id)
-              : Promise.resolve(),
-          ),
-        );
-      };
-
-      if (units.length > 0) {
-        await persistNodes(units, 0, null);
-      }
+      await persistOrgStructure({
+        levels: confirmedLevels,
+        units,
+        createTypes,
+        addUnit,
+      });
     } catch (err: unknown) {
       toast.error("Error saving structure", {
         description: friendlyError(err, "Something went wrong. Please try again."),
@@ -142,48 +104,30 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
   const hasUnits = units.length > 0;
 
   const wizardContent = (
-    <div className={`space-y-6 ${isOnboarding ? "" : "mx-auto max-w-4xl p-6 md:p-10"}`}>
-      {isOnboarding ? (
-        <OnboardingStepHeader
-          eyebrow="STRUCTURE"
-          eyebrowAccent={STRUCTURE_ACCENT}
-          title="Build your organization"
-          subtitle="Add levels first, then place your units."
-          localStepLabel={`STRUCTURE · ${STEP_LABELS[step - 1]?.toUpperCase() ?? "HIERARCHY"} ${step} OF ${TOTAL_STEPS}`}
-          criteriaAccent={STRUCTURE_ACCENT}
-          criteria={[
-            { label: "At least 1 level defined", met: getLevels().length >= 1 },
-            { label: "At least 1 unit created", met: hasUnits },
-          ]}
-        />
-      ) : (
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk] text-balance">
-            {step === 1
-              ? "Choose your hierarchy template"
-              : step === 2
-                ? "Build your structure"
-                : done
-                  ? "Structure saved"
-                  : "Review your structure"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground text-pretty">
-            {step === 1
-              ? selectedTemplate === "custom"
-                ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
-                : "This determines the organizational levels available during setup. You can adjust later in settings."
-              : step === 2
-                ? confirmedLevels.join(" → ")
-                : done
-                  ? ""
-                  : "Confirm your organizational hierarchy."}
-          </p>
-        </div>
-      )}
+    <div className="mx-auto max-w-4xl space-y-6 p-6 md:p-10">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground font-[Space_Grotesk] text-balance">
+          {step === 1
+            ? "Choose your hierarchy template"
+            : step === 2
+              ? "Build your structure"
+              : done
+                ? "Structure saved"
+                : "Review your structure"}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground text-pretty">
+          {step === 1
+            ? selectedTemplate === "custom"
+              ? "Define the levels for your organization. Drag to reorder, up to 5 levels."
+              : "This determines the organizational levels available during setup. You can adjust later in settings."
+            : step === 2
+              ? confirmedLevels.join(" → ")
+              : done
+                ? ""
+                : "Confirm your organizational hierarchy."}
+        </p>
+      </div>
 
-      {/* Numbered step indicator — onboarding mode relies on the header's
-          localStepLabel text instead, to avoid duplicating progress UI. */}
-      {!isOnboarding && (
       <div className="flex items-center justify-center gap-0">
         {STEP_LABELS.map((label, i) => {
           const stepNum = i + 1;
@@ -242,7 +186,6 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
           );
         })}
       </div>
-      )}
 
       {/* ═══ Step 1: Template ═══ */}
       {step === 1 && (
@@ -436,17 +379,7 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
         </div>
       )}
 
-      {step === 3 && done && isOnboarding && (
-        <StepSuccess
-          eyebrow="Structure complete"
-          title="Your hierarchy is saved"
-          description="Next, add the people who work inside it."
-          primaryLabel="Continue"
-          onPrimary={onComplete}
-        />
-      )}
-
-      {step === 3 && done && !isOnboarding && (
+      {step === 3 && done && (
         <div className="animate-fade-in" key="step-3-done">
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardContent className="py-10">
@@ -482,10 +415,6 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
       )}
     </div>
   );
-
-  if (isOnboarding) {
-    return <OnboardingPageShell>{wizardContent}</OnboardingPageShell>;
-  }
 
   return wizardContent;
 };

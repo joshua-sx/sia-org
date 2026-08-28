@@ -174,7 +174,6 @@ const OrgStructure = () => {
 
     return (
       <SetupWizard
-        isOnboarding={false}
         onComplete={finishStructure}
         createTypes={createTypes}
         addUnit={addUnit}

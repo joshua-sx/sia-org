@@ -3,12 +3,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { OrgUnitType } from "@/hooks/useOrgUnitTypes";
-import { OrgUnit, useOrgUnits } from "@/hooks/useOrgUnits";
+import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
+import { useOrgUnits } from "@/hooks/useOrgUnits";
+import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { parseCsv } from "@/lib/csv";
 import { friendlyError } from "@/lib/siaErrors";
+import {
+  inferOrgUnitCsvMapping,
+  planOrgUnitCsvImport,
+  validateOrgUnitCsvRows,
+  type OrgUnitCsvMapping,
+  type OrgUnitCsvRow,
+} from "@/lib/orgUnitCsv";
 
 interface Props {
   open: boolean;
@@ -17,18 +25,12 @@ interface Props {
   units: OrgUnit[];
 }
 
-interface CsvRow {
-  values: string[];
-  error?: string;
-  imported?: boolean;
-}
-
 const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
   const { addUnit } = useOrgUnits();
   const fileRef = useRef<HTMLInputElement>(null);
   const [headers, setHeaders] = useState<string[]>([]);
-  const [rows, setRows] = useState<CsvRow[]>([]);
-  const [mapping, setMapping] = useState<{ name: string; type: string; parent: string }>({
+  const [rows, setRows] = useState<OrgUnitCsvRow[]>([]);
+  const [mapping, setMapping] = useState<OrgUnitCsvMapping>({
     name: "",
     type: "",
     parent: "",
@@ -52,60 +54,13 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
       setHeaders(hdrs);
       setRows(grid.slice(1).map((values) => ({ values })));
 
-      // Auto-map if headers match expected names
-      const autoMap = { name: "", type: "", parent: "" };
-      hdrs.forEach((h, i) => {
-        const lower = h.toLowerCase();
-        if (lower.includes("unit_name") || lower === "name") autoMap.name = String(i);
-        if (lower.includes("unit_type") || lower === "type") autoMap.type = String(i);
-        if (lower.includes("parent")) autoMap.parent = String(i);
-      });
-      setMapping(autoMap);
+      setMapping(inferOrgUnitCsvMapping(hdrs));
     };
     reader.readAsText(file);
   };
 
-  const validate = (): CsvRow[] => {
-    const nameIdx = parseInt(mapping.name);
-    const typeIdx = parseInt(mapping.type);
-    const parentIdx = parseInt(mapping.parent);
-    const typeNames = new Map(sortedTypes.map((t) => [t.name.toLowerCase(), t]));
-
-    // Names present in the CSV itself so a child row whose parent appears
-    // later in the same file isn't flagged as "Parent not found".
-    const inFileNames = new Set(
-      rows
-        .map((r) => (r.values[nameIdx] ?? "").trim().toLowerCase())
-        .filter(Boolean)
-    );
-    const existingNames = new Set(units.map((u) => u.name.toLowerCase()));
-
-    return rows.map((row) => {
-      const name = row.values[nameIdx]?.trim();
-      const typeName = row.values[typeIdx]?.trim();
-      const parentName = row.values[parentIdx]?.trim();
-
-      if (!name) return { ...row, error: "Missing unit name" };
-      if (!typeName) return { ...row, error: "Missing unit type" };
-
-      const unitType = typeNames.get(typeName.toLowerCase());
-      if (!unitType) return { ...row, error: `Unknown type: "${typeName}"` };
-
-      if (parentName) {
-        const key = parentName.toLowerCase();
-        if (!existingNames.has(key) && !inFileNames.has(key)) {
-          return { ...row, error: `Parent not found: "${parentName}"` };
-        }
-      } else if (unitType.level !== sortedTypes[0]?.level) {
-        return { ...row, error: `Non-top-level type "${typeName}" requires a parent` };
-      }
-
-      return { ...row, error: undefined };
-    });
-  };
-
   const handleImport = async () => {
-    const validated = validate();
+    const validated = validateOrgUnitCsvRows(rows, mapping, sortedTypes, units);
     setRows(validated);
     const errors = validated.filter((r) => r.error);
     if (errors.length === validated.length) {
@@ -114,9 +69,9 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
     }
 
     setImporting(true);
-    const nameIdx = parseInt(mapping.name);
-    const typeIdx = parseInt(mapping.type);
-    const parentIdx = parseInt(mapping.parent);
+    const nameIdx = Number.parseInt(mapping.name, 10);
+    const typeIdx = Number.parseInt(mapping.type, 10);
+    const parentIdx = Number.parseInt(mapping.parent, 10);
     const typeNames = new Map(sortedTypes.map((t) => [t.name.toLowerCase(), t]));
 
     // Map of unit name (lowercase) -> id. Seeded with existing DB units, then
@@ -125,57 +80,41 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
       units.map((u) => [u.name.toLowerCase(), u.id])
     );
 
-    const updated = [...validated];
-    const pending = () =>
-      updated
-        .map((row, idx) => ({ row, idx }))
-        .filter(({ row }) => !row.error && !row.imported);
-
+    const { orderedIndexes, unresolvedErrors } = planOrgUnitCsvImport(validated, mapping, units);
+    const updated = validated.map((row, index) => {
+      const unresolvedError = unresolvedErrors.get(index);
+      return unresolvedError ? { ...row, error: unresolvedError } : row;
+    });
     let successCount = 0;
-    let progressed = true;
-    // Multi-pass: as long as any row was inserted last pass, retry the rest so
-    // rows whose parent was created earlier in the same import get resolved.
-    while (progressed && pending().length > 0) {
-      progressed = false;
-      for (const { row, idx } of pending()) {
-        const name = row.values[nameIdx].trim();
-        const typeName = row.values[typeIdx].trim();
-        const parentName = row.values[parentIdx]?.trim();
-        const unitType = typeNames.get(typeName.toLowerCase())!;
-
-        let parentId: string | null = null;
-        if (parentName) {
-          const found = nameToId.get(parentName.toLowerCase());
-          if (!found) continue; // parent not yet created this pass — try next pass
-          parentId = found;
-        }
-
-        try {
-          const inserted = await addUnit.mutateAsync({
-            name,
-            unit_type_id: unitType.id,
-            parent_id: parentId,
-          });
-          if (inserted?.id) nameToId.set(name.toLowerCase(), inserted.id);
-          updated[idx] = { ...row, imported: true };
-          successCount++;
-          progressed = true;
-        } catch (err: unknown) {
-          updated[idx] = { ...row, error: friendlyError(err, "Could not import row") };
-        }
-      }
-    }
-
-    // Anything still pending after we stopped progressing is a cyclic or
-    // orphaned parent — surface it clearly instead of silently skipping.
-    for (const { row, idx } of pending()) {
+    for (const index of orderedIndexes) {
+      const row = updated[index];
+      const name = row.values[nameIdx].trim();
+      const typeName = row.values[typeIdx].trim();
       const parentName = row.values[parentIdx]?.trim();
-      updated[idx] = {
-        ...row,
-        error: parentName
-          ? `Parent "${parentName}" could not be resolved (cyclic or missing)`
-          : "Could not import row",
-      };
+      const unitType = typeNames.get(typeName.toLowerCase());
+      if (!unitType) continue;
+
+      const parentId = parentName ? nameToId.get(parentName.toLowerCase()) : null;
+      if (parentName && !parentId) {
+        updated[index] = { ...row, error: `Parent "${parentName}" could not be resolved` };
+        continue;
+      }
+
+      try {
+        const inserted = await addUnit.mutateAsync({
+          name,
+          unit_type_id: unitType.id,
+          parent_id: parentId,
+        });
+        if (inserted?.id) nameToId.set(name.toLowerCase(), inserted.id);
+        updated[index] = { ...row, imported: true };
+        successCount++;
+      } catch (err: unknown) {
+        updated[index] = {
+          ...row,
+          error: friendlyError(err, "Could not import row"),
+        };
+      }
     }
 
     setRows(updated);

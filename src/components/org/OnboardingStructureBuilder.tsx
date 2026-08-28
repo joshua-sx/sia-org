@@ -13,6 +13,7 @@ import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { playSuccessCue } from "@/lib/completionSounds";
 import { friendlyError } from "@/lib/siaErrors";
+import { persistOrgStructure } from "@/lib/persistOrgStructure";
 
 /** Maps the industry chosen during Setup to a sensible template suggestion. */
 export function recommendedTemplateFor(industry?: string | null): string | null {
@@ -89,24 +90,14 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
     if (!canContinue) return;
     setSaving(true);
     try {
-      const createdTypes = await createTypes.mutateAsync(levels.map((name, i) => ({ name, level: i + 1 })));
-      const levelToTypeId: Record<number, string> = {};
-      createdTypes.forEach((t) => { levelToTypeId[t.level] = t.id; });
-
-      const persistNodes = async (nodes: UnitNode[], depth: number, parentId: string | null) => {
-        const typeId = levelToTypeId[depth + 1];
-        if (!typeId) return;
-        const created = await Promise.all(
-          nodes.map((node) => addUnit.mutateAsync({ name: node.name, unit_type_id: typeId, parent_id: parentId })),
-        );
-        await Promise.all(
-          nodes.map((node, i) =>
-            node.children.length > 0 ? persistNodes(node.children, depth + 1, created[i].id) : Promise.resolve(),
-          ),
-        );
-      };
-      await persistNodes(units, 0, null);
-    } catch (err) {
+      await persistOrgStructure({
+        levels,
+        units,
+        createTypes,
+        addUnit,
+        requireUnits: true,
+      });
+    } catch (err: unknown) {
       toast.error(friendlyError(err, "Could not save your structure"));
       setSaving(false);
       return;
