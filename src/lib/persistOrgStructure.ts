@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+import { hasSiaErrorCode } from "@/lib/siaErrors";
 
 export interface PersistedUnitNode {
   name: string;
@@ -11,6 +12,8 @@ interface PersistOrgStructureOptions {
   units: PersistedUnitNode[];
   requireUnits?: boolean;
 }
+
+export type PersistOrgStructureResult = "created" | "already_exists";
 
 export function validateOrgStructureForSave(
   units: PersistedUnitNode[],
@@ -40,12 +43,20 @@ export async function persistOrgStructure({
   levels,
   units,
   requireUnits = false,
-}: PersistOrgStructureOptions): Promise<void> {
+}: PersistOrgStructureOptions): Promise<PersistOrgStructureResult> {
   validateOrgStructureForSave(units, requireUnits);
 
   const { error } = await supabase.rpc(
     "create_org_structure",
     buildOrgStructureRpcPayload(levels, units),
   );
-  if (error) throw error;
+  if (error) {
+    // A committed response can be lost in transit, or another administrator can
+    // win the initialization race. Callers refresh structure data on completion.
+    if (hasSiaErrorCode(error, "SIA_ORG_STRUCTURE_EXISTS")) {
+      return "already_exists";
+    }
+    throw error;
+  }
+  return "created";
 }

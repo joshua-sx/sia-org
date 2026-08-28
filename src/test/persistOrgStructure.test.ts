@@ -77,6 +77,20 @@ describe("persistOrgStructure", () => {
       }),
     ).rejects.toBe(failure);
   });
+
+  it("reconciles a retry after the structure was already committed", async () => {
+    rpc.mockResolvedValue({
+      data: undefined,
+      error: { message: "SIA_ORG_STRUCTURE_EXISTS: hierarchy levels already exist" },
+    });
+
+    await expect(
+      persistOrgStructure({
+        levels: ["Division"],
+        units: [],
+      }),
+    ).resolves.toBe("already_exists");
+  });
 });
 
 describe("organization structure payload and validation", () => {

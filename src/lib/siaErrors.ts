@@ -25,17 +25,28 @@ const SIA_MESSAGES: Record<string, string> = {
   SIA_ALREADY_DONE: "That task is already complete — no reminder needed.",
   SIA_NUDGE_COOLDOWN: "A reminder for this task was already sent in the last 24 hours.",
   SIA_IMMUTABLE: "This record can't be changed.",
+  SIA_INVALID_ORG_STRUCTURE: "The organization structure is invalid. Review the levels and units.",
+  SIA_ORG_STRUCTURE_EXISTS: "This organization already has a structure.",
 };
 
-export function friendlyError(err: unknown, fallback = "Something went wrong"): string {
-  const raw =
+function errorMessage(err: unknown): string {
+  return (
     err instanceof Error
       ? err.message
       : err && typeof err === "object" && "message" in err
         ? String((err as { message: unknown }).message)
         : typeof err === "string"
           ? err
-          : "";
+          : ""
+  );
+}
+
+export function hasSiaErrorCode(err: unknown, code: keyof typeof SIA_MESSAGES): boolean {
+  return errorMessage(err).includes(code);
+}
+
+export function friendlyError(err: unknown, fallback = "Something went wrong"): string {
+  const raw = errorMessage(err);
   for (const [code, friendly] of Object.entries(SIA_MESSAGES)) {
     if (raw.includes(code)) return friendly;
   }
