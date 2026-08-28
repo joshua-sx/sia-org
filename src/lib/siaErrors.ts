@@ -20,6 +20,8 @@ const SIA_MESSAGES: Record<string, string> = {
   SIA_CYCLE_NOT_DRAFT: "Only a draft cycle can be launched.",
   SIA_NO_PARTICIPANTS: "There are no participants to launch with.",
   SIA_CYCLE_ALREADY_ACTIVE: "Another cycle is already active — complete it before launching this one.",
+  SIA_INVALID_PARTICIPANT: "A participant or manager is missing or isn't in this organization.",
+  SIA_EMPLOYEE_NOT_ACTIVE: "Only active employees can be included in a launch.",
   SIA_INVALID_TASK: "Unknown task type.",
   SIA_NO_ACCOUNT: "That person doesn't have a sign-in account yet, so they can't be reminded.",
   SIA_ALREADY_DONE: "That task is already complete — no reminder needed.",
