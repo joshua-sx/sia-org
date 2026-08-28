@@ -693,6 +693,10 @@ export type Database = {
         Args: { p_rows: Json }
         Returns: Json
       }
+      create_org_structure: {
+        Args: { p_levels: Json; p_units: Json }
+        Returns: undefined
+      }
       close_cycle: {
         Args: { p_cycle_id: string; p_force?: boolean; p_note?: string }
         Returns: {

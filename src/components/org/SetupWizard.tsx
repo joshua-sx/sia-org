@@ -9,9 +9,6 @@ import TemplateSelector from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
-import type { UseMutationResult } from "@tanstack/react-query";
-import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
-import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { friendlyError } from "@/lib/siaErrors";
 import { persistOrgStructure } from "@/lib/persistOrgStructure";
 import { TEMPLATES } from "@/lib/onboardingTemplates";
@@ -30,11 +27,9 @@ const LEVEL_DOT_COLORS = [
 
 interface SetupWizardProps {
   onComplete: () => void;
-  createTypes: UseMutationResult<OrgUnitType[], Error, { name: string; level: number }[]>;
-  addUnit: UseMutationResult<OrgUnit, Error, { name: string; unit_type_id: string; parent_id?: string | null }>;
 }
 
-const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => {
+const SetupWizard = ({ onComplete }: SetupWizardProps) => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -81,8 +76,6 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
       await persistOrgStructure({
         levels: confirmedLevels,
         units,
-        createTypes,
-        addUnit,
       });
     } catch (err: unknown) {
       toast.error("Error saving structure", {

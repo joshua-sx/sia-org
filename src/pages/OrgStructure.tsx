@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { ArrowLeft, Plus, Upload, Settings2, Building2 } from "lucide-react";
@@ -25,6 +26,7 @@ import { friendlyError } from "@/lib/siaErrors";
 const OrgStructure = () => {
   const { profile, organization } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { markComplete, isOnboarding } = useOnboarding();
   const {
     data: unitTypes = [],
@@ -32,7 +34,6 @@ const OrgStructure = () => {
     isError: typesError,
     error: typesErr,
     refetch: refetchTypes,
-    createTypes,
   } = useOrgUnitTypes();
   const {
     data: units = [],
@@ -40,7 +41,6 @@ const OrgStructure = () => {
     isError: unitsError,
     error: unitsErr,
     refetch: refetchUnits,
-    addUnit,
   } = useOrgUnits();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -136,6 +136,8 @@ const OrgStructure = () => {
 
   if (showWizard) {
     const finishStructure = async () => {
+      void queryClient.invalidateQueries({ queryKey: ["org_unit_types"] });
+      void queryClient.invalidateQueries({ queryKey: ["org_units"] });
       try {
         await markComplete("structure");
       } catch (err) {
@@ -164,8 +166,6 @@ const OrgStructure = () => {
             <OnboardingStructureBuilder
               industry={organization?.industry}
               onComplete={finishStructure}
-              createTypes={createTypes}
-              addUnit={addUnit}
             />
           </OnboardingStepFrame>
         </>
@@ -175,8 +175,6 @@ const OrgStructure = () => {
     return (
       <SetupWizard
         onComplete={finishStructure}
-        createTypes={createTypes}
-        addUnit={addUnit}
       />
 
     );
