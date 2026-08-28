@@ -17,8 +17,15 @@ import { useAssessments, type GoalRating } from "@/hooks/useAssessments";
 import type { CycleParticipant } from "@/hooks/useCycleParticipants";
 import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import { RATING_LABELS, RATING_OPTIONS, type StageDraft } from "@/lib/assessmentSchema";
-import { windowState, STAGE_LABELS, type Stage } from "@/lib/cycleSchema";
-import { stageScore, weightSum, formatScore } from "@/lib/scoring";
+import {
+  stageScore as getStageScore,
+  stageSubmittedAt,
+  stageWindow,
+  windowState,
+  STAGE_LABELS,
+  type Stage,
+} from "@/lib/cycleSchema";
+import { stageScore as calculateStageScore, weightSum, formatScore } from "@/lib/scoring";
 import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
@@ -40,9 +47,6 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
     submitStage,
     saveReviewerComment,
   } = useAssessments(participant.id, goalIds);
-
-  const submittedFor = (stage: Stage) =>
-    stage === "interim" ? participant.interim_submitted_at : participant.final_submitted_at;
 
   const defaultStage: Stage =
     participant.interim_submitted_at ||
@@ -97,7 +101,9 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
             <TabsList className="h-8">
               {(["interim", "final"] as const).map((s) => (
                 <TabsTrigger key={s} value={s} className="text-xs gap-1.5">
-                  {submittedFor(s) && <CheckCircle2 className="h-3 w-3 text-[hsl(var(--accent-green))]" />}
+                  {stageSubmittedAt(participant, s) && (
+                    <CheckCircle2 className="h-3 w-3 text-[hsl(var(--accent-green))]" />
+                  )}
                   {STAGE_LABELS[s]}
                 </TabsTrigger>
               ))}
@@ -187,12 +193,9 @@ function StagePanel({
       manager_comment: serverByGoal.get(goalId)?.manager_comment ?? null,
     };
 
-  const submittedAt =
-    stage === "interim" ? participant.interim_submitted_at : participant.final_submitted_at;
-  const window =
-    stage === "interim"
-      ? windowState(cycle.interim_window_start, cycle.interim_window_end)
-      : windowState(cycle.final_window_start, cycle.final_window_end);
+  const submittedAt = stageSubmittedAt(participant, stage);
+  const { start, end } = stageWindow(cycle, stage);
+  const window = windowState(start, end);
 
   const editable = mode === "manager" && cycle.status === "active" && !submittedAt && window === "open";
   const reviewerEditable =
@@ -201,7 +204,7 @@ function StagePanel({
   const merged = goals.map((g) => ({ goal: g, row: rowFor(g.id) }));
   const allRated = merged.every(({ row }) => row.rating !== null);
   const weightsReady = weightSum(goals) === 100;
-  const preview = stageScore(
+  const preview = calculateStageScore(
     merged.map(({ goal, row }) => ({ rating: row.rating, weight: goal.weight })),
   );
   const needsInterimFirst = stage === "final" && !participant.interim_submitted_at;
@@ -328,7 +331,7 @@ function StagePanel({
               <Lock className="h-3.5 w-3.5" />
               Submitted {new Date(submittedAt).toLocaleDateString()} — score{" "}
               <span className="font-semibold tabular-nums">
-                {formatScore(stage === "interim" ? participant.interim_score : participant.final_score)}
+                {formatScore(getStageScore(participant, stage))}
               </span>
             </span>
           ) : (

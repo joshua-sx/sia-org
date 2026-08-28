@@ -3,6 +3,9 @@ import {
   cycleFormSchema,
   formatDate,
   formatWindow,
+  stageScore,
+  stageSubmittedAt,
+  stageWindow,
   windowState,
   canAcknowledge,
   type CycleFormValues,
@@ -71,6 +74,44 @@ describe("windowState", () => {
     expect(windowState("2026-01-01", "2026-01-31", "2026-01-01")).toBe("open");
     expect(windowState("2026-01-01", "2026-01-31", "2026-01-31")).toBe("open");
     expect(windowState("2026-01-01", "2026-01-31", "2026-02-01")).toBe("closed");
+  });
+});
+
+describe("stage accessors", () => {
+  const participant = {
+    interim_submitted_at: "2026-06-20T00:00:00Z",
+    final_submitted_at: null,
+    interim_score: 3.5,
+    final_score: 4.25,
+  };
+  const cycle = {
+    interim_window_start: "2026-06-01",
+    interim_window_end: "2026-06-30",
+    final_window_start: "2026-11-01",
+    final_window_end: "2026-11-30",
+  };
+
+  it("selects submitted timestamps for each stage", () => {
+    expect(stageSubmittedAt(participant, "interim")).toBe(
+      "2026-06-20T00:00:00Z",
+    );
+    expect(stageSubmittedAt(participant, "final")).toBeNull();
+  });
+
+  it("selects stored scores for each stage", () => {
+    expect(stageScore(participant, "interim")).toBe(3.5);
+    expect(stageScore(participant, "final")).toBe(4.25);
+  });
+
+  it("selects start and end dates for each stage window", () => {
+    expect(stageWindow(cycle, "interim")).toEqual({
+      start: "2026-06-01",
+      end: "2026-06-30",
+    });
+    expect(stageWindow(cycle, "final")).toEqual({
+      start: "2026-11-01",
+      end: "2026-11-30",
+    });
   });
 });
 

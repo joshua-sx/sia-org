@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
+import type { CycleParticipant } from "@/hooks/useCycleParticipants";
 
 export const CYCLE_STATUSES = ["draft", "active", "completed"] as const;
 export type CycleStatus = (typeof CYCLE_STATUSES)[number];
@@ -16,6 +18,78 @@ export const STAGE_LABELS: Record<Stage, string> = {
   interim: "Interim assessment",
   final: "Final assessment",
 };
+
+type StageSubmissionParticipant = Pick<
+  CycleParticipant,
+  "interim_submitted_at" | "final_submitted_at"
+>;
+
+type StageScoreParticipant = Pick<
+  CycleParticipant,
+  "interim_score" | "final_score"
+>;
+
+type StageWindowCycle = Pick<
+  AppraisalCycle,
+  | "interim_window_start"
+  | "interim_window_end"
+  | "final_window_start"
+  | "final_window_end"
+>;
+
+export function stageSubmittedAt(
+  participant: StageSubmissionParticipant,
+  stage: Stage,
+): string | null {
+  switch (stage) {
+    case "interim":
+      return participant.interim_submitted_at;
+    case "final":
+      return participant.final_submitted_at;
+    default: {
+      const _exhaustive: never = stage;
+      return _exhaustive;
+    }
+  }
+}
+
+export function stageScore(
+  participant: StageScoreParticipant,
+  stage: Stage,
+): number | null {
+  switch (stage) {
+    case "interim":
+      return participant.interim_score;
+    case "final":
+      return participant.final_score;
+    default: {
+      const _exhaustive: never = stage;
+      return _exhaustive;
+    }
+  }
+}
+
+export function stageWindow(
+  cycle: StageWindowCycle,
+  stage: Stage,
+): { start: string; end: string } {
+  switch (stage) {
+    case "interim":
+      return {
+        start: cycle.interim_window_start,
+        end: cycle.interim_window_end,
+      };
+    case "final":
+      return {
+        start: cycle.final_window_start,
+        end: cycle.final_window_end,
+      };
+    default: {
+      const _exhaustive: never = stage;
+      return _exhaustive;
+    }
+  }
+}
 
 const dateStr = z
   .string()

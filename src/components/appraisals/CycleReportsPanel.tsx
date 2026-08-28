@@ -23,6 +23,7 @@ import type { Employee } from "@/hooks/useEmployees";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { useAuth } from "@/contexts/AuthContext";
 import { exportParticipantPdf } from "@/lib/appraisalRecord";
+import type { ParticipantGoalWeight } from "@/lib/cycleParticipantData";
 import {
   buildCycleCompletionSummary,
   buildManagerReports,
@@ -38,16 +39,13 @@ import {
   type StatusFilter,
   type TaskStatus,
 } from "@/lib/cycleReports";
+import {
+  CYCLE_NUDGE_TASK_LABELS,
+  type CycleTaskKind,
+} from "@/lib/cycleTasks";
 import { buildAncestryMap, unitBreadcrumb } from "@/lib/orgHierarchy";
 import { friendlyError } from "@/lib/siaErrors";
-import { useCycleNudges, type NudgeTaskKind } from "@/hooks/useCycleNudges";
-
-const TASK_LABEL: Record<NudgeTaskKind, string> = {
-  goals: "Set goals",
-  interim: "Interim assessment",
-  final: "Final assessment",
-  acknowledgement: "Acknowledgement",
-};
+import { useCycleNudges } from "@/hooks/useCycleNudges";
 
 const STATUS_CHIP: Record<TaskStatus, string> = {
   complete: "text-[hsl(var(--accent-green))] bg-[hsl(var(--accent-green)/0.1)]",
@@ -70,7 +68,7 @@ function StatusChip({ status }: { status: TaskStatus }) {
 interface Props {
   cycle: AppraisalCycle;
   participants: CycleParticipant[];
-  goalWeights: Array<{ participant_id: string; weight: number }>;
+  goalWeights: ParticipantGoalWeight[];
   employees: Employee[];
   units: OrgUnit[];
 }
@@ -128,7 +126,7 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
     }
   };
 
-  const handleNudge = async (participantId: string, taskKind: NudgeTaskKind, who: string) => {
+  const handleNudge = async (participantId: string, taskKind: CycleTaskKind, who: string) => {
     setNudgingKey(`${participantId}:${taskKind}`);
     try {
       await sendNudge({ participantId, taskKind });
@@ -310,17 +308,17 @@ function NudgeCell({
   onNudge,
 }: {
   row: ParticipantReportRow;
-  cooldownUntil: (participantId: string, taskKind: string) => Date | null;
+  cooldownUntil: (participantId: string, taskKind: CycleTaskKind) => Date | null;
   busyKey: string | null;
-  onNudge: (participantId: string, taskKind: NudgeTaskKind, who: string) => Promise<void>;
+  onNudge: (participantId: string, taskKind: CycleTaskKind, who: string) => Promise<void>;
 }) {
-  const tasks = (row.frozen ? [] : row.overdueTasks) as NudgeTaskKind[];
+  const tasks = row.frozen ? [] : row.overdueTasks;
 
   if (tasks.length === 0) {
     return <span className="text-[11px] text-[hsl(var(--ink-subtle))]">—</span>;
   }
 
-  const recipientFor = (task: NudgeTaskKind) =>
+  const recipientFor = (task: CycleTaskKind) =>
     task === "acknowledgement" ? row.employeeName : row.managerName;
 
   if (tasks.length === 1) {
@@ -336,7 +334,7 @@ function NudgeCell({
         title={
           until
             ? `Already reminded — you can send another after ${until.toLocaleString()}`
-            : `Remind ${recipientFor(task)} about ${TASK_LABEL[task].toLowerCase()}`
+            : `Remind ${recipientFor(task)} about ${CYCLE_NUDGE_TASK_LABELS[task].toLowerCase()}`
         }
         onClick={() => void onNudge(row.participantId, task, recipientFor(task))}
       >
@@ -368,7 +366,7 @@ function NudgeCell({
               disabled={!!until}
               onClick={() => void onNudge(row.participantId, task, recipientFor(task))}
             >
-              <span className="flex-1">{TASK_LABEL[task]}</span>
+              <span className="flex-1">{CYCLE_NUDGE_TASK_LABELS[task]}</span>
               <span className="ml-2 text-[10px] uppercase tracking-wide text-[hsl(var(--ink-subtle))]">
                 {until ? "Sent" : recipientFor(task).split(" ")[0]}
               </span>

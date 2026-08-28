@@ -1,5 +1,10 @@
 import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import type { CycleParticipant } from "@/hooks/useCycleParticipants";
+import {
+  activeCycleParticipants,
+  participantGoalWeightMap,
+  type ParticipantGoalWeight,
+} from "@/lib/cycleParticipantData";
 import { canAcknowledge } from "@/lib/cycleSchema";
 
 /**
@@ -56,15 +61,12 @@ export function sequentialize(items: TrackerStepInput[]): TrackerStep[] {
 export function cycleTrackerSteps(
   cycle: Pick<AppraisalCycle, "status">,
   participants: CycleParticipant[],
-  goalWeights: Array<{ participant_id: string; weight: number }>,
+  goalWeights: ParticipantGoalWeight[],
 ): TrackerStep[] {
-  const active = participants.filter((p) => p.employee.employment_status !== "terminated");
+  const active = activeCycleParticipants(participants);
   const n = active.length;
 
-  const weightByParticipant = new Map<string, number>();
-  goalWeights.forEach((g) =>
-    weightByParticipant.set(g.participant_id, (weightByParticipant.get(g.participant_id) ?? 0) + g.weight),
-  );
+  const weightByParticipant = participantGoalWeightMap(goalWeights);
 
   const goalsReady = active.filter((p) => weightByParticipant.get(p.id) === 100).length;
   const interimDone = active.filter((p) => !!p.interim_submitted_at).length;
