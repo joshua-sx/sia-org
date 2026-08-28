@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import { OrgUnit, useOrgUnits } from "@/hooks/useOrgUnits";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   open: boolean;
@@ -56,8 +57,8 @@ const AddUnitModal = ({ open, onOpenChange, unitTypes, units, preselectedParent,
       setTypeId("");
       setParentId("");
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add unit");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Failed to add unit"));
     } finally {
       setSaving(false);
     }

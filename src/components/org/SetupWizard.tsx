@@ -9,6 +9,7 @@ import { OnboardingPageShell } from "@/components/onboarding/OnboardingPageShell
 import { OnboardingStepHeader } from "@/components/onboarding/OnboardingStepHeader";
 import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useOnboardingContext } from "@/components/onboarding/OnboardingContext";
+import { friendlyError } from "@/lib/siaErrors";
 import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
@@ -119,9 +120,9 @@ const SetupWizard = ({ isOnboarding = false, onComplete, createTypes, addUnit }:
       if (units.length > 0) {
         await persistNodes(units, 0, null);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error("Error saving structure", {
-        description: err?.message || "Something went wrong. Please try again.",
+        description: friendlyError(err, "Something went wrong. Please try again."),
       });
       setSaving(false);
       return;

@@ -18,6 +18,7 @@ import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -249,8 +250,8 @@ const OrgEmployees = () => {
                 try {
                   await deleteEmployee.mutateAsync(confirmDelete.id);
                   toast.success("Employee removed");
-                } catch (err: any) {
-                  toast.error(err?.message ?? "Delete failed");
+                } catch (err: unknown) {
+                  toast.error(friendlyError(err, "Delete failed"));
                 }
                 setConfirmDelete(null);
               }}

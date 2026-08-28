@@ -28,6 +28,7 @@ import {
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
 import UnitPicker from "./UnitPicker";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   open: boolean;
@@ -120,8 +121,8 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
         toast.success(editing ? "Employee updated" : "Employee added");
         onOpenChange(false);
       }
-    } catch (err: any) {
-      toast.error(err?.message ?? "Failed to save employee");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Failed to save employee"));
     }
   };
 

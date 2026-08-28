@@ -8,6 +8,7 @@ import { OrgUnit, useOrgUnits } from "@/hooks/useOrgUnits";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { parseCsv } from "@/lib/csv";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   open: boolean;
@@ -159,8 +160,8 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
           updated[idx] = { ...row, imported: true };
           successCount++;
           progressed = true;
-        } catch (err: any) {
-          updated[idx] = { ...row, error: err.message };
+        } catch (err: unknown) {
+          updated[idx] = { ...row, error: friendlyError(err, "Could not import row") };
         }
       }
     }

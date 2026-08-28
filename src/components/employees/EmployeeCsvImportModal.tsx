@@ -22,6 +22,7 @@ import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useEmployees } from "@/hooks/useEmployees";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   open: boolean;
@@ -113,8 +114,8 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
       } else {
         toast.success(`Imported ${inserted.length} of ${rows.length} rows`);
       }
-    } catch (err: any) {
-      toast.error(err?.message ?? "Import failed");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Import failed"));
     } finally {
       setImporting(false);
     }
