@@ -8,9 +8,6 @@ import TemplateSelector from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
-import type { UseMutationResult } from "@tanstack/react-query";
-import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
-import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { playSuccessCue } from "@/lib/completionSounds";
 import { friendlyError } from "@/lib/siaErrors";
 import { persistOrgStructure } from "@/lib/persistOrgStructure";
@@ -50,13 +47,11 @@ function Section({
 interface Props {
   industry?: string | null;
   onComplete: () => void | Promise<void>;
-  createTypes: UseMutationResult<OrgUnitType[], Error, { name: string; level: number }[]>;
-  addUnit: UseMutationResult<OrgUnit, Error, { name: string; unit_type_id: string; parent_id?: string | null }>;
 }
 
 /** Structure step for onboarding: one screen, progressive disclosure, no
  *  nested numbered wizard. */
-export default function OnboardingStructureBuilder({ industry, onComplete, createTypes, addUnit }: Props) {
+export default function OnboardingStructureBuilder({ industry, onComplete }: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [customLevels, setCustomLevels] = useState<string[]>([]);
   const [units, setUnits] = useState<UnitNode[]>([]);
@@ -81,8 +76,6 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
       await persistOrgStructure({
         levels,
         units,
-        createTypes,
-        addUnit,
         requireUnits: true,
       });
     } catch (err: unknown) {

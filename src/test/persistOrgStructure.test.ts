@@ -1,44 +1,23 @@
-import { describe, expect, it, vi } from "vitest";
-import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
-import type { OrgUnit } from "@/hooks/useOrgUnits";
-import { persistOrgStructure } from "@/lib/persistOrgStructure";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  buildOrgStructureRpcPayload,
+  persistOrgStructure,
+  validateOrgStructureForSave,
+} from "@/lib/persistOrgStructure";
 
-const orgUnitType = (id: string, level: number): OrgUnitType => ({
-  id,
-  level,
-  name: `Level ${level}`,
-  organization_id: "org-1",
-  created_at: null,
-});
+const { rpc } = vi.hoisted(() => ({ rpc: vi.fn() }));
 
-const orgUnit = (id: string, name: string): OrgUnit => ({
-  id,
-  name,
-  organization_id: "org-1",
-  parent_id: null,
-  unit_type_id: "",
-  depth: null,
-  is_active: true,
-  created_at: null,
-  updated_at: null,
-});
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: { rpc },
+}));
 
 describe("persistOrgStructure", () => {
-  it("creates types first and persists each depth with resolved parent IDs", async () => {
-    const events: string[] = [];
-    const createTypes = {
-      mutateAsync: vi.fn(async () => {
-        events.push("types");
-        return [orgUnitType("type-1", 1), orgUnitType("type-2", 2)];
-      }),
-    };
-    const addUnit = {
-      mutateAsync: vi.fn(async ({ name, unit_type_id, parent_id }) => {
-        events.push(`${name}:${unit_type_id}:${parent_id ?? "root"}`);
-        return orgUnit(`id-${name}`, name);
-      }),
-    };
+  beforeEach(() => {
+    rpc.mockReset();
+    rpc.mockResolvedValue({ data: undefined, error: null });
+  });
 
+  it("maps ordered levels and the nested tree into one RPC call", async () => {
     await persistOrgStructure({
       levels: ["Division", "Team"],
       units: [
@@ -46,95 +25,108 @@ describe("persistOrgStructure", () => {
           name: "Operations",
           children: [{ name: "Logistics", children: [] }],
         },
-        {
-          name: "Finance",
-          children: [{ name: "Payroll", children: [] }],
-        },
       ],
-      createTypes,
-      addUnit,
     });
 
-    expect(createTypes.mutateAsync).toHaveBeenCalledWith([
-      { name: "Division", level: 1 },
-      { name: "Team", level: 2 },
-    ]);
-    expect(events).toEqual([
-      "types",
-      "Operations:type-1:root",
-      "Finance:type-1:root",
-      "Logistics:type-2:id-Operations",
-      "Payroll:type-2:id-Finance",
-    ]);
+    expect(rpc).toHaveBeenCalledOnce();
+    expect(rpc).toHaveBeenCalledWith("create_org_structure", {
+      p_levels: [
+        { name: "Division", level: 1 },
+        { name: "Team", level: 2 },
+      ],
+      p_units: [
+        {
+          name: "Operations",
+          children: [{ name: "Logistics", children: [] }],
+        },
+      ],
+    });
   });
 
-  it("supports SetupWizard's types-only save", async () => {
-    const createTypes = {
-      mutateAsync: vi.fn(async () => [orgUnitType("type-1", 1)]),
-    };
-    const addUnit = {
-      mutateAsync: vi.fn(async ({ name }) => orgUnit(`id-${name}`, name)),
-    };
-
+  it("supports SetupWizard's types-only save with an empty units array", async () => {
     await persistOrgStructure({
       levels: ["Division"],
       units: [],
-      createTypes,
-      addUnit,
     });
 
-    expect(createTypes.mutateAsync).toHaveBeenCalledOnce();
-    expect(addUnit.mutateAsync).not.toHaveBeenCalled();
+    expect(rpc).toHaveBeenCalledWith("create_org_structure", {
+      p_levels: [{ name: "Division", level: 1 }],
+      p_units: [],
+    });
   });
 
-  it("enforces onboarding's unit requirement before writing types", async () => {
-    const createTypes = {
-      mutateAsync: vi.fn(async () => [] as OrgUnitType[]),
-    };
-    const addUnit = {
-      mutateAsync: vi.fn(async ({ name }) => orgUnit(`id-${name}`, name)),
-    };
+  it("enforces onboarding's unit requirement before invoking the RPC", async () => {
+    await expect(
+      persistOrgStructure({
+        levels: ["Division"],
+        units: [],
+        requireUnits: true,
+      }),
+    ).rejects.toThrow("At least one organization unit is required");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("propagates the database RPC error", async () => {
+    const failure = { message: "SIA_INVALID_ORG_STRUCTURE: invalid tree" };
+    rpc.mockResolvedValue({ data: undefined, error: failure });
 
     await expect(
       persistOrgStructure({
         levels: ["Division"],
         units: [],
-        createTypes,
-        addUnit,
-        requireUnits: true,
       }),
-    ).rejects.toThrow("At least one organization unit is required");
-    expect(createTypes.mutateAsync).not.toHaveBeenCalled();
+    ).rejects.toBe(failure);
   });
 
-  it("propagates unit creation failures and does not create descendants", async () => {
-    const failure = new Error("insert failed");
-    const createTypes = {
-      mutateAsync: vi.fn(async () => [
-        orgUnitType("type-1", 1),
-        orgUnitType("type-2", 2),
-      ]),
-    };
-    const addUnit = {
-      mutateAsync: vi.fn(async ({ name }) => {
-        if (name === "Operations") throw failure;
-        return orgUnit(`id-${name}`, name);
-      }),
-    };
+  it("reconciles a retry after the structure was already committed", async () => {
+    rpc.mockResolvedValue({
+      data: undefined,
+      error: { message: "SIA_ORG_STRUCTURE_EXISTS: hierarchy levels already exist" },
+    });
 
     await expect(
       persistOrgStructure({
-        levels: ["Division", "Team"],
-        units: [
-          {
-            name: "Operations",
-            children: [{ name: "Logistics", children: [] }],
-          },
-        ],
-        createTypes,
-        addUnit,
+        levels: ["Division"],
+        units: [],
       }),
-    ).rejects.toBe(failure);
-    expect(addUnit.mutateAsync).toHaveBeenCalledOnce();
+    ).resolves.toBe("already_exists");
+  });
+});
+
+describe("organization structure payload and validation", () => {
+  it("strips UI-only fields while recursively preserving sibling order", () => {
+    const units = [
+      {
+        name: "Operations",
+        expanded: true,
+        children: [
+          { name: "Logistics", expanded: false, children: [] },
+          { name: "Facilities", expanded: true, children: [] },
+        ],
+      },
+    ];
+
+    expect(buildOrgStructureRpcPayload(["Division", "Team"], units)).toEqual({
+      p_levels: [
+        { name: "Division", level: 1 },
+        { name: "Team", level: 2 },
+      ],
+      p_units: [
+        {
+          name: "Operations",
+          children: [
+            { name: "Logistics", children: [] },
+            { name: "Facilities", children: [] },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("validates requireUnits without depending on a caller or mutation mock", () => {
+    expect(() => validateOrgStructureForSave([], false)).not.toThrow();
+    expect(() => validateOrgStructureForSave([], true)).toThrow(
+      "At least one organization unit is required",
+    );
   });
 });
