@@ -1,4 +1,4 @@
-import type { OnboardingStepKey } from "@/hooks/useOnboarding";
+import type { OnboardingStepKey } from "@/lib/onboardingSteps";
 
 export interface LaunchCopy {
   headline: string;

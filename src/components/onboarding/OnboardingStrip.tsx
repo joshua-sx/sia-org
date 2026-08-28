@@ -5,7 +5,7 @@ import { OnboardingPipeline } from "./OnboardingPipeline";
 
 export function OnboardingStrip({ className }: { className?: string }) {
   const location = useLocation();
-  const { steps, isOnboarding, completedCount, totalSteps } = useOnboarding();
+  const { steps, isOnboarding, progressCount, totalSteps } = useOnboarding();
   const { activeStep } = useOnboardingContext();
 
   // Setup dashboard owns the signature pipeline in its hero card — avoid duplicating it.
@@ -28,7 +28,7 @@ export function OnboardingStrip({ className }: { className?: string }) {
           <OnboardingPipeline steps={steps} currentKey={active.key} size="sm" />
         </div>
         <p className="text-[11px] text-[hsl(var(--ink-subtle))] tabular-nums shrink-0">
-          {completedCount}/{totalSteps}
+          {progressCount}/{totalSteps}
         </p>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import type { OnboardingStepKey } from "@/hooks/useOnboarding";
+import type { OnboardingStepKey } from "@/lib/onboardingSteps";
 
 interface Readiness {
   ready: boolean;

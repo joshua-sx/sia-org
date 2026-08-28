@@ -29,6 +29,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BrandMark } from "@/components/BrandMark";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { ONBOARDING_STEPS } from "@/lib/onboardingSteps";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, accent: "--accent-blue" },
@@ -38,12 +39,12 @@ const navItems = [
 ];
 
 /** During setup the sidebar mirrors the four onboarding steps. */
-const onboardingItems = [
-  { title: "Setup", url: "/onboarding/setup", icon: LayoutDashboard, accent: "--accent-blue" },
-  { title: "Structure", url: "/org/structure", icon: Building2, accent: "--accent-red" },
-  { title: "People", url: "/org/employees", icon: Users, accent: "--accent-purple" },
-  { title: "Cycle", url: "/appraisals", icon: CalendarClock, accent: "--accent-green" },
-];
+const onboardingItems = ONBOARDING_STEPS.map((step) => ({
+  title: step.label,
+  url: step.href,
+  icon: step.icon,
+  accent: step.accent,
+}));
 
 export function AppSidebar() {
   const { state } = useSidebar();

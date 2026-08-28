@@ -1,16 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { OnboardingStepKey } from "@/hooks/useOnboarding";
-
-/** The four onboarding stages, each owning one SIA brand color, matching the
- *  sidebar: Setup (blue) → Structure (red) → People (purple) → Cycle (green). */
-export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; accent: string }[] = [
-  { key: "account", label: "Setup", href: "/onboarding/setup", accent: "--accent-blue" },
-  { key: "structure", label: "Structure", href: "/org/structure", accent: "--accent-red" },
-  { key: "people", label: "People", href: "/org/employees", accent: "--accent-purple" },
-  { key: "cycle", label: "Cycle", href: "/appraisals", accent: "--accent-green" },
-];
+import {
+  ONBOARDING_STEPS,
+  type OnboardingStepKey,
+} from "@/lib/onboardingSteps";
 
 export type SegmentState = "done" | "current" | "upcoming";
 
@@ -126,13 +120,13 @@ export function OnboardingStepFrame({
   hideFooter = false,
   children,
 }: OnboardingStepFrameProps) {
-  const index = FLOW_STEPS.findIndex((s) => s.key === stepKey);
-  const current = FLOW_STEPS[index] ?? FLOW_STEPS[0];
-  const previous = index > 0 ? FLOW_STEPS[index - 1] : null;
+  const index = ONBOARDING_STEPS.findIndex((step) => step.key === stepKey);
+  const current = ONBOARDING_STEPS[index] ?? ONBOARDING_STEPS[0];
+  const previous = index > 0 ? ONBOARDING_STEPS[index - 1] : null;
 
   const stateOf = (i: number): SegmentState => {
     if (i === index) return "current";
-    if (i < index || completedKeys.includes(FLOW_STEPS[i].key)) return "done";
+    if (i < index || completedKeys.includes(ONBOARDING_STEPS[i].key)) return "done";
     return "upcoming";
   };
 
@@ -148,8 +142,8 @@ export function OnboardingStepFrame({
           </p>
 
           <ol className="mt-3 flex items-center justify-center gap-2">
-            <li className="sr-only">{`Step ${index + 1} of ${FLOW_STEPS.length}: ${current.label}`}</li>
-            {FLOW_STEPS.map((s, i) => {
+            <li className="sr-only">{`Step ${index + 1} of ${ONBOARDING_STEPS.length}: ${current.label}`}</li>
+            {ONBOARDING_STEPS.map((s, i) => {
               const state = stateOf(i);
               return (
                 <li

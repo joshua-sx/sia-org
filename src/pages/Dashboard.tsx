@@ -4,25 +4,25 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { CheckCircle2, Circle, ChevronRight, Minus } from "lucide-react";
-import { useOnboarding, type OnboardingStatus } from "@/hooks/useOnboarding";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { DashboardAppraisalCard } from "@/components/appraisals/DashboardAppraisalCard";
 import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
+import type { OnboardingStatus } from "@/lib/onboardingSteps";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
   current: "In progress",
   next: "Not started",
   skipped: "Skipped",
-  locked: "Locked",
 };
 
 const Dashboard = () => {
   const { profile, organization } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { steps, completedCount, totalSteps, resume, setupComplete } = useOnboarding();
+  const { steps, progressCount, totalSteps, resume, setupComplete } = useOnboarding();
   const { data: employees = [] } = useEmployees();
   const { data: units = [] } = useOrgUnits();
   const [celebrationDismissed, setCelebrationDismissed] = useState(false);
@@ -54,7 +54,7 @@ const Dashboard = () => {
         stats={[
           { value: units.length, label: "Units" },
           { value: employees.length, label: "People" },
-          { value: `${completedCount}/${totalSteps}`, label: "Steps done" },
+          { value: `${progressCount}/${totalSteps}`, label: "Setup progress" },
         ]}
         primaryLabel="Go to dashboard"
         onPrimary={() => {
@@ -94,7 +94,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
           <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
           <span className="inline-flex items-center rounded-full bg-[hsl(var(--accent-green)/0.12)] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--accent-green))] tabular-nums">
-            {completedCount}/{totalSteps}
+            {progressCount}/{totalSteps}
           </span>
         </div>
         <div className="divide-y divide-[hsl(var(--hairline))]">
