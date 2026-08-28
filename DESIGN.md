@@ -1,5 +1,8 @@
 # Design System
 
+> Product (what SIA is, roles, shipped vs marketing): [`PRODUCT.md`](PRODUCT.md).
+> This file is visual language only. Marketing vs signed-in app are two surfaces (see below).
+
 > ## Two surfaces, two languages (read first)
 >
 > SIA has two distinct UI surfaces, and they intentionally differ:

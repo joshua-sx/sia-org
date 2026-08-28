@@ -35,6 +35,7 @@ export const NAV_LINKS = [
   { label: "Who it’s for", href: "#who" },
 ];
 
+/** Marketing claims. Several items are aspirational — see PRODUCT.md “Shipped vs not”. */
 export const FEATURES = [
   {
     icon: Target,
