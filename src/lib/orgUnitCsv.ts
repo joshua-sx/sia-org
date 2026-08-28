@@ -27,9 +27,13 @@ export function inferOrgUnitCsvMapping(headers: string[]): OrgUnitCsvMapping {
 
   headers.forEach((header, index) => {
     const key = normalized(header);
-    if (key.includes("unit_name") || key === "name") mapping.name = String(index);
-    if (key.includes("unit_type") || key === "type") mapping.type = String(index);
-    if (key.includes("parent")) mapping.parent = String(index);
+    if (key.includes("parent")) {
+      mapping.parent = String(index);
+    } else if (key.includes("unit_name") || key === "name") {
+      mapping.name = String(index);
+    } else if (key.includes("unit_type") || key === "type") {
+      mapping.type = String(index);
+    }
   });
 
   return mapping;
