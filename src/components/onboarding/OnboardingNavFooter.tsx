@@ -21,7 +21,7 @@ export function OnboardingNavFooter({
   hint,
 }: OnboardingNavFooterProps) {
   return (
-    <div className="sticky bottom-0 z-30 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]/95 backdrop-blur">
+    <div className="sticky bottom-0 z-30 border-t border-hairline bg-surface-raised/95 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3 md:px-10">
         <Button
           variant="ghost"
@@ -29,14 +29,14 @@ export function OnboardingNavFooter({
           type="button"
           onClick={onBack}
           disabled={!canGoBack}
-          className="text-[hsl(var(--ink-muted))]"
+          className="text-ink-muted"
         >
           <ArrowLeft className="mr-1 h-3.5 w-3.5" />
           Back
         </Button>
         <div className="flex items-center gap-3">
           {continueDisabled && hint && (
-            <p className="text-xs text-[hsl(var(--ink-muted))]">{hint}</p>
+            <p className="text-xs text-ink-muted">{hint}</p>
           )}
           <Button
             size="sm"

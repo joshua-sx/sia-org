@@ -42,7 +42,11 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    try { sessionStorage.setItem("sia:next", next); } catch {}
+    try {
+      sessionStorage.setItem("sia:next", next);
+    } catch {
+      // Storage can be unavailable in privacy-restricted browsers; OAuth can still continue.
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
@@ -105,7 +109,7 @@ const Login = () => {
 
       <div className="my-6 flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-xs text-[hsl(var(--ink-subtle))]">OR</span>
+        <span className="text-xs text-ink-subtle">OR</span>
         <Separator className="flex-1" />
       </div>
 

@@ -106,7 +106,7 @@ const AppraisalCycleDetail = () => {
   if (!cycle) {
     return (
       <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
-        <p className="text-sm text-[hsl(var(--ink-muted))]">This cycle doesn't exist.</p>
+        <p className="text-sm text-ink-muted">This cycle doesn't exist.</p>
         <Button variant="outline" className="mt-4" onClick={() => navigate("/appraisals")}>
           <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to cycles
         </Button>
@@ -130,7 +130,7 @@ const AppraisalCycleDetail = () => {
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
       <button
         onClick={() => navigate("/appraisals")}
-        className="inline-flex items-center gap-1.5 text-xs text-[hsl(var(--ink-muted))] hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> All cycles
       </button>
@@ -143,7 +143,7 @@ const AppraisalCycleDetail = () => {
             </h1>
             <CycleStatusBadge status={cycle.status} />
           </div>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+          <p className="mt-1 text-sm text-ink-muted">
             {cycle.status === "draft"
               ? "Review the timeline and participant list, then launch."
               : cycle.status === "active"
@@ -213,7 +213,7 @@ const AppraisalCycleDetail = () => {
             launching={launchCycle.isPending}
           />
         ) : (
-          <p className="mt-6 text-sm text-[hsl(var(--ink-muted))]">
+          <p className="mt-6 text-sm text-ink-muted">
             This cycle hasn't launched yet.
           </p>
         )

@@ -1,5 +1,5 @@
 import type { AuditEvent } from "@/hooks/useCycleAudit";
-import { downloadCsv, rowsToCsv } from "@/lib/csvExport";
+import { downloadCsv, filenameSlug, rowsToCsv } from "@/lib/csvExport";
 
 /** Human labels for the stable action codes emitted by the audit triggers. */
 const ACTION_LABELS: Record<string, string> = {
@@ -85,10 +85,6 @@ export function formatAuditTime(iso: string): string {
   });
 }
 
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cycle";
-}
-
 /** The audit trail is only useful off-platform if HR can hand it over. */
 export function exportAuditCsv(cycleName: string, events: AuditEvent[]) {
   const csv = rowsToCsv(
@@ -103,5 +99,5 @@ export function exportAuditCsv(cycleName: string, events: AuditEvent[]) {
       JSON.stringify(e.metadata ?? {}),
     ]),
   );
-  downloadCsv(`${slugify(cycleName)}-audit-trail.csv`, csv);
+  downloadCsv(`${filenameSlug(cycleName)}-audit-trail.csv`, csv);
 }

@@ -14,6 +14,10 @@ export function rowsToCsv(headers: string[], rows: Array<Array<string | number |
   return `${lines.join("\n")}\n`;
 }
 
+export function filenameSlug(value: string, fallback = "cycle"): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || fallback;
+}
+
 export function downloadCsv(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);

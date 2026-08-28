@@ -195,7 +195,7 @@ const Signup = () => {
 
       <div className="my-6 flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-xs text-[hsl(var(--ink-subtle))]">OR</span>
+        <span className="text-xs text-ink-subtle">OR</span>
         <Separator className="flex-1" />
       </div>
 

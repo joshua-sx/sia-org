@@ -4,6 +4,7 @@ import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCycleParticipants";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantGoalsCard from "@/components/appraisals/ParticipantGoalsCard";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -55,22 +56,33 @@ const MyGoals = () => {
     : null;
   const canEdit = !!activeCycle && goalWindow === "open";
 
-  const loading = cyclesLoading || (!!activeCycle && participantsLoading);
-  const loadError = cyclesError || (!!activeCycle && participantsError);
-  const loadErrorMessage =
-    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    if (activeCycle) void refetchParticipants();
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cyclesLoading,
+      isError: cyclesError,
+      error: cyclesErr,
+      refetch: refetchCycles,
+    },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+  ]);
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         Team goals
       </h1>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         {activeCycle
           ? `Set weighted goals for each of your reports during the goal window (${formatWindow(
               activeCycle.goal_window_start,
@@ -95,7 +107,7 @@ const MyGoals = () => {
         ) : (
           <>
             {goalWindow !== "open" && (
-              <p className="rounded-lg border border-[hsl(var(--hairline))] bg-[hsl(var(--accent-yellow)/0.08)] px-4 py-3 text-xs text-[hsl(var(--ink-muted))]">
+              <p className="rounded-lg border border-hairline bg-accent-yellow/[0.08] px-4 py-3 text-xs text-ink-muted">
                 The goal-setting window is {goalWindow === "upcoming" ? "not open yet" : "closed"} —
                 goals are read-only.
               </p>
@@ -103,7 +115,7 @@ const MyGoals = () => {
             {groups.map((group) => (
               <div key={group.label} className="space-y-3">
                 {isHr && groups.length > 1 && (
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">
                     Manager · {group.label}
                   </h2>
                 )}
@@ -127,8 +139,8 @@ const MyGoals = () => {
 
 function EmptyNote({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-12 text-center">
-      <p className="mx-auto max-w-md text-sm text-[hsl(var(--ink-muted))]">{text}</p>
+    <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-12 text-center">
+      <p className="mx-auto max-w-md text-sm text-ink-muted">{text}</p>
     </div>
   );
 }

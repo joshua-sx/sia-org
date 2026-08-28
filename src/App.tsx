@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthProvider";
 import { ProtectedRoute, PublicRoute, SessionRoute } from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import Index from "./pages/Index";
@@ -24,12 +24,8 @@ import ResetPassword from "./pages/ResetPassword";
 import CompleteSignup from "./pages/CompleteSignup";
 import OnboardingSetup from "./pages/OnboardingSetup";
 import BlogPerformanceManagementExamples from "./pages/BlogPerformanceManagementExamples";
-import OnboardingPreview from "./pages/dev/OnboardingPreview";
 
 const queryClient = new QueryClient();
-const devRoutes = import.meta.env.DEV ? (
-  <Route path="/dev/onboarding-preview" element={<OnboardingPreview />} />
-) : null;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -47,7 +43,6 @@ const App = () => (
             <Route path="/complete-signup" element={<CompleteSignup />} />
             <Route path="/onboarding/setup" element={<SessionRoute><AppLayout><OnboardingSetup /></AppLayout></SessionRoute>} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-            {devRoutes}
             <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
             <Route path="/org/structure" element={<ProtectedRoute><AppLayout><OrgStructure /></AppLayout></ProtectedRoute>} />
             <Route path="/org/employees" element={<ProtectedRoute><AppLayout><OrgEmployees /></AppLayout></ProtectedRoute>} />

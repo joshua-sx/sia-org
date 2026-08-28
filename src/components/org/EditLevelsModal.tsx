@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   open: boolean;
@@ -38,8 +39,8 @@ const EditLevelsModal = ({ open, onOpenChange, unitTypes, hasUnits }: Props) => 
       }
       toast.success("Labels updated");
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Failed to update"));
     } finally {
       setSaving(false);
     }

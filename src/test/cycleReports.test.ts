@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CycleParticipant } from "@/hooks/useCycleParticipants";
 import {
-  activeParticipants,
   buildCycleCompletionSummary,
   buildManagerReports,
   buildOverdueTasks,
@@ -84,7 +83,7 @@ describe("buildParticipantReports", () => {
     expect(rows[0].overdueTasks).toContain("acknowledgement");
   });
 
-  it("excludes terminated participants from active list helper", () => {
+  it("freezes terminated participants in report rows", () => {
     const participants = [
       participant(),
       participant({
@@ -98,7 +97,6 @@ describe("buildParticipantReports", () => {
         },
       }),
     ];
-    expect(activeParticipants(participants)).toHaveLength(1);
     const rows = buildParticipantReports(participants, [], windows, new Map(), "2026-01-15");
     expect(rows.find((r) => r.participantId === "p2")?.frozen).toBe(true);
   });
@@ -129,6 +127,54 @@ describe("buildCycleCompletionSummary", () => {
     expect(summary.goalsComplete).toBe(1);
     expect(summary.interimComplete).toBe(1);
     expect(summary.acknowledged).toBe(1);
+  });
+
+  it("preserves active-only denominators and pending status semantics", () => {
+    const rows = buildParticipantReports(
+      [
+        participant({
+          id: "complete",
+          interim_submitted_at: "2026-02-10",
+          final_submitted_at: "2026-03-10",
+          acknowledged_at: "2026-04-01",
+        }),
+        participant({ id: "not-due", employee_id: "e2" }),
+        participant({
+          id: "terminated",
+          employee_id: "e3",
+          acknowledged_at: "2026-04-01",
+          employee: {
+            ...participant().employee,
+            id: "e3",
+            employment_status: "terminated",
+          },
+        }),
+      ],
+      [
+        { participant_id: "complete", weight: 100 },
+        { participant_id: "not-due", weight: 100 },
+        { participant_id: "terminated", weight: 100 },
+      ],
+      windows,
+      new Map(),
+      "2026-01-15",
+    );
+
+    const summary = buildCycleCompletionSummary({ name: "FY26" }, rows);
+
+    expect(summary.totalParticipants).toBe(2);
+    expect(summary.acknowledged).toBe(1);
+    expect(summary.completionPct).toBe(50);
+    expect(summary.goalsPending).toBe(0);
+    expect(summary.interimPending).toBe(0);
+    expect(summary.pendingTasks).toBe(1);
+  });
+
+  it("keeps empty-cycle completion at zero", () => {
+    const summary = buildCycleCompletionSummary({ name: "FY26" }, []);
+
+    expect(summary.totalParticipants).toBe(0);
+    expect(summary.completionPct).toBe(0);
   });
 });
 

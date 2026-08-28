@@ -25,30 +25,28 @@ export function CycleWindowsSummary({
         return (
           <div
             key={w.label}
-            className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4"
+            className="rounded-xl border border-hairline bg-surface-raised p-4"
           >
-            <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{w.label}</p>
+            <p className="text-[11px] uppercase tracking-wider text-ink-subtle">{w.label}</p>
             <p className="mt-1 text-sm font-medium text-foreground tabular-nums">
               {formatWindow(w.start, w.end)}
             </p>
             <p
-              className="mt-1 text-[11px] font-medium"
-              style={{
-                color:
-                  state === "open"
-                    ? "hsl(var(--accent-green))"
-                    : state === "upcoming"
-                      ? "hsl(var(--accent-blue))"
-                      : "hsl(var(--ink-subtle))",
-              }}
+              className={`mt-1 text-[11px] font-medium ${
+                state === "open"
+                  ? "text-accent-green"
+                  : state === "upcoming"
+                    ? "text-accent-blue"
+                    : "text-ink-subtle"
+              }`}
             >
               {state === "open" ? "Open now" : state === "upcoming" ? "Upcoming" : "Closed"}
             </p>
           </div>
         );
       })}
-      <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4">
-        <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Acknowledgement due</p>
+      <div className="rounded-xl border border-hairline bg-surface-raised p-4">
+        <p className="text-[11px] uppercase tracking-wider text-ink-subtle">Acknowledgement due</p>
         <p className="mt-1 text-sm font-medium text-foreground tabular-nums">{formatDate(cycle.acknowledgement_due)}</p>
       </div>
     </div>

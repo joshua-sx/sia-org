@@ -19,7 +19,7 @@ export function AuthShell({
   size?: "md" | "lg";
 }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-[hsl(var(--surface))] px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center bg-surface px-4 py-12">
       {/* Soft blue wash — echoes landing hero */}
       <div
         aria-hidden
@@ -32,7 +32,7 @@ export function AuthShell({
       <div
         className={`relative w-full ${
           size === "lg" ? "max-w-lg" : "max-w-md"
-        } rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-8px_rgba(0,0,0,0.08)]`}
+        } rounded-2xl border border-hairline bg-surface-raised p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-8px_rgba(0,0,0,0.08)]`}
       >
         <div className="mb-6 text-center">
           <div className="mb-4 flex justify-center">
@@ -42,14 +42,14 @@ export function AuthShell({
             {title}
           </h1>
           {description && (
-            <p className="mt-1.5 text-sm text-[hsl(var(--ink-muted))]">
+            <p className="mt-1.5 text-sm text-ink-muted">
               {description}
             </p>
           )}
         </div>
         {children}
         {footer && (
-          <p className="mt-6 text-center text-sm text-[hsl(var(--ink-muted))]">
+          <p className="mt-6 text-center text-sm text-ink-muted">
             {footer}
           </p>
         )}

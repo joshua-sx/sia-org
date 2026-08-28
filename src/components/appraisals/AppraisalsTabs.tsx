@@ -18,14 +18,14 @@ export function AppraisalsTabs() {
   ].filter((t) => t.show);
 
   return (
-    <div className="mt-6 flex flex-wrap gap-1 border-b border-[hsl(var(--hairline))]">
+    <div className="mt-6 flex flex-wrap gap-1 border-b border-hairline">
       {tabs.map((tab) => (
         <NavLink
           key={tab.to}
           to={tab.to}
           end={tab.end}
-          className="relative -mb-px rounded-t-md px-3 py-2 text-sm text-[hsl(var(--ink-muted))] transition-colors hover:text-foreground"
-          activeClassName="!text-foreground font-medium after:absolute after:inset-x-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-[hsl(var(--accent-yellow-ink))]"
+          className="relative -mb-px rounded-t-md px-3 py-2 text-sm text-ink-muted transition-colors hover:text-foreground"
+          activeClassName="!text-foreground font-medium after:absolute after:inset-x-2 after:bottom-0 after:h-[2px] after:rounded-full after:bg-accent-yellow-ink"
         >
           {tab.label}
         </NavLink>

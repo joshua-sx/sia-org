@@ -5,6 +5,7 @@ import { OrgUnitTreeNode } from "@/hooks/useOrgUnits";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { Pencil, Plus, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   node: OrgUnitTreeNode;
@@ -28,8 +29,8 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
       await updateUnit.mutateAsync({ id: node.id, name: newName.trim() });
       toast.success("Unit renamed");
       setEditing(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to rename");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Failed to rename"));
     }
   };
 
@@ -43,8 +44,8 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
     try {
       await updateUnit.mutateAsync({ id: node.id, is_active: false });
       toast.success("Unit deactivated");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to deactivate");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Failed to deactivate"));
     }
   };
 
@@ -52,8 +53,8 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
     try {
       await updateUnit.mutateAsync({ id: node.id, is_active: true });
       toast.success("Unit reactivated");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to reactivate");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Failed to reactivate"));
     }
   };
 
@@ -83,7 +84,7 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
         </div>
         <div>
           <span className="text-muted-foreground">Status</span>
-          <p className={`font-medium ${isInactive ? "text-destructive" : "text-[hsl(var(--success))]"}`}>
+          <p className={`font-medium ${isInactive ? "text-destructive" : "text-success"}`}>
             {isInactive ? "Inactive" : "Active"}
           </p>
         </div>

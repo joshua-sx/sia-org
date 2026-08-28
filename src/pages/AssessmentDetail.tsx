@@ -6,6 +6,7 @@ import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants } from "@/hooks/useCycleParticipants";
 import { useGoals } from "@/hooks/useGoals";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantAssessmentCard from "@/components/appraisals/ParticipantAssessmentCard";
 import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
@@ -44,16 +45,28 @@ const AssessmentDetail = () => {
       (!!myEmployee &&
         (participant.manager_id === myEmployee.id || participant.extra_reviewer_id === myEmployee.id)));
 
-  const loading =
-    cyclesLoading || employeeLoading || (!!activeCycle && participantsLoading) || (!!participant && goalsLoading);
-  const loadError = cyclesError || (!!activeCycle && participantsError);
-  const loadErrorMessage =
-    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    if (activeCycle) void refetchParticipants();
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cyclesLoading,
+      isError: cyclesError,
+      error: cyclesErr,
+      refetch: refetchCycles,
+    },
+    { isLoading: employeeLoading },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+    { enabled: !!participant, isLoading: goalsLoading },
+  ]);
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
@@ -64,12 +77,12 @@ const AssessmentDetail = () => {
       />
       <Link
         to="/appraisals/assessments"
-        className="inline-flex items-center gap-1.5 text-xs text-[hsl(var(--ink-muted))] hover:text-foreground transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> All assessments
       </Link>
 
-      <p className="mt-3 mb-2 inline-flex items-center gap-2 text-xs font-medium text-[hsl(var(--accent-yellow-ink))] uppercase tracking-wider">
+      <p className="mt-3 mb-2 inline-flex items-center gap-2 text-xs font-medium text-accent-yellow-ink uppercase tracking-wider">
         <ClipboardCheck className="h-3.5 w-3.5" />
         Appraisals
       </p>
@@ -78,7 +91,7 @@ const AssessmentDetail = () => {
           ? `${participant.employee.first_name} ${participant.employee.last_name}`
           : "Assessment"}
       </h1>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         {participant?.employee.job_title || "Single appraisal"}
         {activeCycle && <> · {activeCycle.name}</>}
       </p>
@@ -114,8 +127,8 @@ const AssessmentDetail = () => {
 
 function EmptyNote({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-12 text-center">
-      <p className="mx-auto max-w-md text-sm text-[hsl(var(--ink-muted))]">{text}</p>
+    <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-12 text-center">
+      <p className="mx-auto max-w-md text-sm text-ink-muted">{text}</p>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/whoami.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { createClient } from "npm:@supabase/supabase-js@^2.103.0";
 var whoami_default = defineTool({
   name: "whoami",
   title: "Who am I",
@@ -17,7 +18,6 @@ var whoami_default = defineTool({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
-    const { createClient } = await import("npm:@supabase/supabase-js@^2.103.0");
     const supabase = createClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_PUBLISHABLE_KEY,
@@ -37,6 +37,7 @@ var whoami_default = defineTool({
 
 // src/lib/mcp/tools/list-org-units.ts
 import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.103.0";
 var list_org_units_default = defineTool2({
   name: "list_org_units",
   title: "List organizational units",
@@ -47,8 +48,7 @@ var list_org_units_default = defineTool2({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
-    const { createClient } = await import("npm:@supabase/supabase-js@^2.103.0");
-    const supabase = createClient(
+    const supabase = createClient2(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_PUBLISHABLE_KEY,
       {
@@ -67,6 +67,7 @@ var list_org_units_default = defineTool2({
 
 // src/lib/mcp/tools/list-unit-types.ts
 import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.103.0";
 var list_unit_types_default = defineTool3({
   name: "list_unit_types",
   title: "List hierarchy levels",
@@ -77,8 +78,7 @@ var list_unit_types_default = defineTool3({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
-    const { createClient } = await import("npm:@supabase/supabase-js@^2.103.0");
-    const supabase = createClient(
+    const supabase = createClient3(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_PUBLISHABLE_KEY,
       {
@@ -97,6 +97,7 @@ var list_unit_types_default = defineTool3({
 
 // src/lib/mcp/tools/list-employees.ts
 import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.103.0";
 import { z } from "npm:zod@^4.4.3";
 var list_employees_default = defineTool4({
   name: "list_employees",
@@ -110,8 +111,7 @@ var list_employees_default = defineTool4({
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
-    const { createClient } = await import("npm:@supabase/supabase-js@^2.103.0");
-    const supabase = createClient(
+    const supabase = createClient4(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_PUBLISHABLE_KEY,
       {

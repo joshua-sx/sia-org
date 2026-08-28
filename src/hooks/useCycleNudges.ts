@@ -1,19 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-
-export type NudgeTaskKind = "goals" | "interim" | "final" | "acknowledgement";
+import type { CycleTaskKind } from "@/lib/cycleTasks";
 
 export interface NudgeHistoryRow {
   participant_id: string;
-  task_kind: string;
+  task_kind: CycleTaskKind;
   last_sent_at: string;
   times_sent: number;
 }
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
-export function nudgeKey(participantId: string, task: string) {
+export function nudgeKey(participantId: string, task: CycleTaskKind) {
   return `${participantId}:${task}`;
 }
 
@@ -44,7 +43,7 @@ export function useCycleNudges(cycleId: string | undefined) {
       taskKind,
     }: {
       participantId: string;
-      taskKind: NudgeTaskKind;
+      taskKind: CycleTaskKind;
     }) => {
       const { data, error } = await supabase.rpc("send_cycle_nudge", {
         p_participant_id: participantId,
@@ -64,7 +63,7 @@ export function useCycleNudges(cycleId: string | undefined) {
     sentMap.set(nudgeKey(row.participant_id, row.task_kind), row);
   });
 
-  const cooldownUntil = (participantId: string, taskKind: string): Date | null => {
+  const cooldownUntil = (participantId: string, taskKind: CycleTaskKind): Date | null => {
     const row = sentMap.get(nudgeKey(participantId, taskKind));
     if (!row) return null;
     const until = new Date(new Date(row.last_sent_at).getTime() + COOLDOWN_MS);

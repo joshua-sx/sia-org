@@ -1,27 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { OnboardingStepKey } from "@/hooks/useOnboarding";
-
-/** The four onboarding stages, each owning one SIA brand color, matching the
- *  sidebar: Setup (blue) → Structure (red) → People (purple) → Cycle (green). */
-export const FLOW_STEPS: { key: OnboardingStepKey; label: string; href: string; accent: string }[] = [
-  { key: "account", label: "Setup", href: "/onboarding/setup", accent: "--accent-blue" },
-  { key: "structure", label: "Structure", href: "/org/structure", accent: "--accent-red" },
-  { key: "people", label: "People", href: "/org/employees", accent: "--accent-purple" },
-  { key: "cycle", label: "Cycle", href: "/appraisals", accent: "--accent-green" },
-];
-
-export type SegmentState = "done" | "current" | "upcoming";
-
-/** Shared color rule for every setup progress indicator: only the current
- *  step carries its brand color, completed steps are black, and upcoming
- *  steps stay neutral. */
-export function stepSegmentColor(opts: { accent: string; state: SegmentState | "skipped" }) {
-  if (opts.state === "current") return `hsl(var(${opts.accent}))`;
-  if (opts.state === "done") return "hsl(var(--foreground))";
-  return "hsl(var(--hairline))";
-}
+import {
+  ONBOARDING_STEPS,
+  type OnboardingStepKey,
+} from "@/lib/onboardingSteps";
+import { stepSegmentColor, type SegmentState } from "@/lib/onboardingProgress";
 
 /** Back + primary action, adjacent and right-aligned. One shared footer for
  *  every onboarding screen — never a full-width CTA. */
@@ -60,7 +44,7 @@ export function OnboardingActionFooter({
   );
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-[hsl(var(--hairline))] py-5">
+    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-hairline py-5">
       {backHref && (
         <Button
           type="button"
@@ -126,13 +110,13 @@ export function OnboardingStepFrame({
   hideFooter = false,
   children,
 }: OnboardingStepFrameProps) {
-  const index = FLOW_STEPS.findIndex((s) => s.key === stepKey);
-  const current = FLOW_STEPS[index] ?? FLOW_STEPS[0];
-  const previous = index > 0 ? FLOW_STEPS[index - 1] : null;
+  const index = ONBOARDING_STEPS.findIndex((step) => step.key === stepKey);
+  const current = ONBOARDING_STEPS[index] ?? ONBOARDING_STEPS[0];
+  const previous = index > 0 ? ONBOARDING_STEPS[index - 1] : null;
 
   const stateOf = (i: number): SegmentState => {
     if (i === index) return "current";
-    if (i < index || completedKeys.includes(FLOW_STEPS[i].key)) return "done";
+    if (i < index || completedKeys.includes(ONBOARDING_STEPS[i].key)) return "done";
     return "upcoming";
   };
 
@@ -148,8 +132,8 @@ export function OnboardingStepFrame({
           </p>
 
           <ol className="mt-3 flex items-center justify-center gap-2">
-            <li className="sr-only">{`Step ${index + 1} of ${FLOW_STEPS.length}: ${current.label}`}</li>
-            {FLOW_STEPS.map((s, i) => {
+            <li className="sr-only">{`Step ${index + 1} of ${ONBOARDING_STEPS.length}: ${current.label}`}</li>
+            {ONBOARDING_STEPS.map((s, i) => {
               const state = stateOf(i);
               return (
                 <li
@@ -174,7 +158,7 @@ export function OnboardingStepFrame({
           <h1 className="mt-8 font-[Space_Grotesk] text-[30px] leading-[1.08] font-semibold tracking-[-1px] text-foreground text-balance md:text-[40px]">
             {title}
           </h1>
-          <p className="mx-auto mt-3 max-w-[56ch] text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] text-pretty">
+          <p className="mx-auto mt-3 max-w-[56ch] text-[15px] leading-relaxed text-ink-muted text-pretty">
             {subtitle}
           </p>
         </div>

@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCycleParticipants";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantAssessmentCard from "@/components/appraisals/ParticipantAssessmentCard";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -26,15 +27,26 @@ const MyAssessments = () => {
   const { myEmployee } = useMyEmployee();
 
   const isHr = profile?.role === "hr_admin";
-  const loading = cyclesLoading || (!!activeCycle && participantsLoading);
-  const loadError = cyclesError || (!!activeCycle && participantsError);
-  const loadErrorMessage =
-    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    if (activeCycle) void refetchParticipants();
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cyclesLoading,
+      isError: cyclesError,
+      error: cyclesErr,
+      refetch: refetchCycles,
+    },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+  ]);
 
   // Two lanes: reports I manage (or all, for hr_admin) get the manager lane;
   // participants where I'm the extra reviewer get the reviewer lane. RLS
@@ -70,7 +82,7 @@ const MyAssessments = () => {
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         Assessments
       </h1>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         Rate each goal and add comments during the interim and final windows. Submitting locks
         that stage and computes the score.
       </p>
@@ -93,7 +105,7 @@ const MyAssessments = () => {
                   {managerGroups.map((group) => (
                     <div key={group.label} className="space-y-3">
                       {isHr && managerGroups.length > 1 && (
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">
                           Manager · {group.label}
                         </h3>
                       )}
@@ -147,8 +159,8 @@ const MyAssessments = () => {
 
 function EmptyNote({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-12 text-center">
-      <p className="mx-auto max-w-md text-sm text-[hsl(var(--ink-muted))]">{text}</p>
+    <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-12 text-center">
+      <p className="mx-auto max-w-md text-sm text-ink-muted">{text}</p>
     </div>
   );
 }

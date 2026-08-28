@@ -689,6 +689,10 @@ export type Database = {
         Args: { p_ack?: boolean; p_participant_id: string; p_stage: string }
         Returns: undefined
       }
+      bulk_import_employees: {
+        Args: { p_rows: Json }
+        Returns: Json
+      }
       close_cycle: {
         Args: { p_cycle_id: string; p_force?: boolean; p_note?: string }
         Returns: {

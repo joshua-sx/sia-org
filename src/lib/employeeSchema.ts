@@ -2,15 +2,17 @@ import { z } from "zod";
 
 export const EMPLOYMENT_TYPES = ["full_time", "part_time", "contractor", "intern"] as const;
 export const EMPLOYMENT_STATUSES = ["active", "on_leave", "terminated"] as const;
+export type EmploymentType = (typeof EMPLOYMENT_TYPES)[number];
+export type EmploymentStatus = (typeof EMPLOYMENT_STATUSES)[number];
 
-export const EMPLOYMENT_TYPE_LABELS: Record<(typeof EMPLOYMENT_TYPES)[number], string> = {
+export const EMPLOYMENT_TYPE_LABELS: Record<EmploymentType, string> = {
   full_time: "Full-time",
   part_time: "Part-time",
   contractor: "Contractor",
   intern: "Intern",
 };
 
-export const EMPLOYMENT_STATUS_LABELS: Record<(typeof EMPLOYMENT_STATUSES)[number], string> = {
+export const EMPLOYMENT_STATUS_LABELS: Record<EmploymentStatus, string> = {
   active: "Active",
   on_leave: "On leave",
   terminated: "Terminated",

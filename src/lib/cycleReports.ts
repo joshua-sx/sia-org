@@ -1,10 +1,14 @@
 import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import type { CycleParticipant } from "@/hooks/useCycleParticipants";
+import type { ParticipantGoalWeight } from "@/lib/cycleParticipantData";
+import { participantGoalWeightMap } from "@/lib/cycleParticipantData";
 import { todayISO, windowState, type WindowState } from "@/lib/cycleSchema";
-import { downloadCsv, rowsToCsv } from "@/lib/csvExport";
+import {
+  CYCLE_REPORT_TASK_LABELS,
+  type CycleTaskKind,
+} from "@/lib/cycleTasks";
+import { downloadCsv, filenameSlug, rowsToCsv } from "@/lib/csvExport";
 import { formatScore } from "@/lib/scoring";
-
-export type TaskKind = "goals" | "interim" | "final" | "acknowledgement";
 
 export type TaskStatus = "complete" | "pending" | "overdue" | "frozen" | "not_due";
 
@@ -35,7 +39,7 @@ export interface ParticipantReportRow {
   interimScore: number | null;
   finalScore: number | null;
   overallScore: number | null;
-  overdueTasks: TaskKind[];
+  overdueTasks: CycleTaskKind[];
   maxDaysOverdue: number;
 }
 
@@ -99,15 +103,12 @@ function acknowledgementStatus(
 
 export function buildParticipantReports(
   participants: CycleParticipant[],
-  goalWeights: Array<{ participant_id: string; weight: number }>,
+  goalWeights: ParticipantGoalWeight[],
   windows: CycleWindows,
   unitByEmployeeId: Map<string, string>,
   today = todayISO(),
 ): ParticipantReportRow[] {
-  const weightByParticipant = new Map<string, number>();
-  goalWeights.forEach((g) =>
-    weightByParticipant.set(g.participant_id, (weightByParticipant.get(g.participant_id) ?? 0) + g.weight),
-  );
+  const weightByParticipant = participantGoalWeightMap(goalWeights);
 
   const goalWindow = windowState(windows.goal_window_start, windows.goal_window_end, today);
   const interimWindow = windowState(windows.interim_window_start, windows.interim_window_end, today);
@@ -123,9 +124,9 @@ export function buildParticipantReports(
     const finalStage = stageTaskStatus(!!p.final_submitted_at, finalWindow, frozen);
     const acknowledgement = acknowledgementStatus(p, windows.acknowledgement_due, frozen, today);
 
-    const overdueTasks: TaskKind[] = [];
+    const overdueTasks: CycleTaskKind[] = [];
     let maxDaysOverdue = 0;
-    const trackOverdue = (kind: TaskKind, status: TaskStatus, dueDate: string) => {
+    const trackOverdue = (kind: CycleTaskKind, status: TaskStatus, dueDate: string) => {
       if (status !== "overdue") return;
       overdueTasks.push(kind);
       maxDaysOverdue = Math.max(maxDaysOverdue, daysAfter(dueDate, today));
@@ -159,32 +160,29 @@ export function buildParticipantReports(
   });
 }
 
-export function activeParticipants(participants: CycleParticipant[]) {
-  return participants.filter((p) => p.employee.employment_status !== "terminated");
-}
-
 export function buildCycleCompletionSummary(
   cycle: Pick<AppraisalCycle, "name">,
   rows: ParticipantReportRow[],
 ) {
   const active = rows.filter((r) => !r.frozen);
   const n = active.length;
-  const count = (status: TaskStatus) => active.filter((r) => r.goals === status).length;
-  const stageCount = (field: "interim" | "final" | "acknowledgement", status: TaskStatus) =>
-    active.filter((r) => r[field] === status).length;
+  const countRows = (matches: (row: ParticipantReportRow) => boolean) =>
+    active.filter(matches).length;
+  const countStatus = (field: CycleTaskKind, status: TaskStatus) =>
+    countRows((row) => row[field] === status);
 
-  const goalsComplete = active.filter((r) => r.goals === "complete").length;
-  const interimComplete = active.filter((r) => r.interim === "complete").length;
-  const finalComplete = active.filter((r) => r.final === "complete").length;
-  const ackComplete = active.filter((r) => r.acknowledgement === "complete").length;
-  const overdue = active.filter((r) => r.overdueTasks.length > 0).length;
-  const pending = active.filter(
+  const goalsComplete = countStatus("goals", "complete");
+  const interimComplete = countStatus("interim", "complete");
+  const finalComplete = countStatus("final", "complete");
+  const ackComplete = countStatus("acknowledgement", "complete");
+  const overdue = countRows((row) => row.overdueTasks.length > 0);
+  const pending = countRows(
     (r) =>
       r.goals !== "complete" ||
       r.interim !== "complete" ||
       r.final !== "complete" ||
       r.acknowledgement !== "complete",
-  ).length;
+  );
   const completionPct = n === 0 ? 0 : Math.round((ackComplete / n) * 100);
 
   return {
@@ -197,9 +195,9 @@ export function buildCycleCompletionSummary(
     pendingTasks: pending,
     overdueParticipants: overdue,
     completionPct,
-    goalsPending: count("pending") + count("overdue"),
-    interimPending: stageCount("interim", "pending") + stageCount("interim", "overdue"),
-    finalPending: stageCount("final", "pending") + stageCount("final", "overdue"),
+    goalsPending: countStatus("goals", "pending") + countStatus("goals", "overdue"),
+    interimPending: countStatus("interim", "pending") + countStatus("interim", "overdue"),
+    finalPending: countStatus("final", "pending") + countStatus("final", "overdue"),
   };
 }
 
@@ -232,15 +230,8 @@ export function buildManagerReports(rows: ParticipantReportRow[]): ManagerReport
   return [...byManager.values()].sort((a, b) => a.managerName.localeCompare(b.managerName));
 }
 
-const TASK_LABELS: Record<TaskKind, string> = {
-  goals: "Goals",
-  interim: "Interim assessment",
-  final: "Final assessment",
-  acknowledgement: "Acknowledgement",
-};
-
 export function buildOverdueTasks(rows: ParticipantReportRow[], windows: CycleWindows): OverdueTaskRow[] {
-  const dueByKind: Record<TaskKind, string> = {
+  const dueByKind: Record<CycleTaskKind, string> = {
     goals: windows.goal_window_end,
     interim: windows.interim_window_end,
     final: windows.final_window_end,
@@ -260,7 +251,7 @@ export function buildOverdueTasks(rows: ParticipantReportRow[], windows: CycleWi
         userName: isManagerTask ? row.managerName : row.employeeName,
         role: isManagerTask ? "Manager" : "Employee",
         employeeName: row.employeeName,
-        taskType: TASK_LABELS[kind],
+        taskType: CYCLE_REPORT_TASK_LABELS[kind],
         dueDate,
         daysOverdue,
         managerName: row.managerName,
@@ -324,10 +315,6 @@ export function filterParticipantRows(rows: ParticipantReportRow[], filter: Stat
   }
 }
 
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cycle";
-}
-
 export function exportCycleCompletionCsv(
   cycle: Pick<AppraisalCycle, "name">,
   summary: ReturnType<typeof buildCycleCompletionSummary>,
@@ -358,7 +345,7 @@ export function exportCycleCompletionCsv(
       ],
     ],
   );
-  downloadCsv(`${slugify(cycle.name)}-completion-summary.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-completion-summary.csv`, csv);
 }
 
 export function exportEmployeeStatusCsv(cycle: Pick<AppraisalCycle, "name">, rows: ParticipantReportRow[]) {
@@ -392,11 +379,11 @@ export function exportEmployeeStatusCsv(cycle: Pick<AppraisalCycle, "name">, row
       formatScore(r.finalScore),
       formatScore(r.overallScore),
       statusLabel(r.acknowledgement),
-      r.overdueTasks.map((t) => TASK_LABELS[t]).join("; "),
+      r.overdueTasks.map((t) => CYCLE_REPORT_TASK_LABELS[t]).join("; "),
       r.frozen ? "terminated" : "active",
     ]),
   );
-  downloadCsv(`${slugify(cycle.name)}-employee-status.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-employee-status.csv`, csv);
 }
 
 export function exportManagerCompletionCsv(cycle: Pick<AppraisalCycle, "name">, managers: ManagerReportRow[]) {
@@ -424,7 +411,7 @@ export function exportManagerCompletionCsv(cycle: Pick<AppraisalCycle, "name">, 
       m.assigned === 0 ? 0 : Math.round((m.finalComplete / m.assigned) * 100),
     ]),
   );
-  downloadCsv(`${slugify(cycle.name)}-manager-completion.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-manager-completion.csv`, csv);
 }
 
 export function exportOverdueTasksCsv(cycle: Pick<AppraisalCycle, "name">, tasks: OverdueTaskRow[]) {
@@ -441,5 +428,5 @@ export function exportOverdueTasksCsv(cycle: Pick<AppraisalCycle, "name">, tasks
       t.unit,
     ]),
   );
-  downloadCsv(`${slugify(cycle.name)}-overdue-tasks.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-overdue-tasks.csv`, csv);
 }

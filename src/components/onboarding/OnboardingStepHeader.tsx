@@ -31,7 +31,7 @@ export function OnboardingStepHeader({
       <h1 className="mt-2 text-[32px] md:text-[36px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance leading-[1.15]">
         {title}
       </h1>
-      <p className="mt-2 text-[15px] text-[hsl(var(--ink-muted))] leading-relaxed text-pretty">
+      <p className="mt-2 text-[15px] text-ink-muted leading-relaxed text-pretty">
         {subtitle}
       </p>
       {criteria && criteria.length > 0 && criteriaAccent && (

@@ -22,6 +22,7 @@ import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
 import { useEmployees } from "@/hooks/useEmployees";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
   open: boolean;
@@ -113,8 +114,8 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
       } else {
         toast.success(`Imported ${inserted.length} of ${rows.length} rows`);
       }
-    } catch (err: any) {
-      toast.error(err?.message ?? "Import failed");
+    } catch (err: unknown) {
+      toast.error(friendlyError(err, "Import failed"));
     } finally {
       setImporting(false);
     }
@@ -146,20 +147,20 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
 
         {summary ? (
           <div className="py-8 text-center">
-            <CheckCircle2 className="mx-auto h-12 w-12" style={{ color: "hsl(var(--accent-green))" }} />
+            <CheckCircle2 className="mx-auto h-12 w-12 text-accent-green" />
             <h3 className="mt-4 text-lg font-semibold text-foreground">Import complete</h3>
-            <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+            <p className="mt-1 text-sm text-ink-muted">
               <span className="tabular-nums">{summary.inserted}</span> added,{" "}
               <span className="tabular-nums">{summary.skipped}</span> skipped.
             </p>
             {summary.unresolvedManagers.length > 0 && (
-              <div className="mx-auto mt-4 max-w-md rounded-lg border border-[hsl(45,70%,60%)/0.4] bg-[hsl(45,90%,96%)] px-4 py-3 text-left">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-[hsl(45,70%,28%)]">
+              <div className="mx-auto mt-4 max-w-md rounded-lg border border-accent-yellow/[0.4] bg-accent-yellow/[0.08] px-4 py-3 text-left">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-accent-yellow-ink">
                   <AlertCircle className="h-3.5 w-3.5" />
                   {summary.unresolvedManagers.length} manager email
                   {summary.unresolvedManagers.length === 1 ? "" : "s"} not matched
                 </p>
-                <p className="mt-1 text-xs text-[hsl(45,60%,32%)]">
+                <p className="mt-1 text-xs text-accent-yellow-ink">
                   These employees were imported without a manager. Assign them manually or add the
                   missing managers first: {summary.unresolvedManagers.slice(0, 5).join(", ")}
                   {summary.unresolvedManagers.length > 5 ? "…" : ""}
@@ -169,15 +170,12 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-10">
-            <div
-              className="flex h-12 w-12 items-center justify-center rounded-xl"
-              style={{ backgroundColor: "hsl(var(--accent-red) / 0.12)" }}
-            >
-              <Upload className="h-6 w-6" style={{ color: "hsl(var(--accent-red))" }} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-red/[0.12]">
+              <Upload className="h-6 w-6 text-accent-red" />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-foreground">Drop a CSV or choose a file</p>
-              <p className="mt-1 text-xs text-[hsl(var(--ink-muted))]">
+              <p className="mt-1 text-xs text-ink-muted">
                 Not sure where to start? Grab the template below.
               </p>
             </div>
@@ -200,18 +198,18 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
         ) : (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[hsl(var(--ink-muted))] truncate">{fileName}</span>
+              <span className="text-ink-muted truncate">{fileName}</span>
               <div className="flex items-center gap-3 tabular-nums">
-                <span style={{ color: "hsl(var(--accent-green))" }}>✓ {readyCount} ready</span>
+                <span className="text-accent-green">✓ {readyCount} ready</span>
                 {errorCount > 0 && (
                   <span className="text-destructive">✗ {errorCount} blocked</span>
                 )}
               </div>
             </div>
 
-            <div className="max-h-[360px] overflow-auto rounded-lg border border-[hsl(var(--hairline))]">
+            <div className="max-h-[360px] overflow-auto rounded-lg border border-hairline">
               <table className="w-full text-xs">
-                <thead className="bg-[hsl(var(--ink-strong)/0.03)] sticky top-0">
+                <thead className="bg-ink-strong/[0.03] sticky top-0">
                   <tr>
                     <th className="text-left px-3 py-2 font-medium">#</th>
                     <th className="text-left px-3 py-2 font-medium">Name</th>
@@ -225,11 +223,11 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
                   {rows.map((r, i) => (
                     <tr
                       key={i}
-                      className={`border-t border-[hsl(var(--hairline))] ${
+                      className={`border-t border-hairline ${
                         r.errors.length ? "bg-destructive/5" : ""
                       }`}
                     >
-                      <td className="px-3 py-2 tabular-nums text-[hsl(var(--ink-subtle))]">{i + 1}</td>
+                      <td className="px-3 py-2 tabular-nums text-ink-subtle">{i + 1}</td>
                       <td className="px-3 py-2">{r.first_name} {r.last_name}</td>
                       <td className="px-3 py-2">{r.email}</td>
                       <td className="px-3 py-2">{r.unit_path ?? "—"}</td>
@@ -241,9 +239,9 @@ export function EmployeeCsvImportModal({ open, onOpenChange, onImported }: Props
                             {r.errors[0]}
                           </span>
                         ) : r.warnings.length ? (
-                          <span className="text-[hsl(45,70%,32%)]">{r.warnings[0]}</span>
+                          <span className="text-accent-yellow-ink">{r.warnings[0]}</span>
                         ) : (
-                          <span style={{ color: "hsl(var(--accent-green))" }}>Ready</span>
+                          <span className="text-accent-green">Ready</span>
                         )}
                       </td>
                     </tr>

@@ -1,14 +1,6 @@
 import React from "react";
-import { Building2, Landmark, HeartPulse, GraduationCap, LayoutList, Settings2, Check, Pencil } from "lucide-react";
-
-export interface HierarchyTemplate {
-  key: string;
-  label: string;
-  desc: string;
-  icon: React.ElementType;
-  levels: string[];
-  isCustom?: boolean;
-}
+import { Check, Pencil } from "lucide-react";
+import { TEMPLATES, type HierarchyTemplate } from "@/lib/onboardingTemplates";
 
 const LEVEL_ACCENT_VARS = [
   "--accent-blue",
@@ -18,15 +10,6 @@ const LEVEL_ACCENT_VARS = [
 ] as const;
 
 const accentColor = (i: number) => `hsl(var(${LEVEL_ACCENT_VARS[i % LEVEL_ACCENT_VARS.length]}))`;
-
-export const TEMPLATES: HierarchyTemplate[] = [
-  { key: "government", label: "Government", desc: "Public sector hierarchy", icon: Landmark, levels: ["Ministry", "Agency", "Bureau", "Unit"] },
-  { key: "corporate", label: "Corporate", desc: "Standard business structure", icon: Building2, levels: ["Division", "Department", "Team"] },
-  { key: "healthcare", label: "Healthcare", desc: "Medical org structure", icon: HeartPulse, levels: ["Facility", "Department", "Unit", "Team"] },
-  { key: "education", label: "Education", desc: "Academic institution", icon: GraduationCap, levels: ["Faculty", "Department", "Programme"] },
-  { key: "flat", label: "Flat", desc: "Single-level, no nesting", icon: LayoutList, levels: ["Team"] },
-  { key: "custom", label: "Custom", desc: "Build your own hierarchy", icon: Settings2, levels: [], isCustom: true },
-];
 
 interface Props {
   selected: string | null;
@@ -49,7 +32,7 @@ const TemplateCard = ({
       onClick={onSelect}
       className={`group relative flex flex-col text-left rounded-xl border-[1.5px] p-4 pb-3.5 min-h-[155px] transition-[border-color,background-color,box-shadow] duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
         active
-          ? "border-primary bg-accent shadow-[0_0_0_2px_hsl(var(--primary)/0.15),0_4px_14px_rgba(28,25,23,0.08)]"
+          ? "border-primary bg-accent ring-2 ring-primary/[0.15] shadow-[0_4px_14px_rgba(28,25,23,0.08)]"
           : "border-border bg-card shadow-[0_1px_3px_rgba(28,25,23,0.06),0_1px_2px_rgba(28,25,23,0.04)] hover:border-border/80 hover:bg-card hover:shadow-[0_4px_14px_rgba(28,25,23,0.08),0_2px_4px_rgba(28,25,23,0.04)]"
       }`}
     >

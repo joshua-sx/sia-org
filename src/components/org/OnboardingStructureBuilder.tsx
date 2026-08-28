@@ -4,7 +4,7 @@ import { Check, Circle, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { OnboardingActionFooter } from "@/components/onboarding/OnboardingStepFrame";
-import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
+import TemplateSelector from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
@@ -12,27 +12,17 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { playSuccessCue } from "@/lib/completionSounds";
-
-/** Maps the industry chosen during Setup to a sensible template suggestion. */
-export function recommendedTemplateFor(industry?: string | null): string | null {
-  switch ((industry ?? "").toLowerCase()) {
-    case "government": return "government";
-    case "healthcare": return "healthcare";
-    case "education": return "education";
-    case "aviation":
-    case "finance":
-    case "hospitality": return "corporate";
-    default: return null;
-  }
-}
+import { friendlyError } from "@/lib/siaErrors";
+import { persistOrgStructure } from "@/lib/persistOrgStructure";
+import { recommendedTemplateFor, TEMPLATES } from "@/lib/onboardingTemplates";
 
 function TaskCheck({ label, met }: { label: string; met: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-[hsl(var(--ink-muted))]">
+    <span className="inline-flex items-center gap-1.5 text-xs text-ink-muted">
       {met ? (
-        <Check className="h-3.5 w-3.5" style={{ color: "hsl(var(--accent-green))" }} strokeWidth={2.5} />
+        <Check className="h-3.5 w-3.5 text-accent-green" strokeWidth={2.5} />
       ) : (
-        <Circle className="h-3.5 w-3.5 text-[hsl(var(--ink-subtle))]" />
+        <Circle className="h-3.5 w-3.5 text-ink-subtle" />
       )}
       <span className={met ? "text-foreground" : undefined}>{label}</span>
     </span>
@@ -49,9 +39,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+    <section className="rounded-2xl border border-hairline bg-surface-raised p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      {description && <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">{description}</p>}
+      {description && <p className="mt-1 text-sm text-ink-muted">{description}</p>}
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -88,25 +78,15 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
     if (!canContinue) return;
     setSaving(true);
     try {
-      const createdTypes = await createTypes.mutateAsync(levels.map((name, i) => ({ name, level: i + 1 })));
-      const levelToTypeId: Record<number, string> = {};
-      createdTypes.forEach((t) => { levelToTypeId[t.level] = t.id; });
-
-      const persistNodes = async (nodes: UnitNode[], depth: number, parentId: string | null) => {
-        const typeId = levelToTypeId[depth + 1];
-        if (!typeId) return;
-        const created = await Promise.all(
-          nodes.map((node) => addUnit.mutateAsync({ name: node.name, unit_type_id: typeId, parent_id: parentId })),
-        );
-        await Promise.all(
-          nodes.map((node, i) =>
-            node.children.length > 0 ? persistNodes(node.children, depth + 1, created[i].id) : Promise.resolve(),
-          ),
-        );
-      };
-      await persistNodes(units, 0, null);
+      await persistOrgStructure({
+        levels,
+        units,
+        createTypes,
+        addUnit,
+        requireUnits: true,
+      });
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Could not save your structure");
+      toast.error(friendlyError(err, "Could not save your structure"));
       setSaving(false);
       return;
     }
@@ -135,12 +115,12 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[hsl(var(--accent-red)/0.1)]">
-                    <Settings2 className="h-4 w-4" style={{ color: "hsl(var(--accent-red))" }} />
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-accent-red/[0.1]">
+                    <Settings2 className="h-4 w-4 text-accent-red" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">Custom hierarchy</p>
-                    <p className="text-[11px] text-[hsl(var(--ink-muted))]">Build your own levels</p>
+                    <p className="text-[11px] text-ink-muted">Build your own levels</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setSelectedTemplate(null)}>

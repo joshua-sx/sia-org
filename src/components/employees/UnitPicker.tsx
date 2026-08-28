@@ -32,7 +32,7 @@ export function UnitPicker({ value, onChange, compact }: Props) {
 
   if (levels.length === 0) {
     return (
-      <p className="text-xs text-[hsl(var(--ink-muted))]">
+      <p className="text-xs text-ink-muted">
         Set up your org structure first to assign a unit.
       </p>
     );
@@ -92,7 +92,7 @@ export function UnitPicker({ value, onChange, compact }: Props) {
       </div>
 
       {value && (
-        <div className="flex items-center gap-1 text-[11px] text-[hsl(var(--ink-muted))]">
+        <div className="flex items-center gap-1 text-[11px] text-ink-muted">
           {(ancestry.get(value) ?? []).map((u, i, arr) => (
             <span key={u.id} className="flex items-center gap-1">
               <span className={i === arr.length - 1 ? "text-foreground font-medium" : ""}>

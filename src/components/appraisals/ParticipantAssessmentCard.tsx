@@ -5,6 +5,7 @@ import { CheckCircle2, Lock, Save, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScoreStat } from "@/components/appraisals/ScoreStat";
 import {
   Select,
   SelectContent,
@@ -17,8 +18,15 @@ import { useAssessments, type GoalRating } from "@/hooks/useAssessments";
 import type { CycleParticipant } from "@/hooks/useCycleParticipants";
 import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import { RATING_LABELS, RATING_OPTIONS, type StageDraft } from "@/lib/assessmentSchema";
-import { windowState, STAGE_LABELS, type Stage } from "@/lib/cycleSchema";
-import { stageScore, weightSum, formatScore } from "@/lib/scoring";
+import {
+  stageScore as getStageScore,
+  stageSubmittedAt,
+  stageWindow,
+  windowState,
+  STAGE_LABELS,
+  type Stage,
+} from "@/lib/cycleSchema";
+import { stageScore as calculateStageScore, weightSum, formatScore } from "@/lib/scoring";
 import { friendlyError } from "@/lib/siaErrors";
 
 interface Props {
@@ -41,9 +49,6 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
     saveReviewerComment,
   } = useAssessments(participant.id, goalIds);
 
-  const submittedFor = (stage: Stage) =>
-    stage === "interim" ? participant.interim_submitted_at : participant.final_submitted_at;
-
   const defaultStage: Stage =
     participant.interim_submitted_at ||
     windowState(cycle.final_window_start, cycle.final_window_end) !== "upcoming"
@@ -53,13 +58,13 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
   const loading = goalsLoading || ratingsLoading;
 
   return (
-    <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+    <div className="rounded-xl border border-hairline bg-surface-raised overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-hairline">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">
             {participant.employee.first_name} {participant.employee.last_name}
           </p>
-          <p className="text-xs text-[hsl(var(--ink-subtle))] truncate">
+          <p className="text-xs text-ink-subtle truncate">
             {participant.employee.job_title || "—"}
             {mode === "reviewer" && (
               <>
@@ -78,7 +83,7 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
         {detailHref && (
           <Link
             to={detailHref}
-            className="shrink-0 rounded-md border border-[hsl(var(--hairline))] px-2 py-0.5 text-[11.5px] font-medium text-foreground transition-colors hover:border-[hsl(var(--ink-subtle))]"
+            className="shrink-0 rounded-md border border-hairline px-2 py-0.5 text-[11.5px] font-medium text-foreground transition-colors hover:border-ink-subtle"
           >
             Open →
           </Link>
@@ -86,9 +91,9 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
       </div>
 
       {loading ? (
-        <p className="px-5 py-4 text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+        <p className="px-5 py-4 text-sm text-ink-muted">Loading…</p>
       ) : goals.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-[hsl(var(--ink-muted))]">
+        <p className="px-5 py-4 text-sm text-ink-muted">
           No goals set for this participant yet — assessments unlock once goals exist.
         </p>
       ) : (
@@ -97,7 +102,9 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
             <TabsList className="h-8">
               {(["interim", "final"] as const).map((s) => (
                 <TabsTrigger key={s} value={s} className="text-xs gap-1.5">
-                  {submittedFor(s) && <CheckCircle2 className="h-3 w-3 text-[hsl(var(--accent-green))]" />}
+                  {stageSubmittedAt(participant, s) && (
+                    <CheckCircle2 className="h-3 w-3 text-accent-green" />
+                  )}
                   {STAGE_LABELS[s]}
                 </TabsTrigger>
               ))}
@@ -187,12 +194,9 @@ function StagePanel({
       manager_comment: serverByGoal.get(goalId)?.manager_comment ?? null,
     };
 
-  const submittedAt =
-    stage === "interim" ? participant.interim_submitted_at : participant.final_submitted_at;
-  const window =
-    stage === "interim"
-      ? windowState(cycle.interim_window_start, cycle.interim_window_end)
-      : windowState(cycle.final_window_start, cycle.final_window_end);
+  const submittedAt = stageSubmittedAt(participant, stage);
+  const { start, end } = stageWindow(cycle, stage);
+  const window = windowState(start, end);
 
   const editable = mode === "manager" && cycle.status === "active" && !submittedAt && window === "open";
   const reviewerEditable =
@@ -201,7 +205,7 @@ function StagePanel({
   const merged = goals.map((g) => ({ goal: g, row: rowFor(g.id) }));
   const allRated = merged.every(({ row }) => row.rating !== null);
   const weightsReady = weightSum(goals) === 100;
-  const preview = stageScore(
+  const preview = calculateStageScore(
     merged.map(({ goal, row }) => ({ rating: row.rating, weight: goal.weight })),
   );
   const needsInterimFirst = stage === "final" && !participant.interim_submitted_at;
@@ -210,13 +214,13 @@ function StagePanel({
 
   return (
     <div>
-      <div className="divide-y divide-[hsl(var(--hairline))] border-t border-[hsl(var(--hairline))] mt-3">
+      <div className="divide-y divide-hairline border-t border-hairline mt-3">
         {merged.map(({ goal, row }) => {
           const server = serverByGoal.get(goal.id);
           return (
             <div key={goal.id} className="px-5 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex h-5 min-w-10 items-center justify-center rounded bg-[hsl(var(--ink-strong)/0.05)] px-1.5 text-[10px] font-semibold tabular-nums">
+                <span className="inline-flex h-5 min-w-10 items-center justify-center rounded bg-ink-strong/[0.05] px-1.5 text-[10px] font-semibold tabular-nums">
                   {goal.weight}%
                 </span>
                 <p className="text-sm text-foreground flex-1 min-w-0">{goal.title}</p>
@@ -264,7 +268,7 @@ function StagePanel({
                   />
                 ) : (
                   row.manager_comment && (
-                    <p className="text-xs text-[hsl(var(--ink-muted))] leading-relaxed pt-1.5">
+                    <p className="text-xs text-ink-muted leading-relaxed pt-1.5">
                       {row.manager_comment}
                     </p>
                   )
@@ -295,20 +299,20 @@ function StagePanel({
                       </div>
                     ) : (
                       server.reviewer_comment && (
-                        <p className="text-xs text-[hsl(var(--ink-muted))]">
+                        <p className="text-xs text-ink-muted">
                           <span className="font-medium">Your comment:</span> {server.reviewer_comment}
                         </p>
                       )
                     )
                   ) : (
-                    <p className="text-[11px] text-[hsl(var(--ink-subtle))]">
+                    <p className="text-[11px] text-ink-subtle">
                       No assessment drafted for this goal yet.
                     </p>
                   )}
                 </div>
               ) : (
                 server?.reviewer_comment && (
-                  <p className="mt-2 text-xs text-[hsl(var(--ink-muted))]">
+                  <p className="mt-2 text-xs text-ink-muted">
                     <span className="font-medium">
                       Reviewer{participant.extra_reviewer ? ` (${participant.extra_reviewer.first_name} ${participant.extra_reviewer.last_name})` : ""}:
                     </span>{" "}
@@ -321,14 +325,14 @@ function StagePanel({
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 px-5 py-3.5 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--ink-strong)/0.02)]">
-        <p className="text-xs text-[hsl(var(--ink-muted))] flex-1">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-3.5 border-t border-hairline bg-ink-strong/[0.02]">
+        <p className="text-xs text-ink-muted flex-1">
           {submittedAt ? (
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5" />
               Submitted {new Date(submittedAt).toLocaleDateString()} — score{" "}
               <span className="font-semibold tabular-nums">
-                {formatScore(stage === "interim" ? participant.interim_score : participant.final_score)}
+                {formatScore(getStageScore(participant, stage))}
               </span>
             </span>
           ) : (
@@ -357,27 +361,6 @@ function StagePanel({
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-function ScoreStat({
-  label,
-  value,
-  emphasize,
-}: {
-  label: string;
-  value: number | null;
-  emphasize?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{label}</p>
-      <p
-        className={`tabular-nums font-semibold ${emphasize ? "text-lg text-[hsl(var(--accent-green))]" : "text-sm text-foreground"}`}
-      >
-        {formatScore(value)}
-      </p>
     </div>
   );
 }

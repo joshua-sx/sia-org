@@ -1,33 +1,18 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  UserCircle2,
-  Building2,
-  Users,
-  CalendarClock,
-  type LucideIcon,
-} from "lucide-react";
-
-export type OnboardingStepKey = "account" | "structure" | "people" | "cycle";
-export type OnboardingStatus = "done" | "current" | "next" | "skipped" | "locked";
-
-export interface OnboardingStep {
-  key: OnboardingStepKey;
-  label: string;
-  icon: LucideIcon;
-  accent: string; // css var name
-  href?: string;
-  status: OnboardingStatus;
-  skipped: boolean;
-  done: boolean;
-}
+  deriveOnboardingProgress,
+  deriveOnboardingSteps,
+  onboardingStepIndex,
+  type OnboardingStep,
+  type OnboardingStepKey,
+} from "@/lib/onboardingSteps";
 
 export function useOnboarding() {
   const { organization, refreshOrganization } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
 
   const structureDone = !!organization?.structure_complete;
   const structureSkipped = !!organization?.structure_skipped;
@@ -36,68 +21,14 @@ export function useOnboarding() {
   const cycleDone = !!organization?.cycle_complete;
   const cycleSkipped = !!organization?.cycle_skipped;
 
-  // Determine current step: first step that is not done AND not skipped
-  const orderedFlags: { done: boolean; skipped: boolean }[] = [
-    { done: true, skipped: false }, // account
-    { done: structureDone, skipped: structureSkipped },
-    { done: peopleDone, skipped: peopleSkipped },
-    { done: cycleDone, skipped: cycleSkipped },
-  ];
-  const currentIndex = orderedFlags.findIndex((f) => !f.done && !f.skipped);
-
-  const resolveStatus = (i: number): OnboardingStatus => {
-    const f = orderedFlags[i];
-    if (f.done) return "done";
-    if (f.skipped) return "skipped";
-    if (currentIndex === -1) return "next";
-    if (i === currentIndex) return "current";
-    if (i < currentIndex) return "next";
-    return "next";
-  };
-
-  const steps: OnboardingStep[] = [
-    {
-      key: "account",
-      label: "Account",
-      icon: UserCircle2,
-      accent: "--accent-blue",
-      status: resolveStatus(0),
-      done: true,
-      skipped: false,
-    },
-    {
-      key: "structure",
-      label: "Structure",
-      icon: Building2,
-      accent: "--accent-red",
-      href: "/org/structure",
-      status: resolveStatus(1),
-      done: structureDone,
-      skipped: structureSkipped,
-    },
-    {
-      key: "people",
-      label: "People",
-      icon: Users,
-      accent: "--accent-purple",
-      href: "/org/employees",
-      status: resolveStatus(2),
-      done: peopleDone,
-      skipped: peopleSkipped,
-    },
-    {
-      key: "cycle",
-      label: "Launch",
-      icon: CalendarClock,
-      accent: "--accent-green",
-      href: "/appraisals",
-      status: resolveStatus(3),
-      done: cycleDone,
-      skipped: cycleSkipped,
-    },
-  ];
-
-  const completedCount = steps.filter((s) => s.done).length;
+  const steps = deriveOnboardingSteps({
+    account: { done: true, skipped: false },
+    structure: { done: structureDone, skipped: structureSkipped },
+    people: { done: peopleDone, skipped: peopleSkipped },
+    cycle: { done: cycleDone, skipped: cycleSkipped },
+  });
+  const { resolvedCount: progressCount, totalSteps } =
+    deriveOnboardingProgress(steps);
   // Onboarding only ends once the user reaches the final review step and
   // confirms it — resolving every step surfaces that review screen, it does
   // not silently exit the flow.
@@ -124,22 +55,41 @@ export function useOnboarding() {
         .eq("id", organization.id);
       if (error) throw error;
       await refreshOrganization();
-      qc.invalidateQueries();
     },
   });
 
   const markComplete = (key: OnboardingStepKey) => {
-    if (key === "structure") return updateOrg.mutateAsync({ structure_complete: true, structure_skipped: false });
-    if (key === "people") return updateOrg.mutateAsync({ people_complete: true, people_skipped: false });
-    if (key === "cycle") return updateOrg.mutateAsync({ cycle_complete: true, cycle_skipped: false });
-    return Promise.resolve();
+    switch (key) {
+      case "account":
+        return Promise.resolve();
+      case "structure":
+        return updateOrg.mutateAsync({ structure_complete: true, structure_skipped: false });
+      case "people":
+        return updateOrg.mutateAsync({ people_complete: true, people_skipped: false });
+      case "cycle":
+        return updateOrg.mutateAsync({ cycle_complete: true, cycle_skipped: false });
+      default: {
+        const exhaustive: never = key;
+        return exhaustive;
+      }
+    }
   };
 
   const markSkipped = (key: OnboardingStepKey) => {
-    if (key === "structure") return updateOrg.mutateAsync({ structure_skipped: true });
-    if (key === "people") return updateOrg.mutateAsync({ people_skipped: true });
-    if (key === "cycle") return updateOrg.mutateAsync({ cycle_skipped: true });
-    return Promise.resolve();
+    switch (key) {
+      case "account":
+        return Promise.resolve();
+      case "structure":
+        return updateOrg.mutateAsync({ structure_skipped: true });
+      case "people":
+        return updateOrg.mutateAsync({ people_skipped: true });
+      case "cycle":
+        return updateOrg.mutateAsync({ cycle_skipped: true });
+      default: {
+        const exhaustive: never = key;
+        return exhaustive;
+      }
+    }
   };
 
   /**
@@ -153,43 +103,33 @@ export function useOnboarding() {
 
   const resume = (key: OnboardingStepKey) => {
     const step = steps.find((s) => s.key === key);
-    if (step?.href) navigate(step.href);
+    if (step) navigate(step.href);
   };
-
-  const goToNext = () => {
-    const next = steps.find((s) => s.status === "current" || (!s.done && !s.skipped && s.href));
-    if (next?.href) navigate(next.href);
-    else navigate("/dashboard");
-  };
-
-  const stepIndexByKey = (key: OnboardingStepKey) => steps.findIndex((s) => s.key === key);
 
   /** Step immediately after `key` in the flow (regardless of status). */
   const nextStepAfter = (key: OnboardingStepKey): OnboardingStep | null => {
-    const i = stepIndexByKey(key);
+    const i = onboardingStepIndex(key);
     return i >= 0 && i < steps.length - 1 ? steps[i + 1] : null;
   };
 
   /** Step immediately before `key` in the flow (regardless of status). */
   const previousStepBefore = (key: OnboardingStepKey): OnboardingStep | null => {
-    const i = stepIndexByKey(key);
+    const i = onboardingStepIndex(key);
     return i > 0 ? steps[i - 1] : null;
   };
 
   return {
     steps,
-    completedCount,
-    totalSteps: steps.length,
+    progressCount,
+    totalSteps,
     setupComplete,
     isOnboarding,
     markComplete,
     markSkipped,
     finishSetup,
     resume,
-    goToNext,
     nextStepAfter,
     previousStepBefore,
-    stepIndexByKey,
     saving: updateOrg.isPending,
   };
 }

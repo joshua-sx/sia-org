@@ -19,10 +19,10 @@ import { PanelNotice } from "@/components/appraisals/PanelNotice";
 function Stat({ label, value, total }: { label: string; value: number; total: number }) {
   return (
     <div>
-      <p className="text-xs text-[hsl(var(--ink-muted))]">{label}</p>
+      <p className="text-xs text-ink-muted">{label}</p>
       <p className="mt-0.5 text-sm font-semibold tabular-nums text-foreground">
         {value}
-        <span className="font-normal text-[hsl(var(--ink-subtle))]"> / {total}</span>
+        <span className="font-normal text-ink-subtle"> / {total}</span>
       </p>
     </div>
   );
@@ -55,12 +55,12 @@ export function CycleCompletionPanel({
 
   if (status === "completed") {
     return (
-      <section className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-5 py-4">
+      <section className="mt-6 rounded-xl border border-hairline bg-surface-raised px-5 py-4">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Lock className="h-4 w-4 text-[hsl(var(--ink-muted))]" />
+          <Lock className="h-4 w-4 text-ink-muted" />
           Cycle closed
         </h2>
-        <p className="mt-1 text-xs text-[hsl(var(--ink-muted))]">
+        <p className="mt-1 text-xs text-ink-muted">
           {closedAt
             ? `Closed on ${new Date(closedAt).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}. `
             : ""}
@@ -68,7 +68,7 @@ export function CycleCompletionPanel({
           remain available to export.
         </p>
         {closeNote && (
-          <p className="mt-2 rounded-lg bg-[hsl(var(--hairline)/0.4)] px-3 py-2 text-xs text-[hsl(var(--ink-muted))]">
+          <p className="mt-2 rounded-lg bg-hairline/[0.4] px-3 py-2 text-xs text-ink-muted">
             <span className="font-medium text-foreground">Closing note: </span>
             {closeNote}
           </p>
@@ -78,11 +78,11 @@ export function CycleCompletionPanel({
   }
 
   return (
-    <section className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
+    <section className="mt-6 rounded-xl border border-hairline bg-surface-raised">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Close this cycle</h2>
-          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
+          <p className="mt-0.5 text-xs text-ink-muted">
             Closing freezes every rating and comment for good. It can't be undone.
           </p>
         </div>
@@ -99,7 +99,7 @@ export function CycleCompletionPanel({
       </div>
 
       {isHr && requiresForce && (
-        <div className="border-t border-[hsl(var(--hairline))] [&>div]:border-b-0">
+        <div className="border-t border-hairline [&>div]:border-b-0">
           <PanelNotice
             text={`${readiness?.missing_final} of ${readiness?.participants} participant(s) have no final assessment. You can still close, but you'll need to record a reason.`}
           />
@@ -107,13 +107,13 @@ export function CycleCompletionPanel({
       )}
 
       {isLoading && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
+        <div className="border-t border-hairline px-5 py-6">
           <QueryLoading label="Checking cycle progress" rows={2} />
         </div>
       )}
 
       {isError && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
+        <div className="border-t border-hairline px-5 py-6">
           <QueryError
             message={error instanceof Error ? error.message : undefined}
             onRetry={() => void refetch()}
@@ -122,7 +122,7 @@ export function CycleCompletionPanel({
       )}
 
       {readiness && !isLoading && (
-        <div className="grid grid-cols-2 gap-4 border-t border-[hsl(var(--hairline))] px-5 py-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 border-t border-hairline px-5 py-4 sm:grid-cols-4">
           <Stat label="Participants" value={readiness.participants} total={readiness.participants} />
           <Stat label="Interim submitted" value={readiness.interim_submitted} total={readiness.participants} />
           <Stat label="Final submitted" value={readiness.final_submitted} total={readiness.participants} />
