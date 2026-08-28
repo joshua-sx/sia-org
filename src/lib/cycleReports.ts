@@ -182,7 +182,7 @@ export function buildCycleCompletionSummary(
       r.interim !== "complete" ||
       r.final !== "complete" ||
       r.acknowledgement !== "complete",
-  ).length;
+  );
   const completionPct = n === 0 ? 0 : Math.round((ackComplete / n) * 100);
 
   return {
