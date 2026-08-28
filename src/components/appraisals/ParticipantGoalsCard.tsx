@@ -67,23 +67,23 @@ export function ParticipantGoalsCard({ participant, cycleId, canEdit, employees 
   };
 
   return (
-    <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+    <div className="rounded-xl border border-hairline bg-surface-raised overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-hairline">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">
             {participant.employee.first_name} {participant.employee.last_name}
           </p>
-          <p className="text-xs text-[hsl(var(--ink-subtle))] truncate">
+          <p className="text-xs text-ink-subtle truncate">
             {participant.employee.job_title || "—"} · Manager: {participant.manager.first_name}{" "}
             {participant.manager.last_name}
           </p>
         </div>
         <span
-          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium tabular-nums"
-          style={{
-            backgroundColor: ready ? "hsl(var(--accent-green) / 0.12)" : "hsl(var(--accent-yellow) / 0.14)",
-            color: ready ? "hsl(var(--accent-green))" : "hsl(45,70%,32%)",
-          }}
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium tabular-nums ${
+            ready
+              ? "bg-accent-green/[0.12] text-accent-green"
+              : "bg-accent-yellow/[0.14] text-accent-yellow-ink"
+          }`}
         >
           {total}/100% {ready ? "· Ready" : ""}
         </span>
@@ -102,22 +102,22 @@ export function ParticipantGoalsCard({ participant, cycleId, canEdit, employees 
       </div>
 
       {isLoading ? (
-        <p className="px-5 py-4 text-sm text-[hsl(var(--ink-muted))]">Loading goals…</p>
+        <p className="px-5 py-4 text-sm text-ink-muted">Loading goals…</p>
       ) : goals.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-[hsl(var(--ink-muted))]">
+        <p className="px-5 py-4 text-sm text-ink-muted">
           No goals yet.{canEdit ? " Add goals until weights total 100%." : ""}
         </p>
       ) : (
-        <div className="divide-y divide-[hsl(var(--hairline))]">
+        <div className="divide-y divide-hairline">
           {goals.map((g) => (
             <div key={g.id} className="flex items-start gap-3 px-5 py-3">
-              <span className="mt-0.5 inline-flex h-6 min-w-11 items-center justify-center rounded-md bg-[hsl(var(--ink-strong)/0.05)] px-1.5 text-[11px] font-semibold tabular-nums text-foreground">
+              <span className="mt-0.5 inline-flex h-6 min-w-11 items-center justify-center rounded-md bg-ink-strong/[0.05] px-1.5 text-[11px] font-semibold tabular-nums text-foreground">
                 {g.weight}%
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-foreground">{g.title}</p>
                 {g.description && (
-                  <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">{g.description}</p>
+                  <p className="mt-0.5 text-xs text-ink-muted leading-relaxed">{g.description}</p>
                 )}
               </div>
               {canEdit && (
@@ -148,9 +148,9 @@ export function ParticipantGoalsCard({ participant, cycleId, canEdit, employees 
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--ink-strong)/0.02)]">
-        <UserSearch className="h-3.5 w-3.5 text-[hsl(var(--ink-subtle))]" />
-        <span className="text-xs text-[hsl(var(--ink-muted))]">Extra reviewer</span>
+      <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-t border-hairline bg-ink-strong/[0.02]">
+        <UserSearch className="h-3.5 w-3.5 text-ink-subtle" />
+        <span className="text-xs text-ink-muted">Extra reviewer</span>
         <div className="w-56">
           <Select
             value={participant.extra_reviewer_id ?? NONE}
@@ -180,7 +180,7 @@ export function ParticipantGoalsCard({ participant, cycleId, canEdit, employees 
             </SelectContent>
           </Select>
         </div>
-        <span className="text-[11px] text-[hsl(var(--ink-subtle))]">
+        <span className="text-[11px] text-ink-subtle">
           Optional — can add comments alongside the manager's assessment.
         </span>
       </div>
@@ -249,21 +249,21 @@ function GoalFormModal({
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
-              Title<span className="ml-0.5 text-[hsl(var(--accent-red))]">*</span>
+            <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
+              Title<span className="ml-0.5 text-accent-red">*</span>
             </Label>
             <Input placeholder="e.g. Ship the Q3 onboarding revamp" {...form.register("title")} />
             {errors.title && <p className="text-[11px] text-destructive">{errors.title.message}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+            <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
               Description
             </Label>
             <Textarea rows={3} placeholder="What does success look like?" {...form.register("description")} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
-              Weight (%)<span className="ml-0.5 text-[hsl(var(--accent-red))]">*</span>
+            <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
+              Weight (%)<span className="ml-0.5 text-accent-red">*</span>
             </Label>
             <Input type="number" min={1} max={100} {...form.register("weight")} />
             {errors.weight && <p className="text-[11px] text-destructive">{errors.weight.message}</p>}

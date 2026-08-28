@@ -84,7 +84,7 @@ const UnitDetailPanel = ({ node, onAddChild }: Props) => {
         </div>
         <div>
           <span className="text-muted-foreground">Status</span>
-          <p className={`font-medium ${isInactive ? "text-destructive" : "text-[hsl(var(--success))]"}`}>
+          <p className={`font-medium ${isInactive ? "text-destructive" : "text-success"}`}>
             {isInactive ? "Inactive" : "Active"}
           </p>
         </div>

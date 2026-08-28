@@ -44,7 +44,7 @@ export function OnboardingActionFooter({
   );
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-[hsl(var(--hairline))] py-5">
+    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-hairline py-5">
       {backHref && (
         <Button
           type="button"
@@ -158,7 +158,7 @@ export function OnboardingStepFrame({
           <h1 className="mt-8 font-[Space_Grotesk] text-[30px] leading-[1.08] font-semibold tracking-[-1px] text-foreground text-balance md:text-[40px]">
             {title}
           </h1>
-          <p className="mx-auto mt-3 max-w-[56ch] text-[15px] leading-relaxed text-[hsl(var(--ink-muted))] text-pretty">
+          <p className="mx-auto mt-3 max-w-[56ch] text-[15px] leading-relaxed text-ink-muted text-pretty">
             {subtitle}
           </p>
         </div>

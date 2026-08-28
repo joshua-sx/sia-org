@@ -43,9 +43,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+      <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
         {label}
-        {required && <span className="ml-0.5 text-[hsl(var(--accent-red))]">*</span>}
+        {required && <span className="ml-0.5 text-accent-red">*</span>}
       </Label>
       {children}
       {error && <p className="text-[11px] text-destructive">{error}</p>}

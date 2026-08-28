@@ -57,9 +57,9 @@ export function OrgScoringSettingsCard() {
   if (isLoading || !data) return null;
 
   return (
-    <div className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-5 py-4">
+    <div className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-surface-raised px-5 py-4">
       <div>
-        <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+        <p className="text-[11px] uppercase tracking-wider text-ink-subtle">
           Org-wide scoring split
         </p>
         <p className="mt-1 text-sm font-medium text-foreground tabular-nums">
@@ -84,7 +84,7 @@ export function OrgScoringSettingsCard() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
                   Interim %
                 </Label>
                 <Input type="number" min={0} max={100} {...form.register("interim_weight_pct")} />
@@ -93,7 +93,7 @@ export function OrgScoringSettingsCard() {
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
                   Final %
                 </Label>
                 <Input type="number" min={0} max={100} {...form.register("final_weight_pct")} />

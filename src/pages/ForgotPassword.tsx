@@ -45,7 +45,7 @@ const ForgotPassword = () => {
     >
       {sent ? (
         <div className="space-y-4">
-          <p className="text-sm text-[hsl(var(--ink-muted))] text-center">
+          <p className="text-sm text-ink-muted text-center">
             If an account exists for{" "}
             <span className="font-medium text-foreground">{email}</span>, you'll receive an email with instructions.
           </p>
@@ -68,7 +68,7 @@ const ForgotPassword = () => {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Sending..." : "Send reset link"}
           </Button>
-          <p className="text-center text-sm text-[hsl(var(--ink-muted))]">
+          <p className="text-center text-sm text-ink-muted">
             Remembered it?{" "}
             <Link to="/login" className="font-medium text-primary hover:underline">
               Sign in

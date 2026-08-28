@@ -32,7 +32,7 @@ const TemplateCard = ({
       onClick={onSelect}
       className={`group relative flex flex-col text-left rounded-xl border-[1.5px] p-4 pb-3.5 min-h-[155px] transition-[border-color,background-color,box-shadow] duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
         active
-          ? "border-primary bg-accent shadow-[0_0_0_2px_hsl(var(--primary)/0.15),0_4px_14px_rgba(28,25,23,0.08)]"
+          ? "border-primary bg-accent ring-2 ring-primary/[0.15] shadow-[0_4px_14px_rgba(28,25,23,0.08)]"
           : "border-border bg-card shadow-[0_1px_3px_rgba(28,25,23,0.06),0_1px_2px_rgba(28,25,23,0.04)] hover:border-border/80 hover:bg-card hover:shadow-[0_4px_14px_rgba(28,25,23,0.08),0_2px_4px_rgba(28,25,23,0.04)]"
       }`}
     >

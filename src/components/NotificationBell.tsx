@@ -36,18 +36,18 @@ export function NotificationBell() {
         <button
           type="button"
           aria-label={unreadCount > 0 ? `Reminders, ${unreadCount} unread` : "Reminders"}
-          className="relative flex h-7 w-7 items-center justify-center rounded-md text-[hsl(var(--ink-subtle))] transition-colors hover:bg-[hsl(var(--hairline)/0.5)] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="relative flex h-7 w-7 items-center justify-center rounded-md text-ink-subtle transition-colors hover:bg-hairline/[0.5] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[hsl(var(--accent-red))] px-1 text-[10px] font-semibold leading-none text-white tabular-nums">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-red px-1 text-[10px] font-semibold leading-none text-white tabular-nums">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
-        <div className="flex items-center justify-between border-b border-[hsl(var(--hairline))] px-3 py-2">
+        <div className="flex items-center justify-between border-b border-hairline px-3 py-2">
           <p className="text-xs font-semibold text-foreground">Reminders</p>
           {unreadCount > 0 && (
             <Button
@@ -62,40 +62,40 @@ export function NotificationBell() {
         </div>
 
         {isLoading ? (
-          <p className="px-3 py-6 text-center text-xs text-[hsl(var(--ink-subtle))]">Loading…</p>
+          <p className="px-3 py-6 text-center text-xs text-ink-subtle">Loading…</p>
         ) : notifications.length === 0 ? (
           <div className="px-3 py-8 text-center">
             <p className="text-xs font-medium text-foreground">You're all caught up</p>
-            <p className="mt-1 text-[11px] text-[hsl(var(--ink-subtle))]">
+            <p className="mt-1 text-[11px] text-ink-subtle">
               Reminders about late appraisal tasks show up here.
             </p>
           </div>
         ) : (
           <ScrollArea className="max-h-80">
-            <ul className="divide-y divide-[hsl(var(--hairline))]">
+            <ul className="divide-y divide-hairline">
               {notifications.map((n) => (
                 <li key={n.id}>
                   <button
                     type="button"
                     onClick={() => open(n)}
-                    className={`flex w-full gap-2 px-3 py-2.5 text-left transition-colors hover:bg-[hsl(var(--hairline)/0.35)] ${
+                    className={`flex w-full gap-2 px-3 py-2.5 text-left transition-colors hover:bg-hairline/[0.35] ${
                       n.read_at ? "opacity-70" : ""
                     }`}
                   >
                     <span
                       aria-hidden
                       className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
-                        n.read_at ? "bg-transparent" : "bg-[hsl(var(--accent-red))]"
+                        n.read_at ? "bg-transparent" : "bg-accent-red"
                       }`}
                     />
                     <span className="min-w-0 flex-1">
                       <span className="block text-xs font-medium text-foreground">{n.title}</span>
                       {n.body && (
-                        <span className="mt-0.5 block text-[11px] text-[hsl(var(--ink-muted))]">
+                        <span className="mt-0.5 block text-[11px] text-ink-muted">
                           {n.body}
                         </span>
                       )}
-                      <span className="mt-1 block text-[10px] uppercase tracking-wide text-[hsl(var(--ink-subtle))]">
+                      <span className="mt-1 block text-[10px] uppercase tracking-wide text-ink-subtle">
                         {relativeTime(n.created_at)}
                       </span>
                     </span>

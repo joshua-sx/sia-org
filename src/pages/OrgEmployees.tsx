@@ -81,8 +81,8 @@ const OrgEmployees = () => {
       <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground font-[Space_Grotesk]">Access restricted</h1>
-          <p className="mt-2 text-sm text-[hsl(var(--ink-muted))]">This area is for HR Administrators only.</p>
-          <Button asChild variant="ghost" className="mt-6 gap-2 text-[hsl(var(--ink-muted))]">
+          <p className="mt-2 text-sm text-ink-muted">This area is for HR Administrators only.</p>
+          <Button asChild variant="ghost" className="mt-6 gap-2 text-ink-muted">
             <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
           </Button>
         </div>
@@ -117,18 +117,12 @@ const OrgEmployees = () => {
       )}
 
       {showAttention && (
-        <div
-          className="rounded-xl border p-4 mb-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
-          style={{
-            backgroundColor: "hsl(var(--accent-purple) / 0.08)",
-            borderColor: "hsl(var(--accent-purple) / 0.35)",
-          }}
-        >
+        <div className="mb-6 rounded-xl border border-accent-purple/[0.35] bg-accent-purple/[0.08] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "hsl(var(--accent-purple))" }} />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-accent-purple" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">People needs attention</p>
-              <p className="mt-1 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
+              <p className="mt-1 text-xs text-ink-muted leading-relaxed">
                 <span className="tabular-nums">{employeesWithoutManager.length}</span>{" "}
                 {employeesWithoutManager.length === 1 ? "employee has" : "employees have"} no manager assigned.
                 Assign at least one manager-employee relationship to continue.
@@ -137,7 +131,7 @@ const OrgEmployees = () => {
                 <Button variant="outline" size="sm" onClick={handleAssignManager}>
                   Assign manager
                 </Button>
-                <Button size="sm" variant="outline" onClick={openAdd} className="border-[hsl(var(--accent-blue))] text-[hsl(var(--accent-blue))] hover:bg-[hsl(var(--accent-blue)/0.08)] hover:text-[hsl(var(--accent-blue))]">
+                <Button size="sm" variant="outline" onClick={openAdd} className="border-accent-blue text-accent-blue hover:bg-accent-blue/[0.08] hover:text-accent-blue">
                   Add another employee
                 </Button>
               </div>
@@ -160,13 +154,13 @@ const OrgEmployees = () => {
               onAddManual={openAdd}
             />
           ) : (
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_4px_12px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
-              <div className="flex flex-wrap gap-2 p-4 border-b border-[hsl(var(--hairline))]">
+            <div className="rounded-xl border border-hairline bg-surface-raised shadow-[0_1px_2px_rgba(0,0,0,0.03),0_4px_12px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
+              <div className="flex flex-wrap gap-2 p-4 border-b border-hairline">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={openAdd}
-                  className="border-[hsl(var(--accent-blue)/0.4)] text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.06)] hover:bg-[hsl(var(--accent-blue)/0.12)] hover:text-[hsl(var(--accent-blue))]"
+                  className="border-accent-blue/[0.4] text-accent-blue bg-accent-blue/[0.06] hover:bg-accent-blue/[0.12] hover:text-accent-blue"
                 >
                   <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add manually
                 </Button>

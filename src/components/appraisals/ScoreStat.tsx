@@ -9,9 +9,9 @@ interface ScoreStatProps {
 export function ScoreStat({ label, value, emphasize = false }: ScoreStatProps) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-ink-subtle">{label}</p>
       <p
-        className={`tabular-nums font-semibold ${emphasize ? "text-lg text-[hsl(var(--accent-green))]" : "text-sm text-foreground"}`}
+        className={`tabular-nums font-semibold ${emphasize ? "text-lg text-accent-green" : "text-sm text-foreground"}`}
       >
         {formatScore(value)}
       </p>

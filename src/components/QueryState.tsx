@@ -35,13 +35,13 @@ export function QueryError({ message, onRetry, className }: QueryErrorProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-8 text-center",
+        "rounded-xl border border-hairline bg-surface-raised px-6 py-8 text-center",
         className,
       )}
       role="alert"
     >
       <p className="text-sm font-medium text-foreground">Couldn&apos;t load this data</p>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         {message ?? "Something went wrong. Check your connection and try again."}
       </p>
       <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>

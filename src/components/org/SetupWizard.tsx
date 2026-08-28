@@ -143,33 +143,25 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                   disabled={!isCompleted}
                   className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold ${
                     isCompleted
-                      ? "cursor-pointer"
+                      ? "cursor-pointer text-white"
                       : isCurrent
-                      ? "ring-2"
-                      : ""
-                  }`}
+                        ? "text-white ring-2"
+                        : "bg-muted text-ink-subtle"
+                  } transition-[background-color,box-shadow,transform] duration-150`}
                   style={
                     isCompleted || isCurrent
                       ? {
                           backgroundColor: `hsl(var(${STRUCTURE_ACCENT}))`,
-                          color: "white",
                           boxShadow: isCurrent ? `0 0 0 2px hsl(var(${STRUCTURE_ACCENT}) / 0.25)` : undefined,
-                          transitionProperty: "background-color, box-shadow, transform",
-                          transitionDuration: "150ms",
                         }
-                      : {
-                          backgroundColor: "hsl(var(--muted))",
-                          color: "hsl(var(--ink-subtle))",
-                          transitionProperty: "background-color, transform",
-                          transitionDuration: "150ms",
-                        }
+                      : undefined
                   }
                 >
                   {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : stepNum}
                 </button>
                 <span
                   className={`text-[11px] font-medium ${
-                    isCurrent || isCompleted ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
+                    isCurrent || isCompleted ? "text-foreground" : "text-ink-subtle"
                   }`}
                 >
                   {label}
@@ -177,10 +169,14 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
               </div>
               {i < STEP_LABELS.length - 1 && (
                 <div
-                  className="w-16 h-px mx-2 mb-5 border-t border-dashed"
-                  style={{
-                    borderColor: stepNum < step ? `hsl(var(${STRUCTURE_ACCENT}))` : "hsl(var(--hairline))",
-                  }}
+                  className={`mx-2 mb-5 h-px w-16 border-t border-dashed ${
+                    stepNum < step ? "" : "border-hairline"
+                  }`}
+                  style={
+                    stepNum < step
+                      ? { borderColor: `hsl(var(${STRUCTURE_ACCENT}))` }
+                      : undefined
+                  }
                 />
               )}
             </div>
@@ -205,8 +201,8 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="grid h-8 w-8 place-items-center rounded-lg bg-[hsl(var(--accent-blue)/0.1)]">
-                          <Settings2 className="h-4 w-4 text-[hsl(var(--accent-blue))]" />
+                        <div className="grid h-8 w-8 place-items-center rounded-lg bg-accent-blue/[0.1]">
+                          <Settings2 className="h-4 w-4 text-accent-blue" />
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-foreground">Custom hierarchy</p>
@@ -360,7 +356,7 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
                         style={{ backgroundColor: LEVEL_DOT_COLORS[i % LEVEL_DOT_COLORS.length] }}
                       />
                       <span className="font-semibold text-foreground tabular-nums">{count}</span>
-                      <span className="text-[hsl(var(--ink-muted))]">{level}{count !== 1 ? "s" : ""}</span>
+                      <span className="text-ink-muted">{level}{count !== 1 ? "s" : ""}</span>
                     </div>
                   );
                 })}
@@ -385,11 +381,8 @@ const SetupWizard = ({ onComplete, createTypes, addUnit }: SetupWizardProps) => 
           <Card className="shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.02),0_4px_8px_rgba(0,0,0,0.02)]">
             <CardContent className="py-10">
               <div className="flex flex-col items-center text-center space-y-6">
-                <div
-                  className="h-16 w-16 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "hsl(var(--accent-green) / 0.14)" }}
-                >
-                  <CheckCircle2 className="h-10 w-10" style={{ color: "hsl(var(--accent-green))" }} />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/[0.14]">
+                  <CheckCircle2 className="h-10 w-10 text-accent-green" />
                 </div>
 
                 <div className="space-y-2">

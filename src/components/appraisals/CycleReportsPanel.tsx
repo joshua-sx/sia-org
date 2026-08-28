@@ -48,11 +48,11 @@ import { friendlyError } from "@/lib/siaErrors";
 import { useCycleNudges } from "@/hooks/useCycleNudges";
 
 const STATUS_CHIP: Record<TaskStatus, string> = {
-  complete: "text-[hsl(var(--accent-green))] bg-[hsl(var(--accent-green)/0.1)]",
-  pending: "text-[hsl(var(--accent-blue))] bg-[hsl(var(--accent-blue)/0.1)]",
-  overdue: "text-[hsl(var(--accent-red))] bg-[hsl(var(--accent-red)/0.1)]",
-  frozen: "text-[hsl(var(--ink-subtle))] bg-[hsl(var(--hairline)/0.5)]",
-  not_due: "text-[hsl(var(--ink-subtle))] bg-[hsl(var(--hairline)/0.35)]",
+  complete: "text-accent-green bg-accent-green/[0.1]",
+  pending: "text-accent-blue bg-accent-blue/[0.1]",
+  overdue: "text-accent-red bg-accent-red/[0.1]",
+  frozen: "text-ink-subtle bg-hairline/[0.5]",
+  not_due: "text-ink-subtle bg-hairline/[0.35]",
 };
 
 function StatusChip({ status }: { status: TaskStatus }) {
@@ -139,11 +139,11 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
   };
 
   return (
-    <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+    <div className="mt-6 rounded-xl border border-hairline bg-surface-raised overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-hairline">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Cycle status &amp; exports</h2>
-          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
+          <p className="mt-0.5 text-xs text-ink-muted">
             Track who's late, export CSV reports, or save individual appraisal records as PDF.
           </p>
         </div>
@@ -172,15 +172,15 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
         </DropdownMenu>
       </div>
 
-      <div className="grid gap-3 px-5 py-4 sm:grid-cols-2 lg:grid-cols-4 border-b border-[hsl(var(--hairline))]">
+      <div className="grid gap-3 px-5 py-4 sm:grid-cols-2 lg:grid-cols-4 border-b border-hairline">
         <Stat label="Participants" value={summary.totalParticipants} />
         <Stat label="Overdue" value={summary.overdueParticipants} accent="red" />
         <Stat label="Acknowledged" value={`${summary.acknowledged}/${summary.totalParticipants}`} />
         <Stat label="Completion" value={`${summary.completionPct}%`} accent="green" />
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
-        <Filter className="h-3.5 w-3.5 text-[hsl(var(--ink-subtle))]" />
+      <div className="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-hairline bg-surface-raised">
+        <Filter className="h-3.5 w-3.5 text-ink-subtle" />
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
           <SelectTrigger className="h-8 w-40 text-xs">
             <SelectValue placeholder="Status" />
@@ -205,7 +205,7 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
             ))}
           </SelectContent>
         </Select>
-        <span className="text-xs text-[hsl(var(--ink-subtle))] tabular-nums">
+        <span className="text-xs text-ink-subtle tabular-nums">
           {filteredRows.length} shown
         </span>
       </div>
@@ -213,7 +213,7 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-[hsl(var(--hairline))] text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+            <tr className="border-b border-hairline text-[11px] uppercase tracking-wider text-ink-subtle">
               <th className="px-5 py-2.5 font-medium">Employee</th>
               <th className="px-3 py-2.5 font-medium">Manager</th>
               <th className="px-3 py-2.5 font-medium">Goals</th>
@@ -224,12 +224,12 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
               <th className="px-5 py-2.5 font-medium text-right">Record</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[hsl(var(--hairline))]">
+          <tbody className="divide-y divide-hairline">
             {filteredRows.length === 0 ? (
               <tr>
                 <td
                   colSpan={canNudge ? 8 : 7}
-                  className="px-5 py-8 text-center text-sm text-[hsl(var(--ink-muted))]"
+                  className="px-5 py-8 text-center text-sm text-ink-muted"
                 >
                   No participants match this filter.
                 </td>
@@ -242,11 +242,11 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
                   <tr key={row.participantId} className={row.frozen ? "opacity-60" : undefined}>
                     <td className="px-5 py-3">
                       <p className="font-medium text-foreground">{row.employeeName}</p>
-                      <p className="text-xs text-[hsl(var(--ink-subtle))] truncate max-w-[200px]">
+                      <p className="text-xs text-ink-subtle truncate max-w-[200px]">
                         {row.unit || row.jobTitle || "—"}
                       </p>
                     </td>
-                    <td className="px-3 py-3 text-xs text-[hsl(var(--ink-muted))]">{row.managerName}</td>
+                    <td className="px-3 py-3 text-xs text-ink-muted">{row.managerName}</td>
                     <td className="px-3 py-3">
                       <StatusChip status={row.goals} />
                     </td>
@@ -282,7 +282,7 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
                           {exportingPdfId === participant.id ? "Opening…" : "PDF"}
                         </Button>
                       ) : (
-                        <span className="text-[11px] text-[hsl(var(--ink-subtle))]">—</span>
+                        <span className="text-[11px] text-ink-subtle">—</span>
                       )}
                     </td>
                   </tr>
@@ -315,7 +315,7 @@ function NudgeCell({
   const tasks = row.frozen ? [] : row.overdueTasks;
 
   if (tasks.length === 0) {
-    return <span className="text-[11px] text-[hsl(var(--ink-subtle))]">—</span>;
+    return <span className="text-[11px] text-ink-subtle">—</span>;
   }
 
   const recipientFor = (task: CycleTaskKind) =>
@@ -329,7 +329,7 @@ function NudgeCell({
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 text-xs text-[hsl(var(--accent-red))] hover:bg-[hsl(var(--accent-red)/0.1)] hover:text-[hsl(var(--accent-red))]"
+        className="h-7 text-xs text-accent-red hover:bg-accent-red/[0.1] hover:text-accent-red"
         disabled={busy || !!until}
         title={
           until
@@ -350,7 +350,7 @@ function NudgeCell({
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 text-xs text-[hsl(var(--accent-red))] hover:bg-[hsl(var(--accent-red)/0.1)] hover:text-[hsl(var(--accent-red))]"
+          className="h-7 text-xs text-accent-red hover:bg-accent-red/[0.1] hover:text-accent-red"
         >
           <BellRing className="mr-1 h-3.5 w-3.5" />
           Remind ({tasks.length})
@@ -367,7 +367,7 @@ function NudgeCell({
               onClick={() => void onNudge(row.participantId, task, recipientFor(task))}
             >
               <span className="flex-1">{CYCLE_NUDGE_TASK_LABELS[task]}</span>
-              <span className="ml-2 text-[10px] uppercase tracking-wide text-[hsl(var(--ink-subtle))]">
+              <span className="ml-2 text-[10px] uppercase tracking-wide text-ink-subtle">
                 {until ? "Sent" : recipientFor(task).split(" ")[0]}
               </span>
             </DropdownMenuItem>
@@ -387,16 +387,16 @@ function Stat({
   value: string | number;
   accent?: "red" | "green";
 }) {
-  const color =
+  const colorClass =
     accent === "red"
-      ? "hsl(var(--accent-red))"
+      ? "text-accent-red"
       : accent === "green"
-        ? "hsl(var(--accent-green))"
-        : "hsl(var(--foreground))";
+        ? "text-accent-green"
+        : "text-foreground";
   return (
-    <div className="rounded-lg border border-[hsl(var(--hairline))] bg-background px-3 py-2.5">
-      <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums" style={{ color }}>
+    <div className="rounded-lg border border-hairline bg-background px-3 py-2.5">
+      <p className="text-[10px] uppercase tracking-wider text-ink-subtle">{label}</p>
+      <p className={`mt-0.5 text-lg font-semibold tabular-nums ${colorClass}`}>
         {value}
       </p>
     </div>

@@ -82,7 +82,7 @@ const MyGoals = () => {
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         Team goals
       </h1>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         {activeCycle
           ? `Set weighted goals for each of your reports during the goal window (${formatWindow(
               activeCycle.goal_window_start,
@@ -107,7 +107,7 @@ const MyGoals = () => {
         ) : (
           <>
             {goalWindow !== "open" && (
-              <p className="rounded-lg border border-[hsl(var(--hairline))] bg-[hsl(var(--accent-yellow)/0.08)] px-4 py-3 text-xs text-[hsl(var(--ink-muted))]">
+              <p className="rounded-lg border border-hairline bg-accent-yellow/[0.08] px-4 py-3 text-xs text-ink-muted">
                 The goal-setting window is {goalWindow === "upcoming" ? "not open yet" : "closed"} —
                 goals are read-only.
               </p>
@@ -115,7 +115,7 @@ const MyGoals = () => {
             {groups.map((group) => (
               <div key={group.label} className="space-y-3">
                 {isHr && groups.length > 1 && (
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">
                     Manager · {group.label}
                   </h2>
                 )}
@@ -139,8 +139,8 @@ const MyGoals = () => {
 
 function EmptyNote({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-12 text-center">
-      <p className="mx-auto max-w-md text-sm text-[hsl(var(--ink-muted))]">{text}</p>
+    <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-12 text-center">
+      <p className="mx-auto max-w-md text-sm text-ink-muted">{text}</p>
     </div>
   );
 }

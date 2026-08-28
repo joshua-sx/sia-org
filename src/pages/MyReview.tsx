@@ -118,7 +118,7 @@ const MyReview = () => {
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         My review
       </h1>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         Your goals are visible throughout the cycle. Ratings and comments appear once your
         manager submits the final assessment.
       </p>
@@ -150,7 +150,7 @@ const MyReview = () => {
             {finalRevealed && (
               <div
                 id="acknowledge"
-                className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5"
+                className="rounded-xl border border-hairline bg-surface-raised p-5"
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex gap-6">
@@ -159,7 +159,7 @@ const MyReview = () => {
                     <ScoreStat label="Overall" value={myParticipant.overall_score} emphasize />
                   </div>
                   {myParticipant.acknowledged_at ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[hsl(var(--accent-green))]">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-green">
                       <CheckCircle2 className="h-4 w-4" /> Acknowledged{" "}
                       {new Date(myParticipant.acknowledged_at).toLocaleDateString()}
                     </span>
@@ -183,21 +183,21 @@ const MyReview = () => {
               </div>
             )}
 
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-              <div className="px-5 py-4 border-b border-[hsl(var(--hairline))]">
+            <div className="rounded-xl border border-hairline bg-surface-raised overflow-hidden">
+              <div className="px-5 py-4 border-b border-hairline">
                 <h2 className="text-sm font-semibold text-foreground">Goals</h2>
               </div>
-              <div className="divide-y divide-[hsl(var(--hairline))]">
+              <div className="divide-y divide-hairline">
                 {goals.map((g) => (
                   <div key={g.id} className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex h-5 min-w-10 items-center justify-center rounded bg-[hsl(var(--ink-strong)/0.05)] px-1.5 text-[10px] font-semibold tabular-nums">
+                      <span className="inline-flex h-5 min-w-10 items-center justify-center rounded bg-ink-strong/[0.05] px-1.5 text-[10px] font-semibold tabular-nums">
                         {g.weight}%
                       </span>
                       <p className="text-sm text-foreground flex-1">{g.title}</p>
                     </div>
                     {g.description && (
-                      <p className="mt-1 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
+                      <p className="mt-1 text-xs text-ink-muted leading-relaxed">
                         {g.description}
                       </p>
                     )}
@@ -209,21 +209,21 @@ const MyReview = () => {
                           return (
                             <div
                               key={stage}
-                              className="rounded-lg border border-[hsl(var(--hairline))] p-3"
+                              className="rounded-lg border border-hairline p-3"
                             >
-                              <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                              <p className="text-[10px] uppercase tracking-wider text-ink-subtle">
                                 {STAGE_LABELS[stage]}
                               </p>
                               <p className="mt-1 text-sm text-foreground">
                                 {r?.rating != null ? RATING_LABELS[r.rating] : "Not rated"}
                               </p>
                               {r?.manager_comment && (
-                                <p className="mt-1.5 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
+                                <p className="mt-1.5 text-xs text-ink-muted leading-relaxed">
                                   <span className="font-medium">Manager:</span> {r.manager_comment}
                                 </p>
                               )}
                               {r?.reviewer_comment && (
-                                <p className="mt-1.5 text-xs text-[hsl(var(--ink-muted))] leading-relaxed">
+                                <p className="mt-1.5 text-xs text-ink-muted leading-relaxed">
                                   <span className="font-medium">Reviewer:</span> {r.reviewer_comment}
                                 </p>
                               )}
@@ -232,7 +232,7 @@ const MyReview = () => {
                         })}
                       </div>
                     ) : (
-                      <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-[hsl(var(--ink-subtle))]">
+                      <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-ink-subtle">
                         <Lock className="h-3 w-3" /> Ratings appear after the final assessment is
                         submitted.
                       </p>
@@ -250,8 +250,8 @@ const MyReview = () => {
 
 function EmptyNote({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-12 text-center">
-      <p className="mx-auto max-w-md text-sm text-[hsl(var(--ink-muted))]">{text}</p>
+    <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-12 text-center">
+      <p className="mx-auto max-w-md text-sm text-ink-muted">{text}</p>
     </div>
   );
 }

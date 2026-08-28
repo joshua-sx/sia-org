@@ -36,15 +36,14 @@ export function StepSuccess({
         initial={{ scale: reduce ? 1 : 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-        className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
-        style={{ backgroundColor: "hsl(var(--accent-green) / 0.14)" }}
+        className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/[0.14]"
       >
         <motion.div
           initial={{ scale: reduce ? 1 : 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.15, type: "spring", duration: 0.4, bounce: 0 }}
         >
-          <Check className="h-8 w-8" strokeWidth={3} style={{ color: "hsl(var(--accent-green))" }} />
+          <Check className="h-8 w-8 text-accent-green" strokeWidth={3} />
         </motion.div>
       </motion.div>
 
@@ -52,7 +51,7 @@ export function StepSuccess({
         initial={{ opacity: 0, y: reduce ? 0 : 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.3 }}
-        className="text-[11px] uppercase tracking-[0.14em] text-[hsl(var(--accent-green))] font-medium"
+        className="text-[11px] uppercase tracking-[0.14em] text-accent-green font-medium"
       >
         {eyebrow}
       </motion.p>
@@ -68,7 +67,7 @@ export function StepSuccess({
         initial={{ opacity: 0, y: reduce ? 0 : 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.3 }}
-        className="mt-2 text-sm text-[hsl(var(--ink-muted))] max-w-md mx-auto text-pretty"
+        className="mt-2 text-sm text-ink-muted max-w-md mx-auto text-pretty"
       >
         {description}
       </motion.p>
@@ -78,12 +77,12 @@ export function StepSuccess({
           initial={{ opacity: 0, y: reduce ? 0 : 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.3 }}
-          className="mt-8 inline-flex items-center gap-8 rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-4"
+          className="mt-8 inline-flex items-center gap-8 rounded-2xl border border-hairline bg-surface-raised px-6 py-4"
         >
           {stats.map((s) => (
             <div key={s.label}>
               <div className="text-2xl font-semibold text-foreground tabular-nums">{s.value}</div>
-              <div className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+              <div className="text-[11px] uppercase tracking-wider text-ink-subtle">
                 {s.label}
               </div>
             </div>
@@ -104,7 +103,7 @@ export function StepSuccess({
           <Button
             variant="ghost"
             onClick={onSecondary}
-            className="text-[hsl(var(--ink-muted))]"
+            className="text-ink-muted"
           >
             {secondaryLabel}
           </Button>

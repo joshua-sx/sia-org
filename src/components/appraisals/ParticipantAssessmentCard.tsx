@@ -58,13 +58,13 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
   const loading = goalsLoading || ratingsLoading;
 
   return (
-    <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+    <div className="rounded-xl border border-hairline bg-surface-raised overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-hairline">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">
             {participant.employee.first_name} {participant.employee.last_name}
           </p>
-          <p className="text-xs text-[hsl(var(--ink-subtle))] truncate">
+          <p className="text-xs text-ink-subtle truncate">
             {participant.employee.job_title || "—"}
             {mode === "reviewer" && (
               <>
@@ -83,7 +83,7 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
         {detailHref && (
           <Link
             to={detailHref}
-            className="shrink-0 rounded-md border border-[hsl(var(--hairline))] px-2 py-0.5 text-[11.5px] font-medium text-foreground transition-colors hover:border-[hsl(var(--ink-subtle))]"
+            className="shrink-0 rounded-md border border-hairline px-2 py-0.5 text-[11.5px] font-medium text-foreground transition-colors hover:border-ink-subtle"
           >
             Open →
           </Link>
@@ -91,9 +91,9 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
       </div>
 
       {loading ? (
-        <p className="px-5 py-4 text-sm text-[hsl(var(--ink-muted))]">Loading…</p>
+        <p className="px-5 py-4 text-sm text-ink-muted">Loading…</p>
       ) : goals.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-[hsl(var(--ink-muted))]">
+        <p className="px-5 py-4 text-sm text-ink-muted">
           No goals set for this participant yet — assessments unlock once goals exist.
         </p>
       ) : (
@@ -103,7 +103,7 @@ export function ParticipantAssessmentCard({ participant, cycle, mode, detailHref
               {(["interim", "final"] as const).map((s) => (
                 <TabsTrigger key={s} value={s} className="text-xs gap-1.5">
                   {stageSubmittedAt(participant, s) && (
-                    <CheckCircle2 className="h-3 w-3 text-[hsl(var(--accent-green))]" />
+                    <CheckCircle2 className="h-3 w-3 text-accent-green" />
                   )}
                   {STAGE_LABELS[s]}
                 </TabsTrigger>
@@ -214,13 +214,13 @@ function StagePanel({
 
   return (
     <div>
-      <div className="divide-y divide-[hsl(var(--hairline))] border-t border-[hsl(var(--hairline))] mt-3">
+      <div className="divide-y divide-hairline border-t border-hairline mt-3">
         {merged.map(({ goal, row }) => {
           const server = serverByGoal.get(goal.id);
           return (
             <div key={goal.id} className="px-5 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex h-5 min-w-10 items-center justify-center rounded bg-[hsl(var(--ink-strong)/0.05)] px-1.5 text-[10px] font-semibold tabular-nums">
+                <span className="inline-flex h-5 min-w-10 items-center justify-center rounded bg-ink-strong/[0.05] px-1.5 text-[10px] font-semibold tabular-nums">
                   {goal.weight}%
                 </span>
                 <p className="text-sm text-foreground flex-1 min-w-0">{goal.title}</p>
@@ -268,7 +268,7 @@ function StagePanel({
                   />
                 ) : (
                   row.manager_comment && (
-                    <p className="text-xs text-[hsl(var(--ink-muted))] leading-relaxed pt-1.5">
+                    <p className="text-xs text-ink-muted leading-relaxed pt-1.5">
                       {row.manager_comment}
                     </p>
                   )
@@ -299,20 +299,20 @@ function StagePanel({
                       </div>
                     ) : (
                       server.reviewer_comment && (
-                        <p className="text-xs text-[hsl(var(--ink-muted))]">
+                        <p className="text-xs text-ink-muted">
                           <span className="font-medium">Your comment:</span> {server.reviewer_comment}
                         </p>
                       )
                     )
                   ) : (
-                    <p className="text-[11px] text-[hsl(var(--ink-subtle))]">
+                    <p className="text-[11px] text-ink-subtle">
                       No assessment drafted for this goal yet.
                     </p>
                   )}
                 </div>
               ) : (
                 server?.reviewer_comment && (
-                  <p className="mt-2 text-xs text-[hsl(var(--ink-muted))]">
+                  <p className="mt-2 text-xs text-ink-muted">
                     <span className="font-medium">
                       Reviewer{participant.extra_reviewer ? ` (${participant.extra_reviewer.first_name} ${participant.extra_reviewer.last_name})` : ""}:
                     </span>{" "}
@@ -325,8 +325,8 @@ function StagePanel({
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 px-5 py-3.5 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--ink-strong)/0.02)]">
-        <p className="text-xs text-[hsl(var(--ink-muted))] flex-1">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-3.5 border-t border-hairline bg-ink-strong/[0.02]">
+        <p className="text-xs text-ink-muted flex-1">
           {submittedAt ? (
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5" />

@@ -182,14 +182,14 @@ const CsvImportModal = ({ open, onOpenChange, unitTypes, units }: Props) => {
                 </thead>
                 <tbody>
                   {rows.map((row, i) => (
-                    <tr key={i} className={`border-b ${row.error ? "bg-destructive/5" : row.imported ? "bg-[hsl(var(--success))]/5" : ""}`}>
+                    <tr key={i} className={`border-b ${row.error ? "bg-destructive/5" : row.imported ? "bg-success/5" : ""}`}>
                       <td className="px-3 py-1.5">{i + 1}</td>
                       {row.values.map((v, j) => (
                         <td key={j} className="px-3 py-1.5">{v}</td>
                       ))}
                       <td className="px-3 py-1.5">
                         {row.error && <span className="text-destructive">{row.error}</span>}
-                        {row.imported && <span className="text-[hsl(var(--success))]">✓</span>}
+                        {row.imported && <span className="text-success">✓</span>}
                       </td>
                     </tr>
                   ))}

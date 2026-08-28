@@ -52,14 +52,13 @@ export function CompletionCriteria({
             <li key={c.label} className="flex items-start gap-2 text-sm">
               {c.met ? (
                 <Check
-                  className="h-3.5 w-3.5 shrink-0 mt-0.5"
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green"
                   strokeWidth={3}
-                  style={{ color: "hsl(var(--accent-green))" }}
                 />
               ) : (
-                <Circle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[hsl(var(--ink-subtle))]" />
+                <Circle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-ink-subtle" />
               )}
-              <span className={c.met ? "text-foreground" : "text-[hsl(var(--ink-muted))]"}>
+              <span className={c.met ? "text-foreground" : "text-ink-muted"}>
                 {c.label}
               </span>
             </li>

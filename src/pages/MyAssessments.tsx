@@ -82,7 +82,7 @@ const MyAssessments = () => {
       <h1 className="text-[28px] font-semibold tracking-[-0.5px] text-foreground font-[Space_Grotesk] text-balance">
         Assessments
       </h1>
-      <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">
+      <p className="mt-1 text-sm text-ink-muted">
         Rate each goal and add comments during the interim and final windows. Submitting locks
         that stage and computes the score.
       </p>
@@ -105,7 +105,7 @@ const MyAssessments = () => {
                   {managerGroups.map((group) => (
                     <div key={group.label} className="space-y-3">
                       {isHr && managerGroups.length > 1 && (
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-subtle">
                           Manager · {group.label}
                         </h3>
                       )}
@@ -159,8 +159,8 @@ const MyAssessments = () => {
 
 function EmptyNote({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-12 text-center">
-      <p className="mx-auto max-w-md text-sm text-[hsl(var(--ink-muted))]">{text}</p>
+    <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-12 text-center">
+      <p className="mx-auto max-w-md text-sm text-ink-muted">{text}</p>
     </div>
   );
 }

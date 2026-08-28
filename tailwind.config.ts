@@ -62,6 +62,26 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        surface: {
+          DEFAULT: "hsl(var(--surface) / <alpha-value>)",
+          raised: "hsl(var(--surface-raised) / <alpha-value>)",
+        },
+        // Hairline embeds its base alpha, so relative HSL composes opacity modifiers.
+        hairline:
+          "hsl(from hsl(var(--hairline)) h s l / calc(alpha * <alpha-value>))",
+        ink: {
+          DEFAULT: "hsl(var(--ink) / <alpha-value>)",
+          strong: "hsl(var(--ink-strong) / <alpha-value>)",
+          muted: "hsl(var(--ink-muted) / <alpha-value>)",
+          subtle: "hsl(var(--ink-subtle) / <alpha-value>)",
+        },
+        "accent-blue": "hsl(var(--accent-blue) / <alpha-value>)",
+        "accent-red": "hsl(var(--accent-red) / <alpha-value>)",
+        "accent-purple": "hsl(var(--accent-purple) / <alpha-value>)",
+        "accent-green": "hsl(var(--accent-green) / <alpha-value>)",
+        "accent-yellow": "hsl(var(--accent-yellow) / <alpha-value>)",
+        "accent-yellow-ink": "hsl(var(--accent-yellow-ink) / <alpha-value>)",
+        "accent-purple-ink": "hsl(var(--accent-purple-ink) / <alpha-value>)",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -18,11 +18,11 @@ import { recommendedTemplateFor, TEMPLATES } from "@/lib/onboardingTemplates";
 
 function TaskCheck({ label, met }: { label: string; met: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-[hsl(var(--ink-muted))]">
+    <span className="inline-flex items-center gap-1.5 text-xs text-ink-muted">
       {met ? (
-        <Check className="h-3.5 w-3.5" style={{ color: "hsl(var(--accent-green))" }} strokeWidth={2.5} />
+        <Check className="h-3.5 w-3.5 text-accent-green" strokeWidth={2.5} />
       ) : (
-        <Circle className="h-3.5 w-3.5 text-[hsl(var(--ink-subtle))]" />
+        <Circle className="h-3.5 w-3.5 text-ink-subtle" />
       )}
       <span className={met ? "text-foreground" : undefined}>{label}</span>
     </span>
@@ -39,9 +39,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+    <section className="rounded-2xl border border-hairline bg-surface-raised p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      {description && <p className="mt-1 text-sm text-[hsl(var(--ink-muted))]">{description}</p>}
+      {description && <p className="mt-1 text-sm text-ink-muted">{description}</p>}
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -115,12 +115,12 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-[hsl(var(--accent-red)/0.1)]">
-                    <Settings2 className="h-4 w-4" style={{ color: "hsl(var(--accent-red))" }} />
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-accent-red/[0.1]">
+                    <Settings2 className="h-4 w-4 text-accent-red" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">Custom hierarchy</p>
-                    <p className="text-[11px] text-[hsl(var(--ink-muted))]">Build your own levels</p>
+                    <p className="text-[11px] text-ink-muted">Build your own levels</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setSelectedTemplate(null)}>

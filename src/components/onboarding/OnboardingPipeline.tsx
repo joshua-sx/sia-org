@@ -59,23 +59,26 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
               color: `hsl(var(${step.accent}))`,
               boxShadow: `0 0 0 2px hsl(var(${step.accent}) / 0.35)`,
             }
+          : undefined;
+        const nodeStateClass = isCurrent
+          ? ""
           : isDone
-            ? { color: "hsl(var(--foreground))", border: "1px solid hsl(var(--foreground))" }
-            : { color: "hsl(var(--ink-subtle))", border: "1px solid hsl(var(--hairline))" };
+            ? "border border-foreground text-foreground"
+            : "border border-hairline text-ink-subtle";
 
         const canClick = step.href && (isDone || isSkipped || isCurrent);
 
         const node = (
           <div className={`flex ${colWidth} shrink-0 flex-col items-center gap-1.5`}>
             <span
-              className={`flex ${nodeDim} items-center justify-center rounded-full`}
-              style={{ ...nodeStyle, transitionProperty: "background-color, box-shadow, color", transitionDuration: "200ms" }}
+              className={`flex ${nodeDim} ${nodeStateClass} items-center justify-center rounded-full transition-[background-color,box-shadow,color] duration-200`}
+              style={nodeStyle}
             >
               {isSkipped ? <Minus className={iconDim} /> : <Icon className={iconDim} />}
             </span>
             <span
               className={`${labelClass} font-medium leading-none ${
-                isCurrent || isDone ? "text-foreground" : "text-[hsl(var(--ink-subtle))]"
+                isCurrent || isDone ? "text-foreground" : "text-ink-subtle"
               }`}
             >
               {step.label}
@@ -97,12 +100,7 @@ export function OnboardingPipeline({ steps, currentKey, size = "md", variant = "
             )}
             {i < steps.length - 1 && (
               <span
-                className={`${lineOffset} h-[2px] flex-1 rounded-full`}
-                style={{
-                  backgroundColor: "hsl(var(--hairline))",
-                  transitionProperty: "background-color",
-                  transitionDuration: "200ms",
-                }}
+                className={`${lineOffset} h-[2px] flex-1 rounded-full bg-hairline transition-colors duration-200`}
                 aria-hidden
               />
             )}

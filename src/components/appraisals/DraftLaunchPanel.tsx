@@ -54,11 +54,11 @@ export function DraftLaunchPanel({
   };
 
   return (
-    <div className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[hsl(var(--hairline))]">
+    <div className="mt-6 rounded-xl border border-hairline bg-surface-raised overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-hairline">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Participants</h2>
-          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
+          <p className="mt-0.5 text-xs text-ink-muted">
             <span className="tabular-nums">{included.length}</span> of{" "}
             <span className="tabular-nums">{candidates.length}</span> active employees included
             {excluded.size > 0 && <> · {excluded.size} excluded</>}
@@ -101,11 +101,11 @@ export function DraftLaunchPanel({
           />
         </div>
       ) : candidates.length === 0 ? (
-        <p className="px-5 py-6 text-sm text-[hsl(var(--ink-muted))]">
+        <p className="px-5 py-6 text-sm text-ink-muted">
           No active employees to include. Add employees first.
         </p>
       ) : (
-        <div className="divide-y divide-[hsl(var(--hairline))]">
+        <div className="divide-y divide-hairline">
           {candidates.map((e) => {
             const isExcluded = excluded.has(e.id);
             const managerId = managerFor(e);
@@ -116,7 +116,7 @@ export function DraftLaunchPanel({
                   <p className="text-sm text-foreground truncate">
                     {e.first_name} {e.last_name}
                   </p>
-                  <p className="text-xs text-[hsl(var(--ink-subtle))] truncate">
+                  <p className="text-xs text-ink-subtle truncate">
                     {e.job_title || e.email}
                   </p>
                 </div>
@@ -127,7 +127,7 @@ export function DraftLaunchPanel({
                     disabled={isExcluded}
                   >
                     <SelectTrigger
-                      className={`h-8 text-xs ${!managerId && !isExcluded ? "border-[hsl(var(--accent-yellow))]" : ""}`}
+                      className={`h-8 text-xs ${!managerId && !isExcluded ? "border-accent-yellow" : ""}`}
                     >
                       <SelectValue placeholder="Assign manager…" />
                     </SelectTrigger>
@@ -147,7 +147,7 @@ export function DraftLaunchPanel({
                   </Select>
                 </div>
                 <div className="flex w-24 shrink-0 items-center justify-end gap-2">
-                  <span className="text-[11px] text-[hsl(var(--ink-subtle))]">
+                  <span className="text-[11px] text-ink-subtle">
                     {isExcluded ? "Excluded" : "Included"}
                   </span>
                   <Switch checked={!isExcluded} onCheckedChange={() => toggleExcluded(e.id)} />

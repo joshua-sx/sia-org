@@ -33,7 +33,7 @@ export function EmployeeEmptyState({ onImport, onAddManual }: Props) {
   ] as const;
 
   const cardClassName =
-    "group relative flex flex-col items-start gap-3 rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 text-left hover:border-[hsl(var(--ink-strong)/0.18)] hover:shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] active:scale-[0.96] transition-transform";
+    "group relative flex flex-col items-start gap-3 rounded-2xl border border-hairline bg-surface-raised p-5 text-left hover:border-ink-strong/[0.18] hover:shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] active:scale-[0.96] transition-transform";
   const cardStyle = {
     transitionProperty: "border-color, box-shadow, transform",
     transitionDuration: "180ms",
@@ -64,7 +64,7 @@ export function EmployeeEmptyState({ onImport, onAddManual }: Props) {
               </div>
               <div>
                 <p className="text-[15px] font-semibold text-foreground">{opt.title}</p>
-                <p className="mt-1 text-xs text-[hsl(var(--ink-muted))]">{opt.hint}</p>
+                <p className="mt-1 text-xs text-ink-muted">{opt.hint}</p>
               </div>
             </>
           );
@@ -102,7 +102,7 @@ export function EmployeeEmptyState({ onImport, onAddManual }: Props) {
       <div className="mt-6 flex items-center justify-center">
         <button
           onClick={downloadTemplateCsv}
-          className="inline-flex items-center gap-1.5 text-xs text-[hsl(var(--ink-muted))] hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-foreground transition-colors"
           style={{ transitionProperty: "color" }}
         >
           <Download className="h-3.5 w-3.5" />

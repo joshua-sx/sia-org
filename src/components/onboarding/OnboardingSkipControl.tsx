@@ -46,7 +46,7 @@ export function OnboardingSkipControl() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="relative inline-flex min-h-10 items-center px-2 text-xs text-[hsl(var(--ink-subtle))] hover:text-[hsl(var(--ink-muted))] active:scale-[0.96]"
+          className="relative inline-flex min-h-10 items-center px-2 text-xs text-ink-subtle hover:text-ink-muted active:scale-[0.96]"
           style={{ transitionProperty: "color, transform", transitionDuration: "150ms" }}
         >
           Skip this step
@@ -54,14 +54,11 @@ export function OnboardingSkipControl() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72">
         <p className="text-sm font-medium text-foreground">Skip {step.label}?</p>
-        <p className="mt-1 text-xs text-[hsl(var(--ink-muted))]">
+        <p className="mt-1 text-xs text-ink-muted">
           You can come back to this any time from the sidebar.
         </p>
         {opensToUnusableLaunch && (
-          <p
-            className="mt-2 text-xs leading-relaxed"
-            style={{ color: "hsl(45, 55%, 32%)" }}
-          >
+          <p className="mt-2 text-xs leading-relaxed text-accent-yellow-ink">
             Launch needs at least one employee — you won't be able to create a
             cycle until you add one.
           </p>

@@ -21,10 +21,10 @@ export function BrandMark({
     <Link to={to} className="inline-flex items-center gap-2 font-[Space_Grotesk]">
       <span className={`${wordmark} text-foreground`}>SIA</span>
       <span className="flex items-center gap-[3px]">
-        <span className={`${dot} rounded-full bg-[hsl(var(--accent-blue))]`} />
-        <span className={`${dot} rounded-full bg-[hsl(var(--accent-red))]`} />
-        <span className={`${dot} rounded-full bg-[hsl(var(--accent-purple))]`} />
-        <span className={`${dot} rounded-full bg-[hsl(var(--accent-green))]`} />
+        <span className={`${dot} rounded-full bg-accent-blue`} />
+        <span className={`${dot} rounded-full bg-accent-red`} />
+        <span className={`${dot} rounded-full bg-accent-purple`} />
+        <span className={`${dot} rounded-full bg-accent-green`} />
       </span>
     </Link>
   );

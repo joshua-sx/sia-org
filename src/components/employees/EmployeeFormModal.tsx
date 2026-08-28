@@ -56,15 +56,15 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--ink-subtle))]">
+      <Label className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
         {label}
-        {required && <span className="ml-0.5 text-[hsl(var(--accent-red))]">*</span>}
+        {required && <span className="ml-0.5 text-accent-red">*</span>}
       </Label>
       {children}
       {error ? (
         <p className="text-[11px] text-destructive">{error}</p>
       ) : hint ? (
-        <p className="text-[11px] text-[hsl(var(--ink-subtle))]">{hint}</p>
+        <p className="text-[11px] text-ink-subtle">{hint}</p>
       ) : null}
     </div>
   );
@@ -141,15 +141,9 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[720px] p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-[hsl(var(--hairline))]">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-hairline">
           <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold tabular-nums"
-              style={{
-                backgroundColor: "hsl(var(--accent-red) / 0.12)",
-                color: "hsl(var(--accent-red))",
-              }}
-            >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-red/[0.12] text-sm font-semibold text-accent-red tabular-nums">
               {initials}
             </div>
             <div className="flex-1 min-w-0">
@@ -170,11 +164,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
-                  className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
-                  style={{
-                    backgroundColor: "hsl(var(--accent-green) / 0.12)",
-                    color: "hsl(var(--accent-green))",
-                  }}
+                  className="flex items-center gap-1.5 rounded-full bg-accent-green/[0.12] px-2.5 py-1 text-[11px] font-medium text-accent-green"
                 >
                   <Check className="h-3 w-3" />
                   <span className="tabular-nums">{addedCount}</span> added
@@ -275,7 +265,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
           </div>
         </form>
 
-        <DialogFooter className="px-6 py-4 border-t border-[hsl(var(--hairline))] bg-[hsl(var(--ink-strong)/0.02)] flex-row justify-between sm:justify-between gap-2">
+        <DialogFooter className="px-6 py-4 border-t border-hairline bg-ink-strong/[0.02] flex-row justify-between sm:justify-between gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
             {addedCount > 0 ? "Done" : "Cancel"}
           </Button>

@@ -79,8 +79,8 @@ const Dashboard = () => {
         subtitle={subtitle}
         actions={
           organization && (
-            <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[220px]">
-              <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">Organization</p>
+            <div className="rounded-xl border border-hairline bg-surface-raised px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[220px]">
+              <p className="text-[11px] uppercase tracking-wider text-ink-subtle">Organization</p>
               <p className="mt-0.5 text-sm font-medium text-foreground truncate">{organization.name}</p>
             </div>
           )
@@ -90,14 +90,14 @@ const Dashboard = () => {
       <DashboardAppraisalCard className="mt-8" />
 
 
-      <div className="mt-8 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[hsl(var(--hairline))]">
+      <div className="mt-8 rounded-xl border border-hairline bg-surface-raised">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
           <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
-          <span className="inline-flex items-center rounded-full bg-[hsl(var(--accent-green)/0.12)] px-2 py-0.5 text-[11px] font-medium text-[hsl(var(--accent-green))] tabular-nums">
+          <span className="inline-flex items-center rounded-full bg-accent-green/[0.12] px-2 py-0.5 text-[11px] font-medium text-accent-green tabular-nums">
             {progressCount}/{totalSteps}
           </span>
         </div>
-        <div className="divide-y divide-[hsl(var(--hairline))]">
+        <div className="divide-y divide-hairline">
           {steps.map((item) => {
             const Icon = item.icon;
             const showResume = (item.status === "current" || item.status === "skipped") && item.href;
@@ -110,19 +110,19 @@ const Dashboard = () => {
                   <Icon className="h-4 w-4" style={{ color: `hsl(var(${item.accent}))` }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className={`text-sm ${item.done ? "text-[hsl(var(--ink-muted))]" : "font-medium text-foreground"}`}>
+                  <span className={`text-sm ${item.done ? "text-ink-muted" : "font-medium text-foreground"}`}>
                     {item.label}
                   </span>
-                  <span className="ml-2 text-[11px] text-[hsl(var(--ink-subtle))] capitalize">
+                  <span className="ml-2 text-[11px] text-ink-subtle capitalize">
                     · {STATUS_LABEL[item.status]}
                   </span>
                 </div>
                 {item.done ? (
-                  <CheckCircle2 className="h-[18px] w-[18px] text-[hsl(var(--accent-green))]" />
+                  <CheckCircle2 className="h-[18px] w-[18px] text-accent-green" />
                 ) : item.skipped ? (
                   <button
                     onClick={() => resume(item.key)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[hsl(var(--accent-purple-ink))] bg-[hsl(var(--accent-purple)/0.14)] hover:bg-[hsl(var(--accent-purple)/0.22)] active:scale-[0.96]"
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent-purple-ink bg-accent-purple/[0.14] hover:bg-accent-purple/[0.22] active:scale-[0.96]"
                     style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
                   >
                     <Minus className="h-3 w-3" /> Resume
@@ -135,7 +135,7 @@ const Dashboard = () => {
                     </Button>
                   </Link>
                 ) : (
-                  <Circle className="h-[18px] w-[18px] text-[hsl(var(--ink-subtle))]" />
+                  <Circle className="h-[18px] w-[18px] text-ink-subtle" />
                 )}
               </div>
             );

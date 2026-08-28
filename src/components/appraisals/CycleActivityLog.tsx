@@ -23,15 +23,15 @@ import {
 } from "@/lib/auditLog";
 
 const TONE_CHIP: Record<AuditTone, string> = {
-  critical: "text-[hsl(var(--accent-red))] bg-[hsl(var(--accent-red)/0.1)]",
-  milestone: "text-[hsl(var(--accent-green))] bg-[hsl(var(--accent-green)/0.1)]",
-  neutral: "text-[hsl(var(--ink-subtle))] bg-[hsl(var(--hairline)/0.5)]",
+  critical: "text-accent-red bg-accent-red/[0.1]",
+  milestone: "text-accent-green bg-accent-green/[0.1]",
+  neutral: "text-ink-subtle bg-hairline/[0.5]",
 };
 
 const TONE_DOT: Record<AuditTone, string> = {
-  critical: "bg-[hsl(var(--accent-red))]",
-  milestone: "bg-[hsl(var(--accent-green))]",
-  neutral: "bg-[hsl(var(--hairline))]",
+  critical: "bg-accent-red",
+  milestone: "bg-accent-green",
+  neutral: "bg-hairline",
 };
 
 const PAGE_SIZE = 25;
@@ -51,14 +51,14 @@ export function CycleActivityLog({
   const shown = filtered.slice(0, visible);
 
   return (
-    <section className="mt-6 rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))]">
+    <section className="mt-6 rounded-xl border border-hairline bg-surface-raised">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <History className="h-4 w-4 text-[hsl(var(--ink-muted))]" />
+            <History className="h-4 w-4 text-ink-muted" />
             Activity log
           </h2>
-          <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
+          <p className="mt-0.5 text-xs text-ink-muted">
             A permanent, uneditable record of every change to this cycle.
           </p>
         </div>
@@ -87,13 +87,13 @@ export function CycleActivityLog({
       </div>
 
       {isLoading && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
+        <div className="border-t border-hairline px-5 py-6">
           <QueryLoading label="Loading activity" rows={3} />
         </div>
       )}
 
       {isError && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-6">
+        <div className="border-t border-hairline px-5 py-6">
           <QueryError
             message={error instanceof Error ? error.message : undefined}
             onRetry={() => void refetch()}
@@ -102,8 +102,8 @@ export function CycleActivityLog({
       )}
 
       {!isLoading && !isError && filtered.length === 0 && (
-        <div className="border-t border-[hsl(var(--hairline))] px-5 py-8 text-center">
-          <p className="text-sm text-[hsl(var(--ink-muted))]">
+        <div className="border-t border-hairline px-5 py-8 text-center">
+          <p className="text-sm text-ink-muted">
             {events.length === 0
               ? "Nothing has happened on this cycle yet."
               : "No activity matches this filter."}
@@ -113,13 +113,13 @@ export function CycleActivityLog({
 
       {!isLoading && !isError && shown.length > 0 && (
         <>
-          <ol className="border-t border-[hsl(var(--hairline))]">
+          <ol className="border-t border-hairline">
             {shown.map((e) => {
               const tone = auditTone(e);
               return (
                 <li
                   key={e.id}
-                  className="flex gap-3 border-b border-[hsl(var(--hairline))] px-5 py-3 last:border-b-0"
+                  className="flex gap-3 border-b border-hairline px-5 py-3 last:border-b-0"
                 >
                   <span
                     aria-hidden="true"
@@ -134,7 +134,7 @@ export function CycleActivityLog({
                       </span>
                       <time
                         dateTime={e.created_at}
-                        className="text-[11px] tabular-nums text-[hsl(var(--ink-subtle))]"
+                        className="text-[11px] tabular-nums text-ink-subtle"
                       >
                         {formatAuditTime(e.created_at)}
                       </time>
@@ -142,7 +142,7 @@ export function CycleActivityLog({
                     {e.summary && (
                       <p className="mt-1 text-sm text-foreground break-words">{e.summary}</p>
                     )}
-                    <p className="mt-0.5 text-xs text-[hsl(var(--ink-muted))]">
+                    <p className="mt-0.5 text-xs text-ink-muted">
                       {e.actor_email ?? "System"}
                       {e.actor_role ? ` · ${e.actor_role.replace("_", " ")}` : ""}
                     </p>
@@ -160,7 +160,7 @@ export function CycleActivityLog({
                 onClick={() => setVisible((v) => v + PAGE_SIZE)}
               >
                 Show {Math.min(PAGE_SIZE, filtered.length - visible)} more
-                <span className="ml-1 text-[hsl(var(--ink-subtle))]">
+                <span className="ml-1 text-ink-subtle">
                   ({filtered.length - visible} remaining)
                 </span>
               </Button>

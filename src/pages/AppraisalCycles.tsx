@@ -115,10 +115,10 @@ const AppraisalCycles = () => {
             onRetry={() => void refetch()}
           />
         ) : cycles.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] px-6 py-14 text-center">
-            <CalendarClock className="mx-auto h-8 w-8 text-[hsl(var(--accent-green))]" />
+          <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-14 text-center">
+            <CalendarClock className="mx-auto h-8 w-8 text-accent-green" />
             <h2 className="mt-4 text-base font-semibold text-foreground text-balance">No appraisal cycles yet</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-[hsl(var(--ink-muted))] text-pretty">
+            <p className="mx-auto mt-1 max-w-sm text-sm text-ink-muted text-pretty">
               {isHr
                 ? "Create your first cycle to define the goal-setting, assessment, and acknowledgement windows."
                 : "Your HR team hasn't created a cycle yet. Check back soon."}
@@ -129,33 +129,33 @@ const AppraisalCycles = () => {
               </Button>
             )}
             {isHr && !hasEmployees && (
-              <p className="mt-3 text-xs text-[hsl(var(--ink-muted))]">
+              <p className="mt-3 text-xs text-ink-muted">
                 You need at least one employee first.{" "}
                 <Link to="/org/employees" className="underline">Add employees</Link>
               </p>
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] divide-y divide-[hsl(var(--hairline))] overflow-hidden">
+          <div className="rounded-xl border border-hairline bg-surface-raised divide-y divide-hairline overflow-hidden">
             {cycles.map((cycle: AppraisalCycle) => (
               <Link
                 key={cycle.id}
                 to={`/appraisals/${cycle.id}`}
-                className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-[hsl(var(--ink-strong)/0.03)]"
+                className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-ink-strong/[0.03]"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium text-foreground truncate">{cycle.name}</span>
                     <CycleStatusBadge status={cycle.status} />
                   </div>
-                  <p className="mt-1 text-xs text-[hsl(var(--ink-muted))]">
+                  <p className="mt-1 text-xs text-ink-muted">
                     Goals {formatWindow(cycle.goal_window_start, cycle.goal_window_end)} · Interim{" "}
                     {formatWindow(cycle.interim_window_start, cycle.interim_window_end)} · Final{" "}
                     {formatWindow(cycle.final_window_start, cycle.final_window_end)} · Acknowledge by{" "}
                     {formatDate(cycle.acknowledgement_due)}
                   </p>
                 </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-[hsl(var(--ink-subtle))]" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-ink-subtle" />
               </Link>
             ))}
           </div>

@@ -50,11 +50,11 @@ const CustomLevelBuilder = ({ levels, onChange }: Props) => {
   };
 
   return (
-    <div className="rounded-xl border border-[hsl(var(--hairline))] bg-card p-4 space-y-4">
+    <div className="rounded-xl border border-hairline bg-card p-4 space-y-4">
       {/* Level rows */}
       <div className="space-y-2 min-h-[3rem]">
         {levels.length === 0 ? (
-          <div className="flex h-12 items-center justify-center rounded-lg border border-dashed border-[hsl(var(--hairline))] text-sm text-muted-foreground">
+          <div className="flex h-12 items-center justify-center rounded-lg border border-dashed border-hairline text-sm text-muted-foreground">
             Add your first level below to get started
           </div>
         ) : (
@@ -71,7 +71,7 @@ const CustomLevelBuilder = ({ levels, onChange }: Props) => {
                 onDragStart={() => handleDragStart(idx)}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => handleDrop(idx)}
-                className="group flex h-12 items-center gap-3 rounded-lg border border-[hsl(var(--hairline))] bg-background px-3"
+                className="group flex h-12 items-center gap-3 rounded-lg border border-hairline bg-background px-3"
               >
                 <GripVertical
                   className={`h-4 w-4 text-muted-foreground ${
@@ -93,7 +93,7 @@ const CustomLevelBuilder = ({ levels, onChange }: Props) => {
                   type="button"
                   onClick={() => removeLevel(idx)}
                   aria-label={`Remove ${level}`}
-                  className="ml-1 grid h-8 w-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-[hsl(var(--ink-strong)/0.05)] hover:text-foreground active:scale-[0.96] [transition-property:transform,background-color,color] duration-150"
+                  className="ml-1 grid h-8 w-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-ink-strong/[0.05] hover:text-foreground active:scale-[0.96] [transition-property:transform,background-color,color] duration-150"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -117,12 +117,12 @@ const CustomLevelBuilder = ({ levels, onChange }: Props) => {
               }
             }}
             disabled={atMax}
-            className="h-11 flex-1 rounded-lg border-[hsl(var(--hairline))] bg-background text-[15px] placeholder:text-muted-foreground/70 focus-visible:ring-[hsl(var(--accent-blue)/0.35)]"
+            className="h-11 flex-1 rounded-lg border-hairline bg-background text-[15px] placeholder:text-muted-foreground/70 focus-visible:ring-accent-blue/[0.35]"
           />
           <Button
             onClick={addLevel}
             disabled={!newLevel.trim() || atMax}
-            className="h-11 rounded-lg px-4 bg-[hsl(var(--accent-blue))] text-white hover:bg-[hsl(var(--accent-blue)/0.92)] active:scale-[0.96] [transition-property:transform,background-color] duration-150"
+            className="h-11 rounded-lg px-4 bg-accent-blue text-white hover:bg-accent-blue/[0.92] active:scale-[0.96] [transition-property:transform,background-color] duration-150"
           >
             <Plus className="mr-1 h-4 w-4" /> Add
           </Button>

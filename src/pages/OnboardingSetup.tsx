@@ -117,7 +117,7 @@ export default function OnboardingSetup() {
       >
         <form
           onSubmit={(e) => { e.preventDefault(); void submit(); }}
-          className="rounded-2xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] md:p-6"
+          className="rounded-2xl border border-hairline bg-surface-raised p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] md:p-6"
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">

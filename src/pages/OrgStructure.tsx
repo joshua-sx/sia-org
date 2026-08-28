@@ -109,8 +109,8 @@ const OrgStructure = () => {
       <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground font-[Space_Grotesk]">Access restricted</h1>
-          <p className="mt-2 text-sm text-[hsl(var(--ink-muted))]">This area is for HR Administrators only.</p>
-          <Button asChild variant="ghost" className="mt-6 gap-2 text-[hsl(var(--ink-muted))]">
+          <p className="mt-2 text-sm text-ink-muted">This area is for HR Administrators only.</p>
+          <Button asChild variant="ghost" className="mt-6 gap-2 text-ink-muted">
             <Link to="/dashboard"><ArrowLeft className="h-4 w-4" /> Back to dashboard</Link>
           </Button>
         </div>
@@ -220,15 +220,12 @@ const OrgStructure = () => {
       )}
 
       {units.length === 0 ? (
-        <div className={`rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)] ${isOnboarding ? "" : "mt-10"}`}>
-          <div
-            className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "hsl(var(--accent-red) / 0.12)" }}
-          >
-            <Building2 className="h-6 w-6" style={{ color: "hsl(var(--accent-red))" }} />
+        <div className={`rounded-xl border border-hairline bg-surface-raised p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)] ${isOnboarding ? "" : "mt-10"}`}>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-red/[0.12]">
+            <Building2 className="h-6 w-6 text-accent-red" />
           </div>
           <h2 className="text-base font-semibold text-foreground text-balance">Your hierarchy is configured</h2>
-          <p className="mt-1 text-sm text-[hsl(var(--ink-muted))] text-pretty">
+          <p className="mt-1 text-sm text-ink-muted text-pretty">
             Add your first {topLevelType?.name ?? "unit"}.
           </p>
           <Button className="mt-6" onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>
@@ -237,14 +234,14 @@ const OrgStructure = () => {
         </div>
       ) : (
         <div className={`grid gap-6 ${isOnboarding ? "grid-cols-1" : "lg:grid-cols-[1fr_320px]"} ${isOnboarding ? "" : "mt-6"}`}>
-          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+          <div className="rounded-xl border border-hairline bg-surface-raised p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             <OrgTree nodes={tree} selectedId={selectedId} onSelect={(n) => setSelectedId(n.id)} />
           </div>
-          <div className="rounded-xl border border-[hsl(var(--hairline))] bg-[hsl(var(--surface-raised))] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+          <div className="rounded-xl border border-hairline bg-surface-raised p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
             {selectedNode ? (
               <UnitDetailPanel node={selectedNode} onAddChild={handleAddChild} />
             ) : (
-              <p className="text-sm text-[hsl(var(--ink-muted))]">Select a unit to view details.</p>
+              <p className="text-sm text-ink-muted">Select a unit to view details.</p>
             )}
           </div>
         </div>
