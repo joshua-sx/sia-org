@@ -33,7 +33,9 @@ export function friendlyError(err: unknown, fallback = "Something went wrong"): 
       ? err.message
       : err && typeof err === "object" && "message" in err
         ? String((err as { message: unknown }).message)
-        : String(err ?? "");
+        : typeof err === "string"
+          ? err
+          : "";
   for (const [code, friendly] of Object.entries(SIA_MESSAGES)) {
     if (raw.includes(code)) return friendly;
   }

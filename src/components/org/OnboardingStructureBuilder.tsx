@@ -12,6 +12,7 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 
 /** Maps the industry chosen during Setup to a sensible template suggestion. */
 export function recommendedTemplateFor(industry?: string | null): string | null {
@@ -105,8 +106,8 @@ export default function OnboardingStructureBuilder({ industry, onComplete, creat
         );
       };
       await persistNodes(units, 0, null);
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Could not save your structure");
+    } catch (err) {
+      toast.error(friendlyError(err, "Could not save your structure"));
       setSaving(false);
       return;
     }

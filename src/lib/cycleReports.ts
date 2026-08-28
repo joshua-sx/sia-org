@@ -7,7 +7,7 @@ import {
   CYCLE_REPORT_TASK_LABELS,
   type CycleTaskKind,
 } from "@/lib/cycleTasks";
-import { downloadCsv, rowsToCsv } from "@/lib/csvExport";
+import { downloadCsv, filenameSlug, rowsToCsv } from "@/lib/csvExport";
 import { formatScore } from "@/lib/scoring";
 
 export type TaskStatus = "complete" | "pending" | "overdue" | "frozen" | "not_due";
@@ -315,10 +315,6 @@ export function filterParticipantRows(rows: ParticipantReportRow[], filter: Stat
   }
 }
 
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cycle";
-}
-
 export function exportCycleCompletionCsv(
   cycle: Pick<AppraisalCycle, "name">,
   summary: ReturnType<typeof buildCycleCompletionSummary>,
@@ -349,7 +345,7 @@ export function exportCycleCompletionCsv(
       ],
     ],
   );
-  downloadCsv(`${slugify(cycle.name)}-completion-summary.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-completion-summary.csv`, csv);
 }
 
 export function exportEmployeeStatusCsv(cycle: Pick<AppraisalCycle, "name">, rows: ParticipantReportRow[]) {
@@ -387,7 +383,7 @@ export function exportEmployeeStatusCsv(cycle: Pick<AppraisalCycle, "name">, row
       r.frozen ? "terminated" : "active",
     ]),
   );
-  downloadCsv(`${slugify(cycle.name)}-employee-status.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-employee-status.csv`, csv);
 }
 
 export function exportManagerCompletionCsv(cycle: Pick<AppraisalCycle, "name">, managers: ManagerReportRow[]) {
@@ -415,7 +411,7 @@ export function exportManagerCompletionCsv(cycle: Pick<AppraisalCycle, "name">, 
       m.assigned === 0 ? 0 : Math.round((m.finalComplete / m.assigned) * 100),
     ]),
   );
-  downloadCsv(`${slugify(cycle.name)}-manager-completion.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-manager-completion.csv`, csv);
 }
 
 export function exportOverdueTasksCsv(cycle: Pick<AppraisalCycle, "name">, tasks: OverdueTaskRow[]) {
@@ -432,5 +428,5 @@ export function exportOverdueTasksCsv(cycle: Pick<AppraisalCycle, "name">, tasks
       t.unit,
     ]),
   );
-  downloadCsv(`${slugify(cycle.name)}-overdue-tasks.csv`, csv);
+  downloadCsv(`${filenameSlug(cycle.name)}-overdue-tasks.csv`, csv);
 }

@@ -7,11 +7,13 @@ import { useCycleParticipants } from "@/hooks/useCycleParticipants";
 import { useGoals } from "@/hooks/useGoals";
 import { useAssessments } from "@/hooks/useAssessments";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
+import { ScoreStat } from "@/components/appraisals/ScoreStat";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 import { participantTrackerSteps } from "@/lib/trackerSteps";
-import { formatScore, weightSum } from "@/lib/scoring";
+import { weightSum } from "@/lib/scoring";
 import { RATING_LABELS } from "@/lib/assessmentSchema";
 import { STAGE_LABELS, canAcknowledge, type Stage } from "@/lib/cycleSchema";
 import { friendlyError } from "@/lib/siaErrors";
@@ -60,30 +62,46 @@ const MyReview = () => {
   } = useAssessments(myParticipant?.id, goalIds);
   const { acknowledge: acknowledgeMutation } = useCycleParticipants(activeCycle?.id);
 
-  const detailLoading =
-    !!myParticipant && (goalsLoading || (goalIds.length > 0 && ratingsLoading));
-  const loading =
-    cycleLoading || employeeLoading || (!!activeCycle && participantsLoading) || detailLoading;
-  const loadError =
-    cycleError ||
-    employeeError ||
-    (!!activeCycle && participantsError) ||
-    (!!myParticipant && (goalsError || (goalIds.length > 0 && ratingsError)));
-  const loadErrorMessage =
-    (cycleErr instanceof Error ? cycleErr.message : undefined) ??
-    (employeeErr instanceof Error ? employeeErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined) ??
-    (goalsErr instanceof Error ? goalsErr.message : undefined) ??
-    (ratingsErr instanceof Error ? ratingsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    void refetchEmployee();
-    if (activeCycle) void refetchParticipants();
-    if (myParticipant) {
-      void refetchGoals();
-      if (goalIds.length > 0) void refetchRatings();
-    }
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cycleLoading,
+      isError: cycleError,
+      error: cycleErr,
+      refetch: refetchCycles,
+    },
+    {
+      isLoading: employeeLoading,
+      isError: employeeError,
+      error: employeeErr,
+      refetch: refetchEmployee,
+    },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+    {
+      enabled: !!myParticipant,
+      isLoading: goalsLoading,
+      isError: goalsError,
+      error: goalsErr,
+      refetch: refetchGoals,
+    },
+    {
+      enabled: !!myParticipant && goalIds.length > 0,
+      isLoading: ratingsLoading,
+      isError: ratingsError,
+      error: ratingsErr,
+      refetch: refetchRatings,
+    },
+  ]);
 
   const finalRevealed = !!myParticipant?.final_submitted_at;
 
@@ -229,27 +247,6 @@ const MyReview = () => {
     </div>
   );
 };
-
-function ScoreStat({
-  label,
-  value,
-  emphasize,
-}: {
-  label: string;
-  value: number | null;
-  emphasize?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{label}</p>
-      <p
-        className={`tabular-nums font-semibold ${emphasize ? "text-lg text-[hsl(var(--accent-green))]" : "text-sm text-foreground"}`}
-      >
-        {formatScore(value)}
-      </p>
-    </div>
-  );
-}
 
 function EmptyNote({ text }: { text: string }) {
   return (

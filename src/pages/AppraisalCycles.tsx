@@ -18,6 +18,7 @@ import { OrgScoringSettingsCard } from "@/components/appraisals/OrgScoringSettin
 import { formatDate, formatWindow } from "@/lib/cycleSchema";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 import { playSetupCompleteCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 
 const AppraisalCycles = () => {
   const { profile } = useAuth();
@@ -182,8 +183,8 @@ const AppraisalCycles = () => {
           await markComplete("cycle");
           playSetupCompleteCue();
           await finishSetup();
-        } catch (e: unknown) {
-          toast.error(e instanceof Error ? e.message : "Could not finish setup");
+        } catch (err) {
+          toast.error(friendlyError(err, "Could not finish setup"));
         }
       }}
     >

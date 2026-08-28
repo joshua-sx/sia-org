@@ -4,6 +4,7 @@ import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCycleParticipants";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantGoalsCard from "@/components/appraisals/ParticipantGoalsCard";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -55,15 +56,26 @@ const MyGoals = () => {
     : null;
   const canEdit = !!activeCycle && goalWindow === "open";
 
-  const loading = cyclesLoading || (!!activeCycle && participantsLoading);
-  const loadError = cyclesError || (!!activeCycle && participantsError);
-  const loadErrorMessage =
-    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    if (activeCycle) void refetchParticipants();
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cyclesLoading,
+      isError: cyclesError,
+      error: cyclesErr,
+      refetch: refetchCycles,
+    },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+  ]);
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">

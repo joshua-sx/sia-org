@@ -23,6 +23,8 @@ import {
   EMPLOYMENT_STATUSES,
   EMPLOYMENT_TYPE_LABELS,
   EMPLOYMENT_STATUS_LABELS,
+  type EmploymentStatus,
+  type EmploymentType,
   type EmployeeFormValues,
 } from "@/lib/employeeSchema";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
@@ -214,7 +216,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
             <Field label="Employment type">
               <Select
                 value={watch("employment_type")}
-                onValueChange={(v) => setValue("employment_type", v as any)}
+                onValueChange={(value) => setValue("employment_type", value as EmploymentType)}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -254,7 +256,7 @@ export function EmployeeFormModal({ open, onOpenChange, editing, onSaved }: Prop
             <Field label="Status">
               <Select
                 value={watch("employment_status")}
-                onValueChange={(v) => setValue("employment_status", v as any)}
+                onValueChange={(value) => setValue("employment_status", value as EmploymentStatus)}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>

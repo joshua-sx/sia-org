@@ -1,6 +1,7 @@
 import { EMPLOYMENT_STATUSES, EMPLOYMENT_TYPES } from "./employeeSchema";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
+import { downloadCsv, rowsToCsv } from "./csvExport";
 import { orderedLevels, resolvePathString } from "./orgHierarchy";
 
 export const CSV_COLUMNS = [
@@ -32,22 +33,14 @@ const EXAMPLE_ROW: Record<CsvColumn, string> = {
 };
 
 export function buildTemplateCsv(): string {
-  const header = CSV_COLUMNS.join(",");
-  const example = CSV_COLUMNS.map((c) => {
-    const v = EXAMPLE_ROW[c];
-    return v.includes(",") ? `"${v}"` : v;
-  }).join(",");
-  return `${header}\n${example}\n`;
+  return rowsToCsv(
+    [...CSV_COLUMNS],
+    [CSV_COLUMNS.map((column) => EXAMPLE_ROW[column])],
+  );
 }
 
 export function downloadTemplateCsv() {
-  const blob = new Blob([buildTemplateCsv()], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "employees-template.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadCsv("employees-template.csv", buildTemplateCsv());
 }
 
 export interface ParsedEmployeeRow {

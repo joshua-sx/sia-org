@@ -20,6 +20,7 @@ import EditLevelsModal from "@/components/org/EditLevelsModal";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 
 const OrgStructure = () => {
   const { profile, organization } = useAuth();
@@ -137,8 +138,8 @@ const OrgStructure = () => {
     const finishStructure = async () => {
       try {
         await markComplete("structure");
-      } catch (e: unknown) {
-        toast.error(e instanceof Error ? e.message : "Could not mark step complete");
+      } catch (err) {
+        toast.error(friendlyError(err, "Could not mark step complete"));
       }
       setWizardDone(true);
       navigate(isOnboarding ? "/org/employees" : "/dashboard");
@@ -275,8 +276,8 @@ const OrgStructure = () => {
           onPrimary={async () => {
             try {
               await markComplete("structure");
-            } catch (e: unknown) {
-              toast.error(e instanceof Error ? e.message : "Could not save this step");
+            } catch (err) {
+              toast.error(friendlyError(err, "Could not save this step"));
               return;
             }
             playSuccessCue();

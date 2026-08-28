@@ -17,6 +17,7 @@ import TreePreview from "./TreePreview";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
+import { friendlyError } from "@/lib/siaErrors";
 
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Review"];

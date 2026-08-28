@@ -6,6 +6,7 @@ import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants } from "@/hooks/useCycleParticipants";
 import { useGoals } from "@/hooks/useGoals";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantAssessmentCard from "@/components/appraisals/ParticipantAssessmentCard";
 import { ProgressTracker } from "@/components/appraisals/ProgressTracker";
@@ -44,16 +45,28 @@ const AssessmentDetail = () => {
       (!!myEmployee &&
         (participant.manager_id === myEmployee.id || participant.extra_reviewer_id === myEmployee.id)));
 
-  const loading =
-    cyclesLoading || employeeLoading || (!!activeCycle && participantsLoading) || (!!participant && goalsLoading);
-  const loadError = cyclesError || (!!activeCycle && participantsError);
-  const loadErrorMessage =
-    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    if (activeCycle) void refetchParticipants();
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cyclesLoading,
+      isError: cyclesError,
+      error: cyclesErr,
+      refetch: refetchCycles,
+    },
+    { isLoading: employeeLoading },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+    { enabled: !!participant, isLoading: goalsLoading },
+  ]);
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">

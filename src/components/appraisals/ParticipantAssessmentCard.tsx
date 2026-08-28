@@ -5,6 +5,7 @@ import { CheckCircle2, Lock, Save, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScoreStat } from "@/components/appraisals/ScoreStat";
 import {
   Select,
   SelectContent,
@@ -360,27 +361,6 @@ function StagePanel({
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-function ScoreStat({
-  label,
-  value,
-  emphasize,
-}: {
-  label: string;
-  value: number | null;
-  emphasize?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--ink-subtle))]">{label}</p>
-      <p
-        className={`tabular-nums font-semibold ${emphasize ? "text-lg text-[hsl(var(--accent-green))]" : "text-sm text-foreground"}`}
-      >
-        {formatScore(value)}
-      </p>
     </div>
   );
 }

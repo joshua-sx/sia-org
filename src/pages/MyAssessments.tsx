@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useCycleParticipants, type CycleParticipant } from "@/hooks/useCycleParticipants";
 import { useMyEmployee } from "@/hooks/useMyEmployee";
+import { useMergedQueryState } from "@/hooks/useMergedQueryState";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import ParticipantAssessmentCard from "@/components/appraisals/ParticipantAssessmentCard";
 import { QueryError, QueryLoading } from "@/components/QueryState";
@@ -26,15 +27,26 @@ const MyAssessments = () => {
   const { myEmployee } = useMyEmployee();
 
   const isHr = profile?.role === "hr_admin";
-  const loading = cyclesLoading || (!!activeCycle && participantsLoading);
-  const loadError = cyclesError || (!!activeCycle && participantsError);
-  const loadErrorMessage =
-    (cyclesErr instanceof Error ? cyclesErr.message : undefined) ??
-    (participantsErr instanceof Error ? participantsErr.message : undefined);
-  const retryLoad = () => {
-    void refetchCycles();
-    if (activeCycle) void refetchParticipants();
-  };
+  const {
+    isLoading: loading,
+    isError: loadError,
+    errorMessage: loadErrorMessage,
+    retryAll: retryLoad,
+  } = useMergedQueryState([
+    {
+      isLoading: cyclesLoading,
+      isError: cyclesError,
+      error: cyclesErr,
+      refetch: refetchCycles,
+    },
+    {
+      enabled: !!activeCycle,
+      isLoading: participantsLoading,
+      isError: participantsError,
+      error: participantsErr,
+      refetch: refetchParticipants,
+    },
+  ]);
 
   // Two lanes: reports I manage (or all, for hr_admin) get the manager lane;
   // participants where I'm the extra reviewer get the reviewer lane. RLS

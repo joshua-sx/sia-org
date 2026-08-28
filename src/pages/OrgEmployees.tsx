@@ -208,8 +208,8 @@ const OrgEmployees = () => {
           onPrimary={async () => {
             try {
               await markComplete("people");
-            } catch (e: unknown) {
-              toast.error(e instanceof Error ? e.message : "Could not save this step");
+            } catch (err) {
+              toast.error(friendlyError(err, "Could not save this step"));
               return;
             }
             playSuccessCue();
