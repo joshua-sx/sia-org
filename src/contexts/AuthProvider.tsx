@@ -1,51 +1,12 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
-import { Session, User } from "@supabase/supabase-js";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Profile {
-  id: string;
-  organization_id: string;
-  full_name: string;
-  email: string;
-  role: string;
-}
-
-interface Organization {
-  id: string;
-  name: string;
-  country: string | null;
-  industry: string | null;
-  setup_complete: boolean | null;
-  structure_complete: boolean | null;
-  people_complete: boolean | null;
-  cycle_complete: boolean | null;
-  structure_skipped: boolean | null;
-  people_skipped: boolean | null;
-  cycle_skipped: boolean | null;
-}
-
-
-interface AuthContextType {
-  session: Session | null;
-  user: User | null;
-  profile: Profile | null;
-  organization: Organization | null;
-  loading: boolean;
-  signOut: () => Promise<void>;
-  refreshOrganization: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  session: null,
-  user: null,
-  profile: null,
-  organization: null,
-  loading: true,
-  signOut: async () => {},
-  refreshOrganization: async () => {},
-});
-
-export const useAuth = () => useContext(AuthContext);
+import {
+  AuthContext,
+  type Organization,
+  type Profile,
+} from "./AuthContext";
 
 const ORG_COLUMNS =
   "id, name, country, industry, setup_complete, structure_complete, people_complete, cycle_complete, structure_skipped, people_skipped, cycle_skipped";
@@ -65,7 +26,7 @@ function jwtHasOrgClaim(token: string | undefined | null): boolean {
   }
 }
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
@@ -164,4 +125,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
+}

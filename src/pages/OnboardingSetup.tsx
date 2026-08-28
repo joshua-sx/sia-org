@@ -9,8 +9,8 @@ import { PageHead } from "@/components/PageHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import { playSuccessCue } from "@/lib/completionSounds";
+import { INDUSTRIES } from "@/lib/onboardingOptions";
 
-export const INDUSTRIES = ["Government", "Aviation", "Healthcare", "Education", "Finance", "Hospitality", "Other"];
 const COUNTRIES = [
   "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
   "India", "Japan", "Brazil", "South Africa", "Nigeria", "Kenya", "UAE",

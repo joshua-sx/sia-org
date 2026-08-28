@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Minus } from "lucide-react";
 import type { OnboardingStep, OnboardingStepKey } from "@/lib/onboardingSteps";
-import { stepSegmentColor } from "./OnboardingStepFrame";
+import { stepSegmentColor } from "@/lib/onboardingProgress";
 
 interface OnboardingPipelineProps {
   steps: OnboardingStep[];

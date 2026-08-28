@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { OnboardingProvider } from "@/components/onboarding/OnboardingContext";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import OnboardingSkipControl from "@/components/onboarding/OnboardingSkipControl";
 import NotificationBell from "@/components/NotificationBell";
 

@@ -1,14 +1,6 @@
 import React from "react";
-import { Building2, Landmark, HeartPulse, GraduationCap, LayoutList, Settings2, Check, Pencil } from "lucide-react";
-
-export interface HierarchyTemplate {
-  key: string;
-  label: string;
-  desc: string;
-  icon: React.ElementType;
-  levels: string[];
-  isCustom?: boolean;
-}
+import { Check, Pencil } from "lucide-react";
+import { TEMPLATES, type HierarchyTemplate } from "@/lib/onboardingTemplates";
 
 const LEVEL_ACCENT_VARS = [
   "--accent-blue",
@@ -18,15 +10,6 @@ const LEVEL_ACCENT_VARS = [
 ] as const;
 
 const accentColor = (i: number) => `hsl(var(${LEVEL_ACCENT_VARS[i % LEVEL_ACCENT_VARS.length]}))`;
-
-export const TEMPLATES: HierarchyTemplate[] = [
-  { key: "government", label: "Government", desc: "Public sector hierarchy", icon: Landmark, levels: ["Ministry", "Agency", "Bureau", "Unit"] },
-  { key: "corporate", label: "Corporate", desc: "Standard business structure", icon: Building2, levels: ["Division", "Department", "Team"] },
-  { key: "healthcare", label: "Healthcare", desc: "Medical org structure", icon: HeartPulse, levels: ["Facility", "Department", "Unit", "Team"] },
-  { key: "education", label: "Education", desc: "Academic institution", icon: GraduationCap, levels: ["Faculty", "Department", "Programme"] },
-  { key: "flat", label: "Flat", desc: "Single-level, no nesting", icon: LayoutList, levels: ["Team"] },
-  { key: "custom", label: "Custom", desc: "Build your own hierarchy", icon: Settings2, levels: [], isCustom: true },
-];
 
 interface Props {
   selected: string | null;

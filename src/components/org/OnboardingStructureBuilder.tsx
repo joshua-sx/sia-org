@@ -4,7 +4,7 @@ import { Check, Circle, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { OnboardingActionFooter } from "@/components/onboarding/OnboardingStepFrame";
-import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
+import TemplateSelector from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
@@ -14,19 +14,7 @@ import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { playSuccessCue } from "@/lib/completionSounds";
 import { friendlyError } from "@/lib/siaErrors";
 import { persistOrgStructure } from "@/lib/persistOrgStructure";
-
-/** Maps the industry chosen during Setup to a sensible template suggestion. */
-export function recommendedTemplateFor(industry?: string | null): string | null {
-  switch ((industry ?? "").toLowerCase()) {
-    case "government": return "government";
-    case "healthcare": return "healthcare";
-    case "education": return "education";
-    case "aviation":
-    case "finance":
-    case "hospitality": return "corporate";
-    default: return null;
-  }
-}
+import { recommendedTemplateFor, TEMPLATES } from "@/lib/onboardingTemplates";
 
 function TaskCheck({ label, met }: { label: string; met: boolean }) {
   return (

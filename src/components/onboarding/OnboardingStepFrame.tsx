@@ -5,17 +5,7 @@ import {
   ONBOARDING_STEPS,
   type OnboardingStepKey,
 } from "@/lib/onboardingSteps";
-
-export type SegmentState = "done" | "current" | "upcoming";
-
-/** Shared color rule for every setup progress indicator: only the current
- *  step carries its brand color, completed steps are black, and upcoming
- *  steps stay neutral. */
-export function stepSegmentColor(opts: { accent: string; state: SegmentState | "skipped" }) {
-  if (opts.state === "current") return `hsl(var(${opts.accent}))`;
-  if (opts.state === "done") return "hsl(var(--foreground))";
-  return "hsl(var(--hairline))";
-}
+import { stepSegmentColor, type SegmentState } from "@/lib/onboardingProgress";
 
 /** Back + primary action, adjacent and right-aligned. One shared footer for
  *  every onboarding screen — never a full-width CTA. */

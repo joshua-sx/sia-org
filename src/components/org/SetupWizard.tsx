@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, ArrowRight, ArrowLeft, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
-import TemplateSelector, { TEMPLATES } from "./TemplateSelector";
+import TemplateSelector from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
 import TreePreview from "./TreePreview";
@@ -14,6 +14,7 @@ import type { OrgUnitType } from "@/hooks/useOrgUnitTypes";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { friendlyError } from "@/lib/siaErrors";
 import { persistOrgStructure } from "@/lib/persistOrgStructure";
+import { TEMPLATES } from "@/lib/onboardingTemplates";
 
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Review"];
