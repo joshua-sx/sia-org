@@ -33,8 +33,8 @@ import { ONBOARDING_STEPS } from "@/lib/onboardingSteps";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, accent: "--accent-blue" },
-  { title: "Org Structure", url: "/org/structure", icon: Building2, accent: "--accent-red" },
-  { title: "Employees", url: "/org/employees", icon: Users, accent: "--accent-purple" },
+  { title: "Organization", url: "/org/structure", icon: Building2, accent: "--accent-red" },
+  { title: "People", url: "/org/employees", icon: Users, accent: "--accent-purple" },
   { title: "Appraisals", url: "/appraisals", icon: CalendarClock, accent: "--accent-green" },
 ];
 
@@ -65,7 +65,7 @@ export function AppSidebar() {
       collapsible="icon"
       className="border-r border-hairline bg-sidebar"
     >
-      <SidebarHeader className={collapsed ? "flex items-center justify-center px-0 py-4" : "px-4 py-4"}>
+      <SidebarHeader className={collapsed ? "flex items-center justify-center px-0 py-5" : "px-4 py-5"}>
         {collapsed ? (
           <span className="text-base font-bold tracking-tight font-[Space_Grotesk] text-foreground">
             S

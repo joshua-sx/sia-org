@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sia dashboard focused comparison</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #e9e7e3; color: #111; font: 14px system-ui, sans-serif; }
+      main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
+      figure { margin: 0; overflow: hidden; border: 1px solid rgb(0 0 0 / 10%); border-radius: 12px; background: white; }
+      figcaption { padding: 10px 12px; border-bottom: 1px solid rgb(0 0 0 / 10%); font-weight: 600; }
+      .crop { position: relative; height: 900px; overflow: hidden; }
+      img { position: absolute; top: -55px; left: -245px; width: auto; max-width: none; height: auto; }
+      .implementation img { top: -55px; left: -240px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <figure>
+        <figcaption>Target · content and interaction hierarchy</figcaption>
+        <div class="crop"><img src="./dashboard-reference.png" alt="Target dashboard detail" /></div>
+      </figure>
+      <figure class="implementation">
+        <figcaption>Implementation · content and interaction hierarchy</figcaption>
+        <div class="crop"><img src="./dashboard-desktop.png" alt="Implemented dashboard detail" /></div>
+      </figure>
+    </main>
+  </body>
+</html>

@@ -6,12 +6,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { CheckCircle2, Circle, ChevronRight, Minus } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { DashboardAppraisalCard } from "@/components/appraisals/DashboardAppraisalCard";
-import { DashboardHrHome } from "@/components/appraisals/DashboardHrHome";
 import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
-import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { incompleteOnboardingResumeHref, type OnboardingStatus } from "@/lib/onboardingSteps";
+import { OperationalBriefing } from "@/components/dashboard/OperationalBriefing";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
@@ -27,7 +26,6 @@ const Dashboard = () => {
   const { steps, progressCount, totalSteps, resume, setupComplete } = useOnboarding();
   const { data: employees = [] } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { data: cycles = [] } = useAppraisalCycles();
   const [celebrationDismissed, setCelebrationDismissed] = useState(false);
 
   const justCompleted =
@@ -68,6 +66,10 @@ const Dashboard = () => {
     );
   }
 
+  if (isHr) {
+    return <OperationalBriefing />;
+  }
+
   const subtitle = setupFinished
     ? "Your workspace is ready. Open a cycle to start reviews."
     : `Setup is done. ${remaining.length} optional ${remaining.length === 1 ? "step is" : "steps are"} still open below.`;
@@ -92,7 +94,7 @@ const Dashboard = () => {
         }
       />
 
-      {isHr ? <DashboardHrHome cycles={cycles} /> : <DashboardAppraisalCard className="mt-8" />}
+      <DashboardAppraisalCard className="mt-8" />
 
       {!setupFinished && (
         <div className="mt-8 rounded-xl border border-hairline bg-surface-raised">

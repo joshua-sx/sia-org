@@ -22,7 +22,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </a>
           <AppSidebar />
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center gap-3 border-b border-hairline bg-surface/80 px-4 backdrop-blur">
+            <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-3 border-b border-hairline bg-surface/80 px-4 backdrop-blur">
               <SidebarTrigger className="text-ink-subtle hover:text-foreground" />
               <div className="ml-auto flex items-center gap-4 text-xs text-ink-muted">
                 <OnboardingSkipControl />
