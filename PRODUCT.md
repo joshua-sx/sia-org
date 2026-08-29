@@ -12,20 +12,53 @@ until this file is updated.
 
 ## One sentence
 
-SIA is a **multi-tenant performance-appraisal product** for organizations with a
-formal hierarchy. HR runs a dated review cycle; managers set weighted goals and
-rate their reports; employees acknowledge the final score.
+Sia is an **organizational intelligence platform** that structures people, roles,
+goals, and performance so tools like ChatGPT can securely understand and interact
+with your company.
 
-It is **not** a full HRIS (payroll, recruiting, time-off) and **not** a generic
-OKR or 360 suite.
+**Customer line:** Your organization, AI-ready. Connect Sia to ChatGPT and ask
+your organization anything.
+
+The signed-in app is **Layer 1 — system of record**: a multi-tenant performance-
+appraisal workflow for organizations with a formal hierarchy. HR runs a dated
+review cycle; managers set weighted goals and rate their reports; employees
+acknowledge the final score.
+
+It is **not** a full HRIS (payroll, recruiting, time-off), **not** a generic
+OKR or 360 suite, and **not** an in-app AI chatbot.
 
 ## Name
 
-- **SIA** is the product. Tagline in the repo: **Smart Performance Management**.
-- The letters are **not** documented as an acronym beyond that tagline. Do not
-  invent an expansion.
-- **Sia AI** (“Ask Sia”) is a **coming-soon** assistant on the marketing site.
-  It is not part of the signed-in product.
+- **Sia** (also **SIA** in code and URLs) is the product.
+- Repo tagline evolving to: **Your organization, AI-ready** (legacy copy may still
+  say “Smart Performance Management” in places until updated).
+- The letters are **not** documented as an acronym. Do not invent an expansion.
+- **Ask Sia** is the read-only intelligence layer exposed via **MCP + OAuth** to
+  external AI clients (e.g. ChatGPT). Sia does not rebuild ChatGPT inside the app.
+  Do not claim ChatGPT integration is live until Phase 1 MCP tools pass acceptance.
+
+## Product layers
+
+1. **System of record** — org structure, people, reporting lines, appraisal cycles,
+   goals, assessments, performance history (what the signed-in app builds today).
+2. **Intelligence layer** — read-only MCP tools that expose structured org data
+   with **permission-aware** answers (RLS + role checks). ChatGPT asks; Sia decides
+   what can be answered.
+3. **AI interface** — ChatGPT, Claude, or another MCP-compatible client. Sia is
+   not the conversation UI.
+
+## AI-ready by design
+
+When adding data to Sia, model **relationships**, not flat strings:
+
+- Employee → belongs to org unit (department/team)
+- Employee → reports to employee (manager)
+- Employee → holds job title (Phase 2: role entity + responsibilities)
+- Goal → assigned to participant (employee in a cycle)
+- Appraisal → evaluates employee; completed by manager
+
+If AI cannot traverse the relationship, the data is not ready for the intelligence
+layer.
 
 ## Who it is for
 
@@ -98,8 +131,8 @@ Use this table in demos and copy. **Do not sell the right column as live.**
 | Reviews | Manager ratings + optional extra-reviewer **comments** | Full **360°** (self + peer + manager as raters). Employees do **not** self-review. |
 | Goals | Manager sets goals per report for the cycle | Org-wide **OKR cascade** (company → team → person) as a first-class feature |
 | Analytics | Cycle progress, scores, reports/PDF | Trend dashboards across years/departments as a product surface |
-| AI | Landing preview only | In-app “Ask Sia” |
-| Auth / enterprise | Email signup, OAuth consent stub, role checks | SSO, custom integrations (listed on Business pricing — not built) |
+| AI / Ask Sia | MCP Phase 1 read tools + OAuth; org, people, goals, appraisals, pending reviews | Phase 2 analytics; Phase 3 write actions; in-app chatbot |
+| Auth / enterprise | Email signup, OAuth consent for MCP clients, role checks | SSO, custom integrations (listed on Business pricing — not built) |
 | Notifications | None | Email/in-app nudges for overdue reviews |
 
 Landing, pricing, and blog copy were trued up to the **Shipped** column on
@@ -113,18 +146,40 @@ marketing copy drifts back toward the right column, correct the copy; do not
 
 **Do say**
 
-- Performance appraisals for hierarchical orgs.
+- Your organization, AI-ready — structure people, roles, goals, and performance;
+  connect to ChatGPT; ask your organization anything.
+- Organizational intelligence layer: permission-aware context for external AI.
+- Performance appraisals for hierarchical orgs (Layer 1 / first domain).
 - HR runs one dated cycle; managers rate reports; employees sign off.
 - Extra reviewer for a second written perspective, not a second score.
 - Custom org tree, not a fixed “company / department / team” template.
+- ChatGPT asks; Sia decides what the authenticated user may see.
 
 **Don’t say**
 
+- “Sia is an AI chatbot” or “Ask Sia inside the app.”
+- “ChatGPT integration is live” until Phase 1 MCP tools are shipped and tested.
 - “360 reviews” unless you immediately qualify: manager rates; one optional
   commenter; no self, no peer ratings.
 - “OKRs / cascading goals” as if the app enforces a cascade.
-- “Sia AI is available.”
 - An invented meaning for the letters S-I-A.
+
+## MCP permission model (Phase 1)
+
+Authorization is **per authenticated user**, not per AI client. RLS on Postgres
+is the primary control; MCP tools use the user’s OAuth bearer token.
+
+| Request | Employee | Manager | HR Admin |
+|---------|----------|---------|----------|
+| My appraisal / goals | Yes | Yes | Yes |
+| Direct reports | — | Yes | Yes |
+| Another team’s appraisals | No | No | Yes |
+| Org-wide pending / overdue | No | Own team | Yes |
+| All employee directory rows | Yes* | Yes* | Yes |
+
+\*Today all org members can read all `employees` rows (RLS). Tightening manager-
+scoped employee reads is tracked for Phase 1.5 before broad enterprise ChatGPT
+rollout. Appraisal/participant/goal data already respects cycle RLS.
 
 ## Open product decisions
 

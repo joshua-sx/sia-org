@@ -12,14 +12,30 @@
   "mcp": {
     "server": {
       "name": "sia-mcp",
-      "version": "0.1.0",
-      "title": "SIA — Smart Performance Management"
+      "version": "0.2.0",
+      "title": "Sia — Organizational intelligence"
     },
     "tools": [
       {
         "name": "whoami",
         "title": "Who am I",
-        "description": "Return the signed-in user's identity, role, and organization within SIA.",
+        "description": "Return the signed-in user's profile, app role, organization, and linked employee record (job title, org unit).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_org_chart",
+        "title": "Get org chart",
+        "description": "Return the organization's unit tree and people with reporting relationships. Answers who works here and what a department looks like.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -65,9 +81,41 @@
         "outputSchema": null
       },
       {
-        "name": "list_employees",
-        "title": "List employees",
-        "description": "List employees (profiles) in the signed-in user's organization. Optionally filter by role (hr_admin, manager, employee).",
+        "name": "list_people",
+        "title": "List people",
+        "description": "List employee records in the signed-in user's organization, including job title, org unit, and reporting line.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "org_unit_id": {
+              "description": "Optional org unit filter.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "employment_status": {
+              "description": "Optional employment status filter.",
+              "type": "string",
+              "enum": [
+                "active",
+                "on_leave",
+                "terminated"
+              ]
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_profiles",
+        "title": "List signed-in users",
+        "description": "List profiles (signed-in app users) in the organization. Optionally filter by app role (hr_admin, manager, employee).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -78,13 +126,179 @@
           "type": "object",
           "properties": {
             "role": {
-              "description": "Optional role filter.",
+              "description": "Optional app role filter.",
               "type": "string",
               "enum": [
                 "hr_admin",
                 "manager",
                 "employee"
               ]
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_direct_reports",
+        "title": "Get direct reports",
+        "description": "List people who report directly to the signed-in user.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_person",
+        "title": "Get person",
+        "description": "Look up a person by employee id, email, or name. Omit filters to return the signed-in user's employee record. Includes job title, org unit, manager, and active-cycle goal titles.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "employee_id": {
+              "description": "Employee record id.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "email": {
+              "description": "Employee email.",
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            },
+            "name": {
+              "description": "Partial name match (first or last).",
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_active_cycle",
+        "title": "Get active appraisal cycle",
+        "description": "Return the currently active appraisal cycle with window dates. Use this to answer when appraisals are due.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_goals",
+        "title": "Get my goals",
+        "description": "Return weighted goals for the signed-in user in the active appraisal cycle.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_team_goals",
+        "title": "Get team goals",
+        "description": "Return goals for each direct report of the signed-in user in the active appraisal cycle. Requires a linked employee record and manager reporting line.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_appraisal",
+        "title": "Get my appraisal",
+        "description": "Return the signed-in user's appraisal status and scores for the active cycle. Interim scores are hidden from employees until final submission.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_appraisal_history",
+        "title": "Get appraisal history",
+        "description": "Return completed-cycle appraisal records. Employees see their own history; managers see direct reports; HR sees org-wide history.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "employee_id": {
+              "description": "Optional employee id. Defaults to the signed-in user. Managers/HR may query reports.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "limit": {
+              "description": "Max cycles to return (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_pending_reviews",
+        "title": "Get pending reviews",
+        "description": "Return outstanding and overdue appraisal tasks scoped to the caller's permissions. HR sees org-wide data including department aggregates; managers see their team; employees see their own tasks.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "cycle_id": {
+              "description": "Optional cycle id. Defaults to the active cycle.",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         },

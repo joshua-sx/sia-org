@@ -56,6 +56,12 @@ export default function BlogPerformanceManagementExamples() {
           >
             Performance Management System Examples for Structured Organizations
           </h1>
+          <p className="text-sm text-black/50 border-l-2 border-black/15 pl-4 mb-10">
+            Note: This guide discusses industry patterns (including cascading goals and
+            360° reviews). Sia today ships manager ratings, optional extra-reviewer
+            comments, and cycle-scoped goals — see the product brief for shipped vs
+            aspirational features.
+          </p>
           <p className="text-lg text-black/70 leading-relaxed mb-12">
             A practical tour of how modern performance management systems work
             inside government agencies, airlines, and hospitals — where roles are

@@ -8,8 +8,8 @@ import { ScrollProgressBar } from "@/components/landing/ScrollProgressBar";
 const Index = () => (
   <div className="min-h-screen bg-white text-black antialiased" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
     <PageHead
-      title="SIA — Performance reviews that move people forward"
-      description="One clear place for goals, feedback, and every step of your performance review process."
+      title="Sia — Your organization, AI-ready"
+      description="Structure people, roles, goals, and performance in Sia. Connect to ChatGPT and ask your organization anything."
       path="/"
     />
     <ScrollProgressBar />
