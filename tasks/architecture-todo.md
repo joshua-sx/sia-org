@@ -35,7 +35,15 @@ verification. This list does not replace the interface-design todo in
 ## Phase 5: Schema hygiene (`fix/arch-phase-5-schema-hygiene`)
 - [ ] Task 12 — Self-manager CHECK + unique `profile_id`
 - [ ] Task 13 — FORCE RLS on employees/appraisal; safe `search_path`
-- [ ] Task 14 — Duplicate appraisal migration cleanup (only if unused remotely)
+- [x] Task 14 — Duplicate migration cleanup (29 Aug 2026): 8 hand-authored files
+      (`20260818010000–02`, `20260818020000–02`, `20260828180300`, `20260828183000`)
+      were byte-equivalent re-records of the Cloud-applied copies
+      (`20260818070849/070909/070926`, `20260829024246/024321/024344/024444/024530`);
+      only the versions present in remote `schema_migrations` were kept.
+      Still unrecorded remotely but intentionally retained: `20260705120000`,
+      `20260705121000`, `20260709000000` (schema live under an earlier record) and
+      `20260829040000_guard_cycle_writes.sql` (Phase 3, not yet applied — `guard_cycle_writes`
+      is absent from the live catalog).
 - [ ] Checkpoint E — local `db reset` green; approval
 
 ## Phase 6: Frontend, types, documentation (`fix/arch-phase-6-frontend-docs`)
