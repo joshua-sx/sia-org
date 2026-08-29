@@ -102,10 +102,10 @@ Use this table in demos and copy. **Do not sell the right column as live.**
 | Auth / enterprise | Email signup, OAuth consent stub, role checks | SSO, custom integrations (listed on Business pricing — not built) |
 | Notifications | None | Email/in-app nudges for overdue reviews |
 
-The public landing page, pricing cards, and some blog copy still describe the
-**not shipped** column (especially 360°, cascading goals, analytics, SSO). Treat
-those as **aspirational marketing**. Correct them in copy before a sales push;
-do not “fix” them by changing product behavior to match the ads.
+Landing, pricing, and blog copy were trued up to the **Shipped** column on
+29 Aug 2026 (SSO on the Business plan is explicitly labeled coming soon). If
+new marketing copy drifts back toward the right column, correct the copy;
+do not “fix” it by changing product behavior to match the ads.
 
 ## How to talk about it
 
@@ -126,20 +126,27 @@ do not “fix” them by changing product behavior to match the ads.
 
 ## Open product decisions
 
-These are unresolved on purpose. Do not implement a side without updating this
-file:
-
-- Per-cycle override of org interim/final weights vs org-wide only.
-- Whether employees may acknowledge after `acknowledgement_due`.
-- Whether `interim_score` is hidden from employees until final submit (SPEC)
-  or only hidden in the UI.
-
-See `tasks/architecture-plan.md` for the engineering defaults if nobody answers.
+None right now. New decisions land in **Locked product decisions** below;
+do not implement a side of a disputed behavior without updating this file.
 
 ## Locked product decisions
 
 - Cycle windows are frozen after launch. HR may edit dates while a cycle is a
   draft, but an active or completed cycle keeps its original timeline.
+- **Acknowledgement closes at `acknowledgement_due`** (locked 29 Aug 2026).
+  Employees cannot acknowledge after the due date. Auditability beats
+  convenience; reopening a window would be a separate future feature, not a
+  loophole.
+- **`interim_score` is hidden from employees until final submit** (locked
+  29 Aug 2026). Enforced at the data layer (RLS / API shape), not only in the
+  UI, so a direct API call cannot reveal it before `final_submitted_at`.
+- **Goal weights may sum ≠ 100 during the goal window** (locked 29 Aug 2026).
+  Managers can save work-in-progress goal sets; sum = 100 is enforced when a
+  stage is submitted. This keeps the current behavior.
+- **Scoring weights are org-wide, snapshotted at launch** (locked 29 Aug 2026).
+  No per-cycle override of the interim/final split. The org's weights are
+  copied onto the cycle at launch so changing org settings mid-cycle never
+  changes an in-flight cycle's math.
 
 ## Where other docs sit
 

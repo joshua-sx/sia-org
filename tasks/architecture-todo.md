@@ -7,7 +7,10 @@ verification. This list does not replace the interface-design todo in
 ## Phase 0: Live verification
 - [ ] Task 0 — Confirm JWT hook, `pg_policies`, grants, appraisal migration pair, `launch_appraisal_cycle` on Lovable Cloud
 - [x] Lock window-edit decision: freeze cycle windows after launch (approved 29 Aug 2026)
-- [ ] Lock remaining product decisions: ack after due date; weight-sum timing; employee `interim_score` visibility
+- [x] Lock remaining product decisions (29 Aug 2026): ack blocked after `acknowledgement_due`;
+      weight sum ≠ 100 allowed until stage submit; employee `interim_score` hidden at the
+      data layer until final submit; org-wide scoring weights snapshotted at launch,
+      no per-cycle override. See `PRODUCT.md` → Locked product decisions.
 
 ## Phase 1: Org-structure privilege holes (`fix/arch-phase-1-org-rls`)
 - [x] Task 1 — Drop via_profile FOR ALL; add org to HR WITH CHECK (`20260818010000`)

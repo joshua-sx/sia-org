@@ -33,18 +33,18 @@ This plan does **not** replace `tasks/plan.md` (interface-design overhaul).
 
 ## Product decisions to lock before Phase 3–4
 
-These change trigger behavior. Default is the safer DB-enforced option if you
-do not answer:
+All four are locked (see `PRODUCT.md` → Locked product decisions):
 
-1. **Ack after `acknowledgement_due`:** block (default) vs allow while cycle is
-   active.
+1. **Ack after `acknowledgement_due`:** **block** (locked 29 Aug 2026).
 2. **HR editing windows on an `active` cycle:** **freeze after launch**
    (approved 29 Aug 2026).
-3. **Goal weights during the goal window:** allow sum ≠ 100 until submit
-   (current, keep) vs reject when the window closes.
-4. **Employee API visibility of `interim_score`:** hide until
-   `final_submitted_at` (default, matches SPEC) vs keep row-level SELECT and
-   hide only in UI.
+3. **Goal weights during the goal window:** **allow sum ≠ 100 until submit**
+   (locked 29 Aug 2026 — keeps current behavior).
+4. **Employee API visibility of `interim_score`:** **hide until
+   `final_submitted_at`** at the data layer (locked 29 Aug 2026).
+
+Also locked 29 Aug 2026: scoring weights are org-wide with **no per-cycle
+override**; Task 11 snapshots them onto the cycle at launch.
 
 ## Git workflow
 
@@ -611,7 +611,6 @@ rate-limit strategy documented.
 ## Open questions
 
 - Phase 0 live answers (JWT hook, grants, which appraisal pair).
-- The four product decisions listed above.
 - Whether Phase 7 signup hardening is in scope this round.
 - Whether to add a SQL test harness (pgTAP / supabase test) — not in this
   plan unless requested.
