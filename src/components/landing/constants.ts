@@ -30,9 +30,9 @@ export const fadeUp = {
 };
 
 export const NAV_LINKS = [
-  { label: "Why SIA", href: "#why" },
+  { label: "Why Sia", href: "#why" },
   { label: "How it works", href: "#how" },
-  { label: "Who it’s for", href: "#who" },
+  { label: "Who it's for", href: "#who" },
 ];
 
 /** Marketing claims. Several items are aspirational — see PRODUCT.md “Shipped vs not”. */
@@ -79,10 +79,10 @@ export const INDUSTRIES = [
 ];
 
 export const STEPS = [
-  { num: "1", color: COLORS.blue, title: "Define your structure", desc: "Set up your org hierarchy — ministries, divisions, units." },
-  { num: "2", color: COLORS.red, title: "Configure cycles", desc: "Choose review type, frequency, and participants." },
-  { num: "3", color: COLORS.purple, title: "Run appraisals", desc: "Employees and managers complete reviews in-app." },
-  { num: "4", color: COLORS.green, title: "Review & act", desc: "Analyze results, export reports, plan next steps." },
+  { num: "1", color: COLORS.blue, title: "Structure your org", desc: "Units, people, reporting lines, and appraisal cycles." },
+  { num: "2", color: COLORS.red, title: "Connect ChatGPT", desc: "OAuth + MCP — Sia exposes permission-aware org context." },
+  { num: "3", color: COLORS.purple, title: "Ask anything", desc: "Goals, roles, reporting lines, and review status in plain language." },
+  { num: "4", color: COLORS.green, title: "Run appraisals", desc: "Managers rate reports; employees acknowledge — the system of record." },
 ];
 
 export type PricingPlan = {
@@ -143,13 +143,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       "Priority support",
     ],
   },
-];
-
-export const AI_QUICK_ACTIONS = [
-  "Summarize this cycle",
-  "Find overdue reviews",
-  "Compare departments",
-  "Draft feedback",
 ];
 
 export type FooterLink = { label: string; href?: string };

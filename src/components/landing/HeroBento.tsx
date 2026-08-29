@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, FileSpreadsheet, Mail, Users } from "lucide-react";
+import { Building2, MessageSquare, Users } from "lucide-react";
 import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 import { COLORS, GROTESK } from "./constants";
 
@@ -12,7 +12,7 @@ function SourceCard({
   className,
   delay,
 }: {
-  icon: typeof FileSpreadsheet;
+  icon: typeof Building2;
   label: string;
   detail: string;
   className: string;
@@ -44,7 +44,7 @@ export function HeroBento() {
   return (
     <div
       className="relative mx-auto mt-14 max-w-[1040px] py-8 md:mt-20 md:min-h-[520px] md:py-16"
-      aria-label="An appraisal cycle moving from scattered work into one clear view"
+      aria-label="ChatGPT connected to Sia answering an organizational question"
     >
       <div
         aria-hidden
@@ -52,9 +52,9 @@ export function HeroBento() {
         style={{ background: `radial-gradient(circle, ${COLORS.blue}18 0%, ${COLORS.blue}08 40%, transparent 72%)` }}
       />
 
-      <SourceCard icon={FileSpreadsheet} label="Goals spreadsheet" detail="Last updated yesterday" className="left-0 top-12 -rotate-2" delay={0.22} />
-      <SourceCard icon={Mail} label="Reminder emails" detail="Seven still to send" className="right-0 top-24 rotate-2" delay={0.32} />
-      <SourceCard icon={Users} label="Manager updates" detail="Waiting on replies" className="bottom-12 left-10 rotate-1" delay={0.42} />
+      <SourceCard icon={Building2} label="Org structure" detail="Teams & reporting lines" className="left-0 top-12 -rotate-2" delay={0.22} />
+      <SourceCard icon={Users} label="People & roles" detail="Titles, units, managers" className="right-0 top-24 rotate-2" delay={0.32} />
+      <SourceCard icon={MessageSquare} label="ChatGPT" detail="Natural-language interface" className="bottom-12 left-10 rotate-1" delay={0.42} />
 
       <motion.div
         initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.985 }}
@@ -64,49 +64,36 @@ export function HeroBento() {
       >
         <div className="flex items-center justify-between border-b border-black/[0.06] px-5 py-4 md:px-7">
           <div className="flex items-center gap-2">
-            <span className="flex gap-[3px]" aria-hidden>
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.blue }} />
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.red }} />
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.purple }} />
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-            </span>
-            <span className="text-xs font-semibold tracking-tight text-black/70">SIA</span>
+            <span className="text-xs font-semibold tracking-tight text-black/70">ChatGPT</span>
+            <span className="text-black/25">→</span>
+            <span className="text-xs font-semibold tracking-tight text-black/70">Sia</span>
           </div>
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-black/60">
             <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: COLORS.green }} />
-            On track
+            Permission-aware
           </span>
         </div>
 
         <div className="p-5 md:p-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/40">Annual review</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-black md:text-3xl" style={{ fontFamily: GROTESK }}>
-                Everyone knows what comes next.
-              </h2>
-            </div>
-            <div className="shrink-0">
-              <span className="text-4xl font-semibold tracking-[-0.04em] tabular-nums text-black" style={{ fontFamily: GROTESK }}>74%</span>
-              <span className="ml-2 text-sm text-black/45">complete</span>
-            </div>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/40">You asked</p>
+          <h2 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-black md:text-2xl" style={{ fontFamily: GROTESK }}>
+            @Sia Which of my team still have incomplete appraisals?
+          </h2>
+
+          <div className="mt-7 rounded-2xl bg-[#f7f7f8] p-4 md:p-5">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/40">Sia answered</p>
+            <ul className="mt-3 space-y-2 text-sm text-black/75">
+              <li>• Joshua Bowers — goals pending (Marketing)</li>
+              <li>• Aisha Clarke — interim overdue (Marketing)</li>
+              <li>• 2 of 5 direct reports complete</li>
+            </ul>
           </div>
 
-          <div className="mt-7 h-2 overflow-hidden rounded-full bg-black/[0.05]">
-            <motion.div
-              initial={reduceMotion ? { width: "74%" } : { width: "0%" }}
-              animate={{ width: "74%" }}
-              transition={{ duration: 0.9, delay: 0.5, ease }}
-              className="h-full rounded-full"
-              style={{ backgroundColor: COLORS.blue }}
-            />
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[
-              ["Goals", "Complete", COLORS.blue],
-              ["Reviews", "In progress", COLORS.purple],
-              ["Sign-off", "Up next", COLORS.green],
+              ["People", "12 in Marketing", COLORS.blue],
+              ["Goals", "4 active each", COLORS.purple],
+              ["Appraisals", "Q3 cycle", COLORS.green],
             ].map(([label, status, color], index) => (
               <motion.div
                 key={label}
@@ -117,13 +104,7 @@ export function HeroBento() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-black/75">{label}</span>
-                  {index === 0 ? (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full text-white" style={{ backgroundColor: color }}>
-                      <Check size={12} strokeWidth={2.2} />
-                    </span>
-                  ) : (
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-                  )}
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
                 </div>
                 <p className="mt-5 text-xs text-black/60">{status}</p>
               </motion.div>

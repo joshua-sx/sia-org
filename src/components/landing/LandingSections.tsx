@@ -6,18 +6,18 @@ import { Section, SectionReveal } from "./primitives";
 
 const outcomes = [
   {
-    title: "Everyone knows what to do.",
-    text: "Each person sees their next step, their deadline, and what comes after.",
+    title: "One structured org graph.",
+    text: "People, teams, reporting lines, roles, goals, and appraisals connected as relationships AI can traverse.",
     color: COLORS.blue,
   },
   {
-    title: "Nothing important gets lost.",
-    text: "Goals, reviews, feedback, and final records stay together from start to finish.",
+    title: "ChatGPT asks. Sia decides.",
+    text: "Every answer is scoped to what the authenticated user is allowed to see — not blanket access for the AI client.",
     color: COLORS.red,
   },
   {
-    title: "HR can see the whole picture.",
-    text: "See what is moving, what needs attention, and where to step in.",
+    title: "Appraisals that stay accurate.",
+    text: "Layer 1 is a full performance-review workflow — cycles, goals, assessments, and sign-off — feeding the intelligence layer.",
     color: COLORS.green,
   },
 ];
@@ -25,20 +25,20 @@ const outcomes = [
 const journey = [
   {
     number: "01",
-    title: "Set the direction.",
-    text: "Bring your organization, people, and review plan together.",
+    title: "Structure your organization.",
+    text: "Define units, people, reporting lines, and run appraisal cycles in Sia.",
     color: COLORS.blue,
   },
   {
     number: "02",
-    title: "Keep everyone moving.",
-    text: "Give every person a clear next step and see where help is needed.",
+    title: "Connect ChatGPT.",
+    text: "Authorize ChatGPT (or another MCP client) via OAuth to read your org data safely.",
     color: COLORS.purple,
   },
   {
     number: "03",
-    title: "Finish with confidence.",
-    text: "Close the cycle knowing every review and final record is where it belongs.",
+    title: "Ask anything.",
+    text: "Who reports to me? What are my goals? Which appraisals are overdue? — in plain language.",
     color: COLORS.green,
   },
 ];
@@ -51,18 +51,18 @@ export function LandingSections() {
           <SectionReveal className="mx-auto max-w-[920px] text-center">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">The problem</p>
             <h2 className="mt-6 text-balance text-[clamp(38px,6vw,72px)] font-semibold leading-[1.02] tracking-[-0.045em]" style={{ fontFamily: GROTESK }}>
-              The review isn’t the hard part. Keeping it moving is.
+              ChatGPT doesn’t know your organization.
             </h2>
             <p className="mx-auto mt-7 max-w-[660px] text-pretty text-lg leading-relaxed text-white/60 md:text-xl">
-              Documents in one place. Deadlines in another. Updates buried in email. HR is left holding everything together.
+              People, roles, goals, and performance live in spreadsheets, HR systems, and managers’ heads — not where AI can safely reach them.
             </p>
           </SectionReveal>
 
           <div className="mx-auto mt-16 grid max-w-[980px] gap-px overflow-hidden rounded-[28px] bg-white/[0.12] outline outline-1 outline-white/[0.1] md:grid-cols-3">
             {[
-              ["01", "Files everywhere"],
-              ["02", "Deadlines that slip"],
-              ["03", "HR doing the chasing"],
+              ["01", "Fragmented org data"],
+              ["02", "No permission layer"],
+              ["03", "AI without context"],
             ].map(([number, label], index) => (
               <SectionReveal key={number} className="h-full">
                 <div className={cn("h-full bg-[#0b0b0c] p-7 md:min-h-[220px] md:p-9", index === 1 && "bg-[#0e0e0f]")}>
@@ -78,12 +78,12 @@ export function LandingSections() {
       <div id="solution" className="bg-white py-24 md:py-36">
         <Section>
           <SectionReveal className="mx-auto max-w-[820px] text-center">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/45">With SIA</p>
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-black/45">With Sia</p>
             <h2 className="mt-5 text-balance text-[clamp(40px,6vw,74px)] font-semibold leading-[1] tracking-[-0.05em] text-black" style={{ fontFamily: GROTESK }}>
-              One place. One clear path.
+              Your organization, AI-ready.
             </h2>
             <p className="mx-auto mt-7 max-w-[590px] text-pretty text-lg leading-relaxed text-black/60">
-              SIA turns appraisal season into a process people can understand and complete.
+              Sia is the structured intelligence layer. ChatGPT is the conversation. Together they answer organizational questions safely.
             </p>
           </SectionReveal>
 
@@ -170,10 +170,10 @@ export function LandingSections() {
           />
           <SectionReveal className="relative mx-auto max-w-[820px]">
             <h2 className="text-balance text-[clamp(40px,6vw,72px)] font-semibold leading-[1] tracking-[-0.05em]" style={{ fontFamily: GROTESK }}>
-              Better reviews start with a clearer process.
+              Ask your organization anything.
             </h2>
             <p className="mx-auto mt-6 max-w-[540px] text-pretty text-lg leading-relaxed text-white/60">
-              Bring everyone together and keep your next appraisal moving.
+              Structure people, roles, goals, and performance in Sia — then connect ChatGPT.
             </p>
             <Link
               to="/signup"
@@ -203,7 +203,7 @@ export function LandingFooter() {
               </span>
               <span className="text-lg font-semibold tracking-tight" style={{ fontFamily: GROTESK }}>SIA</span>
             </div>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-black/60">Performance reviews that move people forward.</p>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-black/60">Your organization, AI-ready.</p>
           </div>
 
           <div className="flex flex-col gap-5 md:items-end">

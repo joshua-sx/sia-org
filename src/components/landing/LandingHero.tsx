@@ -25,18 +25,24 @@ export function LandingHero() {
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
           className="relative mx-auto max-w-[980px] text-center"
         >
+          <motion.p
+            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease } } }}
+            className="mb-5 text-xs font-medium uppercase tracking-[0.14em] text-black/45"
+          >
+            Your organization, AI-ready
+          </motion.p>
           <motion.h1
             variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease } } }}
             className="text-balance text-[clamp(48px,7.6vw,92px)] font-semibold leading-[0.98] tracking-[-0.055em] text-black"
             style={{ fontFamily: GROTESK }}
           >
-            Performance reviews should move people forward.
+            Structure your org so AI can understand it.
           </motion.h1>
           <motion.p
             variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease } } }}
             className="mx-auto mb-10 mt-8 max-w-[650px] text-pretty text-lg leading-relaxed text-black/60 md:text-xl"
           >
-            One clear place for goals, feedback, and every step in between.
+            Build people, roles, goals, and performance in Sia. Connect to ChatGPT. Ask your organization anything.
           </motion.p>
           <motion.div
             variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease } } }}
@@ -50,10 +56,10 @@ export function LandingHero() {
             </Link>
             <button
               type="button"
-              onClick={() => document.querySelector("#why")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" })}
+              onClick={() => document.querySelector("#how")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" })}
               className="rounded-full border border-black/[0.12] bg-white px-6 py-3 text-sm font-medium text-black/75 transition-[color,border-color,transform] duration-150 hover:border-black/25 hover:text-black active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
             >
-              See how SIA works
+              See how it works
             </button>
           </motion.div>
         </motion.div>
