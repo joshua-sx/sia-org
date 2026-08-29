@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -30,6 +31,7 @@ import {
 } from "@/lib/dashboardBriefing";
 import { formatDate } from "@/lib/cycleSchema";
 import { cn } from "@/lib/utils";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 
 const shortDate = new Intl.DateTimeFormat(undefined, {
   weekday: "long",
@@ -94,6 +96,7 @@ export interface OperationalBriefingPreviewData {
 }
 
 export function OperationalBriefing({ previewData }: { previewData?: OperationalBriefingPreviewData }) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const cyclesQuery = useAppraisalCycles();
   const employeesQuery = useEmployees();
   const cycle = selectBriefingCycle(previewData?.cycles ?? cyclesQuery.data ?? []);
@@ -218,7 +221,28 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
                   )}
                   aria-hidden="true"
                 >
-                  {phase.state === "done" ? <Check className="h-3.5 w-3.5" /> : <span className="h-2 w-2 rounded-full bg-current" />}
+                  <AnimatePresence initial={false} mode="wait">
+                    <motion.span
+                      key={phase.state}
+                      initial={{
+                        opacity: 0,
+                        transform: prefersReducedMotion ? "none" : "scale(0.95)",
+                      }}
+                      animate={{
+                        opacity: 1,
+                        transform: prefersReducedMotion ? "none" : "scale(1)",
+                      }}
+                      exit={{
+                        opacity: 0,
+                        transform: prefersReducedMotion ? "none" : "scale(0.95)",
+                        transition: { duration: 0.1, ease: [0.23, 1, 0.32, 1] },
+                      }}
+                      transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+                      className="flex items-center justify-center"
+                    >
+                      {phase.state === "done" ? <Check className="h-3.5 w-3.5" /> : <span className="h-2 w-2 rounded-full bg-current" />}
+                    </motion.span>
+                  </AnimatePresence>
                 </span>
                 <p className="mt-4 text-[13px] font-medium text-foreground">{phase.label}<span className="sr-only">: {phaseStatusLabel(phase.state)}</span></p>
                 <p className="mt-1 text-[12px] leading-5 text-ink-subtle">{phase.dates}</p>

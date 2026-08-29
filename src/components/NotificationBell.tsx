@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications, type AppNotification } from "@/hooks/useNotifications";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -22,6 +24,7 @@ function relativeTime(iso: string): string {
 }
 
 export function NotificationBell() {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const navigate = useNavigate();
   const { notifications, unreadCount, markRead, markAllRead, isLoading } = useNotifications();
 
@@ -39,11 +42,30 @@ export function NotificationBell() {
           className="relative flex h-7 w-7 items-center justify-center rounded-md text-ink-subtle transition-colors hover:bg-hairline/[0.5] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Bell className="h-4 w-4" />
-          {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-red px-1 text-[10px] font-semibold leading-none text-white tabular-nums">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
+          <AnimatePresence initial={false}>
+            {unreadCount > 0 && (
+              <motion.span
+                key="unread-badge"
+                initial={{
+                  opacity: 0,
+                  transform: prefersReducedMotion ? "none" : "scale(0.95)",
+                }}
+                animate={{
+                  opacity: 1,
+                  transform: prefersReducedMotion ? "none" : "scale(1)",
+                }}
+                exit={{
+                  opacity: 0,
+                  transform: prefersReducedMotion ? "none" : "scale(0.95)",
+                  transition: { duration: 0.1, ease: [0.23, 1, 0.32, 1] },
+                }}
+                transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
+                className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-red px-1 text-[10px] font-semibold leading-none text-white tabular-nums"
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">

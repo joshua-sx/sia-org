@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { WorkspacePage } from "@/components/WorkspacePage";
@@ -19,6 +20,7 @@ import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 import { friendlyError } from "@/lib/siaErrors";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const OrgEmployees = () => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { profile } = useAuth();
   const {
     data: employees = [],
@@ -147,29 +150,48 @@ const OrgEmployees = () => {
         />
       )}
 
-      {showAttention && (
-        <div className="mt-8 rounded-xl border border-accent-purple/[0.35] bg-accent-purple/[0.08] p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-accent-purple" />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground">People needs attention</p>
-              <p className="mt-1 text-xs text-ink-muted leading-relaxed">
-                <span className="tabular-nums">{employeesWithoutManager.length}</span>{" "}
-                {employeesWithoutManager.length === 1 ? "employee has" : "employees have"} no manager assigned.
-                Assign at least one manager-employee relationship to continue.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Button variant="outline" size="sm" onClick={handleAssignManager}>
-                  Assign manager
-                </Button>
-                <Button size="sm" variant="outline" onClick={openAdd} className="border-accent-blue text-accent-blue hover:bg-accent-blue/[0.08] hover:text-accent-blue">
-                  Add another employee
-                </Button>
+      <AnimatePresence initial={false}>
+        {showAttention && (
+          <motion.div
+            key="people-attention"
+            initial={{
+              opacity: 0,
+              transform: prefersReducedMotion ? "none" : "translateY(4px)",
+            }}
+            animate={{
+              opacity: 1,
+              transform: prefersReducedMotion ? "none" : "translateY(0px)",
+            }}
+            exit={{
+              opacity: 0,
+              transform: prefersReducedMotion ? "none" : "translateY(2px)",
+              transition: { duration: 0.14, ease: [0.23, 1, 0.32, 1] },
+            }}
+            transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+            className="mt-8 rounded-xl border border-accent-purple/[0.35] bg-accent-purple/[0.08] p-4"
+          >
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-accent-purple" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">People needs attention</p>
+                <p className="mt-1 text-xs text-ink-muted leading-relaxed">
+                  <span className="tabular-nums">{employeesWithoutManager.length}</span>{" "}
+                  {employeesWithoutManager.length === 1 ? "employee has" : "employees have"} no manager assigned.
+                  Assign at least one manager-employee relationship to continue.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button variant="outline" size="sm" onClick={handleAssignManager}>
+                    Assign manager
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={openAdd} className="border-accent-blue text-accent-blue hover:bg-accent-blue/[0.08] hover:text-accent-blue">
+                    Add another employee
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className={isOnboarding ? "" : "mt-8"}>
           {isLoading ? (

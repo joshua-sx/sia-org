@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { WorkspacePage } from "@/components/WorkspacePage";
@@ -22,8 +23,10 @@ import EditLevelsModal from "@/components/org/EditLevelsModal";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 import { friendlyError } from "@/lib/siaErrors";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 
 const OrgStructure = () => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { profile, organization } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -236,15 +239,35 @@ const OrgStructure = () => {
             <OrgTree nodes={tree} selectedId={selectedId} onSelect={(n) => setSelectedId(n.id)} />
           </section>
           <aside className="self-start rounded-2xl bg-surface-raised p-6 shadow-[var(--shadow-border)] min-[1180px]:sticky min-[1180px]:top-20">
-            {selectedNode ? (
-              <UnitDetailPanel node={selectedNode} onAddChild={handleAddChild} />
-            ) : (
-              <div className="py-8 text-center">
-                <Building2 className="mx-auto h-5 w-5 text-ink-subtle" strokeWidth={1.75} />
-                <p className="mt-3 text-sm font-medium text-foreground">Select a unit</p>
-                <p className="mt-1 text-sm text-ink-muted">Its details and available actions will appear here.</p>
-              </div>
-            )}
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={selectedNode?.id ?? "empty-selection"}
+                initial={{
+                  opacity: 0,
+                  transform: prefersReducedMotion ? "none" : "translateY(4px)",
+                }}
+                animate={{
+                  opacity: 1,
+                  transform: prefersReducedMotion ? "none" : "translateY(0px)",
+                }}
+                exit={{
+                  opacity: 0,
+                  transform: prefersReducedMotion ? "none" : "translateY(2px)",
+                  transition: { duration: 0.1, ease: [0.2, 0, 0, 1] },
+                }}
+                transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
+              >
+                {selectedNode ? (
+                  <UnitDetailPanel node={selectedNode} onAddChild={handleAddChild} />
+                ) : (
+                  <div className="py-8 text-center">
+                    <Building2 className="mx-auto h-5 w-5 text-ink-subtle" strokeWidth={1.75} />
+                    <p className="mt-3 text-sm font-medium text-foreground">Select a unit</p>
+                    <p className="mt-1 text-sm text-ink-muted">Its details and available actions will appear here.</p>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </aside>
         </div>
       )}

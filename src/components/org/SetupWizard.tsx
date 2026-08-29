@@ -12,6 +12,7 @@ import TreePreview from "./TreePreview";
 import { friendlyError } from "@/lib/siaErrors";
 import { persistOrgStructure } from "@/lib/persistOrgStructure";
 import { TEMPLATES } from "@/lib/onboardingTemplates";
+import { usePrefersReducedMotion } from "@/hooks/useReducedMotion";
 
 
 const STEP_LABELS = ["Hierarchy", "Structure", "Review"];
@@ -30,6 +31,7 @@ interface SetupWizardProps {
 }
 
 const SetupWizard = ({ onComplete }: SetupWizardProps) => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -279,13 +281,41 @@ const SetupWizard = ({ onComplete }: SetupWizardProps) => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {showPreview && (
-                <TreePreview
-                  units={units}
-                  levels={confirmedLevels}
-                  onClose={() => setShowPreview(false)}
-                />
-              )}
+              <AnimatePresence initial={false}>
+                {showPreview && (
+                  <motion.div
+                    key="structure-preview"
+                    initial={{
+                      opacity: 0,
+                      transform: prefersReducedMotion ? "none" : "scale(0.97)",
+                      transformOrigin: "top right",
+                    }}
+                    animate={{
+                      opacity: 1,
+                      transform: prefersReducedMotion ? "none" : "scale(1)",
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transform: prefersReducedMotion ? "none" : "scale(0.97)",
+                      transition: {
+                        duration: prefersReducedMotion ? 0.12 : 0.15,
+                        ease: [0.2, 0, 0, 1],
+                      },
+                    }}
+                    transition={{
+                      duration: prefersReducedMotion ? 0.12 : 0.2,
+                      ease: [0.2, 0, 0, 1],
+                    }}
+                    style={{ transformOrigin: "top right" }}
+                  >
+                    <TreePreview
+                      units={units}
+                      levels={confirmedLevels}
+                      onClose={() => setShowPreview(false)}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <AccordionBuilder
                 levels={confirmedLevels}
