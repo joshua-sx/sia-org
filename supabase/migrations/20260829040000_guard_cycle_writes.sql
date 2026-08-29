@@ -3,6 +3,38 @@
 -- active cycles can only be completed by close_cycle, and completed cycles
 -- remain immutable.
 
+-- Repair the older closure guard's NULL-sensitive override checks. A missing
+-- custom setting must fail closed, not make `NULL <> 'on'` skip the branch.
+CREATE OR REPLACE FUNCTION public.guard_cycle_closure()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    IF OLD.status = 'completed' THEN
+      RAISE EXCEPTION 'SIA_CYCLE_CLOSED: a completed cycle cannot be deleted';
+    END IF;
+    RETURN OLD;
+  END IF;
+
+  IF OLD.status = 'completed'
+     AND current_setting('sia.close_override', true) IS DISTINCT FROM 'on' THEN
+    RAISE EXCEPTION 'SIA_CYCLE_CLOSED: this cycle is closed and can no longer be changed';
+  END IF;
+
+  IF NEW.status = 'completed' AND OLD.status <> 'completed'
+     AND current_setting('sia.close_override', true) IS DISTINCT FROM 'on' THEN
+    RAISE EXCEPTION 'SIA_CLOSE_VIA_RPC: use the close cycle action to close a cycle';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.guard_cycle_closure() FROM PUBLIC, anon, authenticated;
+
 CREATE OR REPLACE FUNCTION public.guard_cycle_writes()
 RETURNS trigger
 LANGUAGE plpgsql
