@@ -40,7 +40,7 @@ export default defineTool({
         .select("id, title, weight")
         .eq("participant_id", participant.id)
         .order("created_at");
-      const employee = participant.employee as {
+      const employee = participant.employee as unknown as {
         id: string;
         first_name: string;
         last_name: string;

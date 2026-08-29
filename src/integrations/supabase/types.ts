@@ -28,8 +28,6 @@ export type Database = {
           id: string
           interim_window_end: string
           interim_window_start: string
-          interim_weight_pct: number | null
-          final_weight_pct: number | null
           name: string
           organization_id: string
           status: string
@@ -48,8 +46,6 @@ export type Database = {
           id?: string
           interim_window_end: string
           interim_window_start: string
-          interim_weight_pct?: number | null
-          final_weight_pct?: number | null
           name: string
           organization_id: string
           status?: string
@@ -68,8 +64,6 @@ export type Database = {
           id?: string
           interim_window_end?: string
           interim_window_start?: string
-          interim_weight_pct?: number | null
-          final_weight_pct?: number | null
           name?: string
           organization_id?: string
           status?: string
@@ -157,6 +151,13 @@ export type Database = {
             foreignKeyName: "audit_events_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -227,6 +228,13 @@ export type Database = {
             foreignKeyName: "cycle_participants_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -234,7 +242,21 @@ export type Database = {
             foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
             columns: ["extra_reviewer_id"]
             isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
+            columns: ["extra_reviewer_id"]
+            isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employee_directory"
             referencedColumns: ["id"]
           },
           {
@@ -311,6 +333,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "employees_manager_id_fkey"
             columns: ["manager_id"]
@@ -688,42 +717,96 @@ export type Database = {
       }
     }
     Views: {
-      cycle_participants_employee_read: {
+      employee_directory: {
         Row: {
-          acknowledged_at: string | null
-          created_at: string
-          cycle_id: string
-          employee_id: string
-          extra_reviewer_id: string | null
-          final_score: number | null
-          final_submitted_at: string | null
-          id: string
-          interim_score: number | null
-          interim_submitted_at: string | null
-          manager_id: string
-          overall_score: number | null
-          updated_at: string
+          created_at: string | null
+          email: string | null
+          employment_status:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          employment_type: Database["public"]["Enums"]["employment_type"] | null
+          first_name: string | null
+          id: string | null
+          job_title: string | null
+          last_name: string | null
+          manager_id: string | null
+          org_unit_id: string | null
+          organization_id: string | null
+          profile_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          employment_status?:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          employment_type?:
+            | Database["public"]["Enums"]["employment_type"]
+            | null
+          first_name?: string | null
+          id?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          manager_id?: string | null
+          org_unit_id?: string | null
+          organization_id?: string | null
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          employment_status?:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          employment_type?:
+            | Database["public"]["Enums"]["employment_type"]
+            | null
+          first_name?: string | null
+          id?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          manager_id?: string | null
+          org_unit_id?: string | null
+          organization_id?: string | null
+          profile_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "cycle_participants_employee_id_fkey"
-            columns: ["employee_id"]
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "employee_directory"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
-            columns: ["extra_reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cycle_participants_manager_id_fkey"
+            foreignKeyName: "employees_manager_id_fkey"
             columns: ["manager_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_org_unit_id_fkey"
+            columns: ["org_unit_id"]
+            isOneToOne: false
+            referencedRelation: "org_units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -750,8 +833,6 @@ export type Database = {
           id: string
           interim_window_end: string
           interim_window_start: string
-          interim_weight_pct: number | null
-          final_weight_pct: number | null
           name: string
           organization_id: string
           status: string
@@ -773,11 +854,6 @@ export type Database = {
       current_user_role: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
       cycle_close_readiness: { Args: { p_cycle_id: string }; Returns: Json }
-      mcp_get_org_chart: { Args: never; Returns: Json }
-      mcp_get_pending_reviews: {
-        Args: { p_cycle_id?: string | null }
-        Returns: Json
-      }
       cycle_nudge_history: {
         Args: { p_cycle_id: string }
         Returns: {
@@ -816,8 +892,6 @@ export type Database = {
           id: string
           interim_window_end: string
           interim_window_start: string
-          interim_weight_pct: number | null
-          final_weight_pct: number | null
           name: string
           organization_id: string
           status: string

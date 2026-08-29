@@ -45,7 +45,8 @@ function mcpError(message) {
 function mcpJson(structured) {
   return {
     content: [{ type: "text", text: JSON.stringify(structured, null, 2) }],
-    structuredContent: structured
+    structuredContent: structured,
+    isError: void 0
   };
 }
 

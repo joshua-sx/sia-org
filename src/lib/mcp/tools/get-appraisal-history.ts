@@ -65,8 +65,8 @@ export default defineTool({
     if (error) return mcpError(error.message);
 
     const history = [...(participants ?? [])].sort((a, b) => {
-      const aClosed = (a.cycle as { closed_at: string | null })?.closed_at ?? "";
-      const bClosed = (b.cycle as { closed_at: string | null })?.closed_at ?? "";
+      const aClosed = (a.cycle as unknown as { closed_at: string | null })?.closed_at ?? "";
+      const bClosed = (b.cycle as unknown as { closed_at: string | null })?.closed_at ?? "";
       return bClosed.localeCompare(aClosed);
     });
 

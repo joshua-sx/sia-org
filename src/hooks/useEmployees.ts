@@ -12,22 +12,44 @@ import type { Tables } from "@/integrations/supabase/types";
 export type Employee = Tables<"employees">;
 
 export function useEmployees() {
-  const { organization } = useAuth();
+  const { organization, profile } = useAuth();
   const qc = useQueryClient();
+  // Plain employees may only read the column-limited directory (no phone,
+  // notes, employee code, location or employment dates). HR admins and
+  // managers keep full-row access via RLS.
+  const directoryOnly = profile?.role !== "hr_admin" && profile?.role !== "manager";
 
   const query = useQuery({
-    queryKey: ["employees", organization?.id],
+    queryKey: ["employees", organization?.id, directoryOnly ? "directory" : "full"],
     queryFn: async () => {
       if (!organization) return [] as Employee[];
+      if (!directoryOnly) {
+        const { data, error } = await supabase
+          .from("employees")
+          .select("*")
+          .order("last_name", { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as Employee[];
+      }
       const { data, error } = await supabase
-        .from("employees")
+        .from("employee_directory")
         .select("*")
         .order("last_name", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as Employee[];
+      return (data ?? []).map((row) => ({
+        employee_code: null,
+        start_date: null,
+        end_date: null,
+        location: null,
+        phone: null,
+        notes: null,
+        ...row,
+      })) as Employee[];
     },
+
     enabled: !!organization,
   });
+
 
   const createEmployee = useMutation({
     mutationFn: async (values: EmployeeFormValues) => {
