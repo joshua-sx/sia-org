@@ -11,11 +11,11 @@ export function AppraisalCycleList({ cycles }: { cycles: AppraisalCycle[] }) {
         <Link
           key={cycle.id}
           to={`/appraisals/${cycle.id}`}
-          className="group block p-5 transition-colors duration-150 hover:bg-ink-strong/[0.025] sm:p-6"
+          className="group block p-5 transition-[background-color,box-shadow] duration-150 hover:bg-ink-strong/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:p-6"
         >
           <div className="flex items-start gap-4">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-green/10 text-accent-green">
-              <CalendarClock className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              <CalendarClock className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -27,7 +27,7 @@ export function AppraisalCycleList({ cycles }: { cycles: AppraisalCycle[] }) {
               </p>
             </div>
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-subtle transition-[background-color,color,transform] duration-150 group-hover:translate-x-0.5 group-hover:bg-accent-green/10 group-hover:text-accent-green rtl:group-hover:-translate-x-0.5">
-              <ChevronRight className="h-4 w-4 rtl:-scale-x-100" strokeWidth={1.75} />
+              <ChevronRight className="h-4 w-4 rtl:-scale-x-100" strokeWidth={1.75} aria-hidden="true" />
             </span>
           </div>
 

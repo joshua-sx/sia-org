@@ -40,7 +40,7 @@ function EmployeeStatusBadge({ status }: { status: Employee["employment_status"]
         color: `hsl(var(${ink}))`,
       }}
     >
-      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${ink}))` }} />
+      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: `hsl(var(${ink}))` }} aria-hidden="true" />
       {EMPLOYMENT_STATUS_LABELS[status]}
     </span>
   );
@@ -60,19 +60,19 @@ function EmployeeActions({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
+          size="icon"
+          className="h-10 w-10"
           aria-label={`Actions for ${employee.first_name} ${employee.last_name}`}
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => onEdit(employee)}>
-          <Pencil className="me-2 h-3.5 w-3.5" strokeWidth={1.75} /> Edit
+          <Pencil className="me-2 h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" /> Edit
         </DropdownMenuItem>
         <DropdownMenuItem className="text-destructive" onClick={() => onDelete(employee)}>
-          <Trash2 className="me-2 h-3.5 w-3.5" strokeWidth={1.75} /> Delete
+          <Trash2 className="me-2 h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -105,7 +105,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
     <div className="overflow-hidden rounded-2xl bg-surface-raised shadow-[var(--shadow-border)]">
       <div className="flex flex-col gap-3 border-b border-hairline px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="relative w-full max-w-sm">
-          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" strokeWidth={1.75} />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" strokeWidth={1.75} aria-hidden="true" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -114,7 +114,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
             className="h-10 ps-9 text-sm"
           />
         </div>
-        <p className="text-xs text-ink-muted tabular-nums sm:text-end">
+        <p className="text-xs text-ink-muted tabular-nums sm:text-end" role="status" aria-live="polite">
           Showing {filtered.length} of {employees.length}
         </p>
       </div>

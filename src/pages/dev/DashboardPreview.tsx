@@ -254,52 +254,101 @@ type PreviewView = (typeof navItems)[number]["label"];
 export default function DashboardPreview() {
   const [activeView, setActiveView] = useState<PreviewView>("Dashboard");
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>("product");
+  const [previewNotice, setPreviewNotice] = useState("");
   const isRtlPreview = new URLSearchParams(window.location.search).get("dir") === "rtl";
   const selectedUnit = useMemo(
     () => findUnit(previewOrgTree, selectedUnitId),
     [selectedUnitId],
   );
 
-  return (
-    <div dir={isRtlPreview ? "rtl" : "ltr"} className="flex min-h-screen w-full bg-surface">
-      <aside className="hidden w-60 shrink-0 flex-col border-e border-hairline bg-sidebar px-4 py-5 md:flex">
-        <BrandMark size="sm" />
-        <p className="mt-2 text-xs text-ink-muted">Stello Studio</p>
-        <nav className="mt-7 space-y-1" aria-label="Preview navigation">
-          {navItems.map((item) => {
-            const isActive = activeView === item.label;
-            return (
+  const showPreviewNotice = (message: string) => {
+    setPreviewNotice("");
+    window.requestAnimationFrame(() => setPreviewNotice(message));
+  };
+
+  const renderNavigation = (mobile = false) => (
+    <nav
+      className={mobile ? "overflow-x-auto px-3 py-2" : "mt-7 space-y-1"}
+      aria-label={mobile ? "Mobile preview navigation" : "Preview navigation"}
+    >
+      <div className={mobile ? "flex min-w-max gap-1" : undefined}>
+        {navItems.map((item) => {
+          const isActive = activeView === item.label;
+          return (
             <button
               key={item.label}
               type="button"
               aria-pressed={isActive}
               onClick={() => setActiveView(item.label)}
-              className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 py-2 text-start text-sm transition-colors duration-150 ${isActive ? `${item.activeClass} font-medium text-foreground` : "text-ink-muted hover:bg-ink-strong/[0.04] hover:text-foreground"}`}
+              className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-[background-color,color,box-shadow,transform] duration-150 ease-out active:scale-[0.96] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${mobile ? "shrink-0" : "w-full text-start"} ${isActive ? `${item.activeClass} font-medium text-foreground shadow-[inset_0_0_0_1px_hsl(var(--hairline))]` : "text-ink-muted hover:bg-ink-strong/[0.04] hover:text-foreground"}`}
             >
-              <item.icon className={`h-4 w-4 ${item.iconClass}`} strokeWidth={isActive ? 2 : 1.75} />
+              <item.icon className={`h-4 w-4 ${item.iconClass}`} strokeWidth={isActive ? 2 : 1.75} aria-hidden="true" />
               {item.label}
             </button>
-            );
-          })}
-        </nav>
-        <button type="button" className="mt-auto flex items-center gap-3 rounded-lg p-2 text-left">
+          );
+        })}
+      </div>
+    </nav>
+  );
+
+  return (
+    <div dir={isRtlPreview ? "rtl" : "ltr"} className="flex min-h-screen w-full bg-surface">
+      <a
+        href="#preview-main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          window.requestAnimationFrame(() => {
+            const main = document.getElementById("preview-main-content");
+            main?.focus();
+            main?.scrollIntoView();
+            window.history.replaceState(null, "", "#preview-main-content");
+          });
+        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-surface-raised focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-[var(--shadow-border-hover)] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
+      <aside className="hidden w-60 shrink-0 flex-col border-e border-hairline bg-sidebar px-4 py-5 md:flex">
+        <BrandMark size="sm" />
+        <p className="mt-2 text-xs text-ink-muted">Stello Studio</p>
+        {renderNavigation()}
+        <button
+          type="button"
+          onClick={() => showPreviewNotice("Account menu preview selected")}
+          className="mt-auto flex min-h-11 items-center gap-3 rounded-xl p-2 text-start transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-ink-strong/[0.04] active:scale-[0.96] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-blue/10 text-[11px] font-medium text-accent-blue">JB</span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">Joshua Bowers</span>
             <span className="block text-[11px] text-ink-subtle">HR Administrator</span>
           </span>
-          <ChevronsUpDown className="h-3.5 w-3.5 text-ink-subtle" strokeWidth={1.75} />
+          <ChevronsUpDown className="h-3.5 w-3.5 text-ink-subtle" strokeWidth={1.75} aria-hidden="true" />
         </button>
       </aside>
       <div className="min-w-0 flex-1 overflow-hidden">
-        <header className="flex h-14 items-center border-b border-hairline px-5">
-          <PanelLeft className="h-4 w-4 text-ink-subtle" strokeWidth={1.75} />
-          <div className="ms-auto flex items-center gap-5 text-xs text-ink-muted">
-            <Bell className="h-4 w-4" strokeWidth={1.75} />
-            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-accent-green" />Live</span>
+        <header className="flex h-14 items-center border-b border-hairline bg-surface/90 px-4 backdrop-blur sm:px-5">
+          <div className="hidden items-center gap-2 text-xs text-ink-subtle md:flex">
+            <PanelLeft className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            <span>Workspace</span>
+          </div>
+          <div className="md:hidden"><BrandMark size="sm" /></div>
+          <div className="ms-auto flex items-center gap-2 text-xs text-ink-muted sm:gap-3">
+            <button
+              type="button"
+              aria-label="Notifications, no unread items"
+              onClick={() => showPreviewNotice("You are all caught up")}
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-[background-color,color,transform] duration-150 ease-out hover:bg-ink-strong/[0.05] hover:text-foreground active:scale-[0.96] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <Bell className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            </button>
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-green/[0.08] px-2.5 py-1 font-medium text-foreground"><span className="h-1.5 w-1.5 rounded-full bg-accent-green" aria-hidden="true" />Live</span>
           </div>
         </header>
-        <main className="min-w-0 overflow-auto">
+        <div className="border-b border-hairline bg-surface-raised md:hidden">
+          {renderNavigation(true)}
+        </div>
+        <div className="sr-only" role="status" aria-live="polite">{previewNotice}</div>
+        <main id="preview-main-content" tabIndex={-1} className="min-w-0 overflow-auto focus:outline-none">
           {activeView === "Dashboard" && <OperationalBriefing previewData={previewData} />}
 
           {activeView === "People" && (
@@ -309,8 +358,8 @@ export default function DashboardPreview() {
                 subtitle="Manage employee details, reporting lines, and organizational placement from one directory."
                 actions={
                   <>
-                    <Button variant="outline"><Upload className="h-4 w-4" strokeWidth={1.75} /> Import</Button>
-                    <Button><Plus className="h-4 w-4" strokeWidth={2} /> Add person</Button>
+                    <Button variant="outline" onClick={() => showPreviewNotice("Import people preview selected")}><Upload aria-hidden="true" /> Import</Button>
+                    <Button onClick={() => showPreviewNotice("Add person preview selected")}><Plus aria-hidden="true" /> Add person</Button>
                   </>
                 }
               />
@@ -327,8 +376,8 @@ export default function DashboardPreview() {
                 subtitle="Shape the reporting structure that connects your people, managers, and appraisal cycles."
                 actions={
                   <>
-                    <Button variant="outline"><Upload className="h-4 w-4" strokeWidth={1.75} /> Import CSV</Button>
-                    <Button><Plus className="h-4 w-4" strokeWidth={2} /> Add unit</Button>
+                    <Button variant="outline" onClick={() => showPreviewNotice("Import organization preview selected")}><Upload aria-hidden="true" /> Import CSV</Button>
+                    <Button onClick={() => showPreviewNotice("Add unit preview selected")}><Plus aria-hidden="true" /> Add unit</Button>
                   </>
                 }
               />
@@ -351,7 +400,7 @@ export default function DashboardPreview() {
                           <p className="mt-1 text-sm font-medium text-foreground tabular-nums">{selectedUnit.children.length}</p>
                         </div>
                       </div>
-                      <Button variant="outline" className="mt-8 w-full">Add child unit</Button>
+                      <Button variant="outline" className="mt-8 w-full" onClick={() => showPreviewNotice(`Add child unit under ${selectedUnit.name}`)}>Add child unit</Button>
                     </>
                   ) : null}
                 </aside>
@@ -364,7 +413,7 @@ export default function DashboardPreview() {
               <PageHeader
                 title="Appraisals"
                 subtitle="Plan review cycles, monitor progress, and move every appraisal toward a clear next action."
-                actions={<Button><Plus className="h-4 w-4" strokeWidth={2} /> New cycle</Button>}
+                actions={<Button onClick={() => showPreviewNotice("New appraisal cycle preview selected")}><Plus aria-hidden="true" /> New cycle</Button>}
               />
               <div className="mt-8">
                 <AppraisalCycleList cycles={previewCycles} />

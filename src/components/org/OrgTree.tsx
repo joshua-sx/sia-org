@@ -27,6 +27,18 @@ const TreeNode = ({
   const isInactive = node.is_active === false;
   const isTabStop = isSelected || (selectedId === null && isFirstRoot);
 
+  const moveFocus = (current: HTMLElement, offset: number | "first" | "last") => {
+    const tree = current.closest('[role="tree"]');
+    const items = tree ? Array.from(tree.querySelectorAll<HTMLElement>('[role="treeitem"]')) : [];
+    const index = items.indexOf(current);
+    const nextIndex = offset === "first"
+      ? 0
+      : offset === "last"
+        ? items.length - 1
+        : Math.min(Math.max(index + offset, 0), items.length - 1);
+    items[nextIndex]?.focus();
+  };
+
   const handleRowKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -38,9 +50,45 @@ const TreeNode = ({
       setOpen(true);
       return;
     }
+    if (e.key === "ArrowRight" && hasChildren && open) {
+      e.preventDefault();
+      const firstChild = e.currentTarget.parentElement?.querySelector<HTMLElement>(
+        ':scope > [role="group"] > [role="none"] > [role="treeitem"]',
+      );
+      firstChild?.focus();
+      return;
+    }
     if (e.key === "ArrowLeft" && hasChildren && open) {
       e.preventDefault();
       setOpen(false);
+      return;
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      const parentItem = e.currentTarget.parentElement?.parentElement?.closest('[role="none"]')?.querySelector<HTMLElement>(
+        ':scope > [role="treeitem"]',
+      );
+      parentItem?.focus();
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      moveFocus(e.currentTarget, 1);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      moveFocus(e.currentTarget, -1);
+      return;
+    }
+    if (e.key === "Home") {
+      e.preventDefault();
+      moveFocus(e.currentTarget, "first");
+      return;
+    }
+    if (e.key === "End") {
+      e.preventDefault();
+      moveFocus(e.currentTarget, "last");
     }
   };
 
@@ -49,6 +97,7 @@ const TreeNode = ({
       <div
         role="treeitem"
         aria-selected={isSelected}
+        aria-expanded={hasChildren ? open : undefined}
         aria-level={level + 1}
         tabIndex={isTabStop ? 0 : -1}
         className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-lg pe-2.5 text-sm transition-[background-color,color,box-shadow] duration-150 hover:bg-ink-strong/[0.035] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
@@ -61,6 +110,7 @@ const TreeNode = ({
         {hasChildren ? (
           <button
             type="button"
+            tabIndex={-1}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-ink-subtle transition-colors duration-150 hover:bg-ink-strong/[0.06] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={open ? `Collapse ${node.name}` : `Expand ${node.name}`}
             aria-expanded={open}
@@ -70,9 +120,9 @@ const TreeNode = ({
             }}
           >
             {open ? (
-              <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
             ) : (
-              <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" strokeWidth={1.75} />
+              <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" strokeWidth={1.75} aria-hidden="true" />
             )}
           </button>
         ) : (

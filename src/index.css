@@ -225,3 +225,10 @@
     animation: none;
   }
 }
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText !important;
+    outline-offset: 2px;
+  }
+}

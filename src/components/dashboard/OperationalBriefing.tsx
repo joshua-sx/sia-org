@@ -81,7 +81,7 @@ function AttentionIcon({ tone }: { tone: BriefingAttentionItem["tone"] }) {
         tone === "success" && "bg-accent-green/10 text-accent-green",
       )}
     >
-      <Icon className="h-4 w-4" strokeWidth={2} />
+      <Icon className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
     </span>
   );
 }
@@ -216,11 +216,11 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
                     phase.state === "current" && "border-accent-blue text-accent-blue ring-4 ring-accent-blue/[0.12]",
                     phase.state === "upcoming" && "border-hairline text-ink-subtle",
                   )}
-                  aria-label={`${phase.label}: ${phaseStatusLabel(phase.state)}`}
+                  aria-hidden="true"
                 >
-                  {phase.state === "done" ? <Check className="h-3.5 w-3.5" /> : <span className="h-2 w-2 rounded-full bg-current" aria-hidden="true" />}
+                  {phase.state === "done" ? <Check className="h-3.5 w-3.5" /> : <span className="h-2 w-2 rounded-full bg-current" />}
                 </span>
-                <p className="mt-4 text-[13px] font-medium text-foreground">{phase.label}</p>
+                <p className="mt-4 text-[13px] font-medium text-foreground">{phase.label}<span className="sr-only">: {phaseStatusLabel(phase.state)}</span></p>
                 <p className="mt-1 text-[12px] leading-5 text-ink-subtle">{phase.dates}</p>
               </li>
             ))}
@@ -264,8 +264,8 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
               <h2 id="attention-heading" className="text-base font-semibold tracking-[-0.2px]">Attention</h2>
               <p className="mt-1 text-sm text-ink-muted">Resolve what matters most to keep the cycle on track.</p>
             </div>
-            <Link to={`/appraisals/${cycle.id}`} className="hidden items-center gap-1.5 text-sm font-medium text-accent-blue hover:underline sm:inline-flex">
-              View all <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
+            <Link to={`/appraisals/${cycle.id}`} className="hidden items-center gap-1.5 rounded-md text-sm font-medium text-accent-blue hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:inline-flex">
+              View all <ArrowRight className="h-4 w-4 rtl:-scale-x-100" aria-hidden="true" />
             </Link>
           </div>
           <ul className="mt-3 divide-y divide-hairline border-y border-hairline">
@@ -273,7 +273,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
               <li key={item.id}>
                 <Link
                   to={item.href}
-                  className="group flex items-center gap-4 py-4 outline-none transition-colors hover:bg-ink-strong/[0.025] focus-visible:bg-accent-blue/[0.06]"
+                  className="group flex items-center gap-4 rounded-lg py-4 transition-[background-color,box-shadow] hover:bg-ink-strong/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                   <AttentionIcon tone={item.tone} />
                   <div className="min-w-0 flex-1">
@@ -290,7 +290,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
                   >
                     {item.count}
                   </span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-ink-subtle transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-ink-subtle transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
                 </Link>
               </li>
             ))}
@@ -310,7 +310,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
           />
         ) : events.length === 0 ? (
           <div className="mt-6 border-y border-hairline py-8">
-            <CalendarRange className="h-5 w-5 text-accent-green" />
+            <CalendarRange className="h-5 w-5 text-accent-green" aria-hidden="true" />
             <p className="mt-4 text-sm font-medium text-foreground">No cycle activity yet</p>
             <p className="mt-1 text-[13px] leading-5 text-ink-muted">
               Changes, submissions, and milestones will appear here.
@@ -324,7 +324,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
               return (
                 <li key={event.id} className="flex gap-3.5">
                   <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: `hsl(var(${accent}) / 0.1)`, color: `hsl(var(${accent}))` }}>
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4" aria-hidden="true" />
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
@@ -342,8 +342,8 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
             })}
           </ol>
         )}
-        <Link to={`/appraisals/${cycle.id}`} className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-accent-blue hover:underline">
-          View all activity <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />
+        <Link to={`/appraisals/${cycle.id}`} className="mt-8 inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-accent-blue hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          View all activity <ChevronRight className="h-4 w-4 rtl:-scale-x-100" aria-hidden="true" />
         </Link>
       </aside>
     </div>
