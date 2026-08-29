@@ -140,10 +140,11 @@ describe("participantTrackerSteps", () => {
 
   it("attaches the acknowledge action only when acknowledgement is allowed", () => {
     const action = { label: "Acknowledge", href: "#acknowledge" };
+    const cycle = { status: "active" as const, acknowledgement_due: "2999-04-01" };
     const notReady = participantTrackerSteps(
       participant({ interim_submitted_at: "2026-02-01", final_submitted_at: "2026-03-01" }),
       100,
-      { acknowledgeAction: action },
+      { acknowledgeAction: action, cycle },
     );
     // Final submitted but no overall score yet → canAcknowledge is false.
     expect(notReady.find((s) => s.id === "acknowledgement")?.action).toBeUndefined();
@@ -155,7 +156,7 @@ describe("participantTrackerSteps", () => {
         overall_score: 3.5,
       }),
       100,
-      { acknowledgeAction: action },
+      { acknowledgeAction: action, cycle },
     );
     const ack = ready.find((s) => s.id === "acknowledgement");
     expect(ack?.status).toBe("active");

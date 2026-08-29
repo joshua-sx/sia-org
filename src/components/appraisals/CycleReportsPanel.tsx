@@ -22,7 +22,8 @@ import type { CycleParticipant } from "@/hooks/useCycleParticipants";
 import type { Employee } from "@/hooks/useEmployees";
 import type { OrgUnit } from "@/hooks/useOrgUnits";
 import { useAuth } from "@/contexts/AuthContext";
-import { exportParticipantPdf } from "@/lib/appraisalRecord";
+import { fetchAppraisalRecord } from "@/hooks/useAppraisalRecord";
+import { printAppraisalRecord } from "@/lib/appraisalRecord";
 import type { ParticipantGoalWeight } from "@/lib/cycleParticipantData";
 import {
   buildCycleCompletionSummary,
@@ -118,7 +119,8 @@ export function CycleReportsPanel({ cycle, participants, goalWeights, employees,
     if (!organization?.name) return;
     setExportingPdfId(participant.id);
     try {
-      await exportParticipantPdf(organization.name, cycle, participant);
+      const data = await fetchAppraisalRecord(organization.name, cycle, participant);
+      printAppraisalRecord(data);
     } catch (err) {
       toast.error(friendlyError(err, "Could not export PDF"));
     } finally {

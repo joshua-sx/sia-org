@@ -22,7 +22,7 @@ import {
 } from "@/lib/orgScoringSchema";
 import { friendlyError } from "@/lib/siaErrors";
 
-/** HR-admin-only, org-wide interim/final scoring split — used by submit_assessment_stage at final submit. */
+/** HR-admin-only org interim/final defaults — snapshotted onto each cycle at launch. */
 export function OrgScoringSettingsCard() {
   const { data, isLoading, updateWeights } = useOrgScoringSettings();
   const [open, setOpen] = useState(false);
@@ -75,9 +75,9 @@ export function OrgScoringSettingsCard() {
           <DialogHeader>
             <DialogTitle>Scoring split</DialogTitle>
             <DialogDescription>
-              How much each stage counts toward every participant's overall score. Applies to
-              every cycle in your organization and takes effect the next time a final assessment
-              is submitted.
+              Default interim/final split for new cycle launches. Each launched cycle keeps
+              the weights that were in effect at launch — changing this does not alter
+              in-flight cycles.
             </DialogDescription>
           </DialogHeader>
 

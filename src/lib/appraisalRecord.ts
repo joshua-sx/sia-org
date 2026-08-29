@@ -1,4 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
 import type { AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import type { CycleParticipant } from "@/hooks/useCycleParticipants";
 import type { Goal } from "@/hooks/useGoals";
@@ -13,33 +12,6 @@ export interface AppraisalRecordData {
   participant: CycleParticipant;
   goals: Goal[];
   ratings: GoalRating[];
-}
-
-export async function fetchAppraisalRecord(
-  organizationName: string,
-  cycle: AppraisalCycle,
-  participant: CycleParticipant,
-): Promise<AppraisalRecordData> {
-  const { data: goals, error: goalsError } = await supabase
-    .from("goals")
-    .select("*")
-    .eq("participant_id", participant.id)
-    .order("created_at", { ascending: true });
-  if (goalsError) throw goalsError;
-
-  const goalList = (goals ?? []) as Goal[];
-  const goalIds = goalList.map((g) => g.id);
-  let ratings: GoalRating[] = [];
-  if (goalIds.length > 0) {
-    const { data: ratingRows, error: ratingsError } = await supabase
-      .from("goal_ratings")
-      .select("*")
-      .in("goal_id", goalIds);
-    if (ratingsError) throw ratingsError;
-    ratings = (ratingRows ?? []) as GoalRating[];
-  }
-
-  return { organizationName, cycle, participant, goals: goalList, ratings };
 }
 
 function escapeHtml(text: string) {
@@ -171,16 +143,4 @@ export function printAppraisalRecord(data: AppraisalRecordData) {
   win.onload = () => {
     win.print();
   };
-}
-
-export async function exportParticipantPdf(
-  organizationName: string,
-  cycle: AppraisalCycle,
-  participant: CycleParticipant,
-) {
-  if (!participant.final_submitted_at) {
-    throw new Error("Final assessment must be submitted before exporting a record.");
-  }
-  const data = await fetchAppraisalRecord(organizationName, cycle, participant);
-  printAppraisalRecord(data);
 }

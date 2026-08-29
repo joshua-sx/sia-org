@@ -17,6 +17,8 @@ describe("friendlyError", () => {
     ["SIA_NUDGE_COOLDOWN", "A reminder for this task was already sent in the last 24 hours."],
     ["SIA_INVALID_ORG_STRUCTURE", "The organization structure is invalid. Review the levels and units."],
     ["SIA_ORG_STRUCTURE_EXISTS", "This organization already has a structure."],
+    ["SIA_EMPLOYEE_TERMINATED", "This participant is no longer active in the organization."],
+    ["SIA_ACK_WINDOW_CLOSED", "The acknowledgement period has ended."],
   ])("maps %s to friendly copy", (code, expected) => {
     expect(friendlyError(new Error(`Database error: ${code}`))).toBe(expected);
   });

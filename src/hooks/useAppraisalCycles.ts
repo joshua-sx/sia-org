@@ -20,6 +20,8 @@ export interface AppraisalCycle {
   closed_at: string | null;
   closed_by: string | null;
   close_note: string | null;
+  interim_weight_pct: number | null;
+  final_weight_pct: number | null;
 }
 
 export function useAppraisalCycles() {

@@ -35,6 +35,8 @@ const SIA_MESSAGES: Record<string, string> = {
   SIA_IMMUTABLE: "This record can't be changed.",
   SIA_INVALID_ORG_STRUCTURE: "The organization structure is invalid. Review the levels and units.",
   SIA_ORG_STRUCTURE_EXISTS: "This organization already has a structure.",
+  SIA_EMPLOYEE_TERMINATED: "This participant is no longer active in the organization.",
+  SIA_ACK_WINDOW_CLOSED: "The acknowledgement period has ended.",
 };
 
 function errorMessage(err: unknown): string {

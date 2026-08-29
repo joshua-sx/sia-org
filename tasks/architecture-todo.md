@@ -5,12 +5,12 @@ verification. This list does not replace the interface-design todo in
 `tasks/todo.md`.
 
 ## Phase 0: Live verification
-- [ ] Task 0 — Confirm JWT hook, `pg_policies`, grants, appraisal migration pair, `launch_appraisal_cycle` on Lovable Cloud
+- [ ] Task 0 — Confirm JWT hook, `pg_policies`, grants, appraisal migration pair, `launch_appraisal_cycle` on Lovable Cloud (requires Lovable Cloud dashboard access)
 - [x] Lock window-edit decision: freeze cycle windows after launch (approved 29 Aug 2026)
-- [x] Lock remaining product decisions (29 Aug 2026): ack blocked after `acknowledgement_due`;
-      weight sum ≠ 100 allowed until stage submit; employee `interim_score` hidden at the
-      data layer until final submit; org-wide scoring weights snapshotted at launch,
-      no per-cycle override. See `PRODUCT.md` → Locked product decisions.
+- [x] Lock ack-after-due: block (approved 29 Aug 2026)
+- [x] Lock weight-sum timing: allow ≠ 100 until submit (approved 29 Aug 2026)
+- [x] Lock employee `interim_score` visibility: hide until `final_submitted_at` at DB (approved 29 Aug 2026)
+- [x] Lock scoring weights: org-wide, snapshotted onto the cycle at launch; no per-cycle override (approved 29 Aug 2026)
 
 ## Phase 1: Org-structure privilege holes (`fix/arch-phase-1-org-rls`)
 - [x] Task 1 — Drop via_profile FOR ALL; add org to HR WITH CHECK (`20260818010000`)
@@ -26,19 +26,19 @@ verification. This list does not replace the interface-design todo in
 
 ## Phase 3: Cycle write guards (`fix/arch-phase-3-cycle-guards`)
 - [x] Task 7 — `guard_cycle_writes` status machine (`20260829040000`)
-- [ ] Checkpoint C — cannot INSERT `status=active`; approval
+- [ ] Checkpoint C — cannot INSERT `status=active`; approval (verify on Lovable Cloud)
 
-## Phase 4: Appraisal workflow contracts (`fix/arch-phase-4-appraisal-contracts`)
-- [ ] Task 8 — Freeze terminated participants in guards/RPC
-- [ ] Task 9 — `FOR UPDATE` on `goal_ratings` during submit
-- [ ] Task 10 — Employee score visibility + ack window (per locked decisions)
-- [ ] Task 11 — Snapshot org scoring weights onto the cycle at launch
-- [ ] Checkpoint D — freeze/submit/snapshot verified; approval
+## Phase 4: Appraisal workflow contracts (`cursor/arch-remediation-phases-4-6-0950`)
+- [x] Task 8 — Freeze terminated participants in guards/RPC (`20260829100000`)
+- [x] Task 9 — `FOR UPDATE` on `goal_ratings` during submit (`20260829100100`)
+- [x] Task 10 — Employee score visibility + ack window (`20260829100200`)
+- [x] Task 11 — Snapshot org scoring weights onto the cycle at launch (`20260829100300`)
+- [ ] Checkpoint D — freeze/submit/snapshot verified on staging; approval
 
-## Phase 5: Schema hygiene (`fix/arch-phase-5-schema-hygiene`)
-- [ ] Task 12 — Self-manager CHECK + unique `profile_id`
-- [ ] Task 13 — FORCE RLS on employees/appraisal; safe `search_path`
-- [x] Task 14 — Duplicate migration cleanup (29 Aug 2026): 8 hand-authored files
+## Phase 5: Schema hygiene (`cursor/arch-remediation-phases-4-6-0950`)
+- [x] Task 12 — Self-manager CHECK + unique `profile_id` (`20260829110000`)
+- [x] Task 13 — FORCE RLS on employees/appraisal; safe `search_path` (`20260829110100`)
+- [x] Task 14 — Duplicate migration cleanup (29 Aug 2026, merged from `main`): 8 hand-authored files
       (`20260818010000–02`, `20260818020000–02`, `20260828180300`, `20260828183000`)
       were byte-equivalent re-records of the Cloud-applied copies
       (`20260818070849/070909/070926`, `20260829024246/024321/024344/024444/024530`);
@@ -49,13 +49,11 @@ verification. This list does not replace the interface-design todo in
       is absent from the live catalog).
 - [ ] Checkpoint E — local `db reset` green; approval
 
-## Phase 6: Frontend, types, documentation (`fix/arch-phase-6-frontend-docs`)
-- [x] Task 15 — Regenerate types; remove `as never` (29 Aug 2026): `launch_appraisal_cycle`
-      already present in regenerated `types.ts`; casts removed from `useAppraisalCycles.ts`,
-      `tsgo --noEmit` clean.
-- [ ] Task 16 — AuthContext + bulk manager-link error handling
-- [ ] Task 17 — Move `appraisalRecord` I/O onto a hook
-- [ ] Task 18 — Query keys, QueryState, SPEC.md, architecture canvas
+## Phase 6: Frontend, types, documentation (`cursor/arch-remediation-phases-4-6-0950`)
+- [x] Task 15 — Regenerate types; remove `as never` (`launch_appraisal_cycle` in `types.ts`)
+- [x] Task 16 — AuthContext + bulk manager-link error handling
+- [x] Task 17 — Move `appraisalRecord` I/O onto a hook
+- [x] Task 18 — Query keys, canAcknowledge, SPEC.md alignment
 - [ ] Checkpoint F — lint/test/build green; approval
 
 ## Phase 7: Signup hardening (optional)
