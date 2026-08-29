@@ -4,6 +4,7 @@ import {
   ONBOARDING_STEPS,
   deriveOnboardingProgress,
   deriveOnboardingSteps,
+  incompleteOnboardingResumeHref,
   type OnboardingCompletionByStep,
 } from "@/lib/onboardingSteps";
 
@@ -102,6 +103,30 @@ describe("deriveOnboardingSteps", () => {
     );
 
     expect(steps.some((step) => step.status === "current")).toBe(false);
+  });
+});
+
+describe("incompleteOnboardingResumeHref", () => {
+  it("sends an incomplete setup to the first unresolved step", () => {
+    const steps = deriveOnboardingSteps(
+      completion({
+        structure: { done: true, skipped: false },
+      }),
+    );
+
+    expect(incompleteOnboardingResumeHref(steps)).toBe("/org/employees");
+  });
+
+  it("resumes on Cycle when every step is already done or skipped", () => {
+    const steps = deriveOnboardingSteps(
+      completion({
+        structure: { done: true, skipped: false },
+        people: { done: true, skipped: false },
+        cycle: { done: true, skipped: false },
+      }),
+    );
+
+    expect(incompleteOnboardingResumeHref(steps)).toBe("/appraisals");
   });
 });
 

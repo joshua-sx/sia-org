@@ -101,3 +101,15 @@ export function deriveOnboardingProgress(steps: readonly OnboardingStep[]) {
 export function onboardingStepIndex(key: OnboardingStepKey): number {
   return ONBOARDING_STEPS.findIndex((step) => step.key === key);
 }
+
+/**
+ * Where to send an incomplete setup if they hit `/dashboard`.
+ * If every step is already done or skipped, resume on Cycle — not Structure —
+ * so Finish setup can persist `setup_complete`.
+ */
+export function incompleteOnboardingResumeHref(
+  steps: readonly OnboardingStep[],
+): string {
+  const next = steps.find((step) => !step.done && !step.skipped && step.href);
+  return next?.href ?? "/appraisals";
+}

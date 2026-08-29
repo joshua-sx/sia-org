@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
@@ -20,8 +20,7 @@ import { useCycleGoalWeights } from "@/hooks/useCycleGoalWeights";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
-import { useOnboardingContext, useStepReadiness } from "@/components/onboarding/OnboardingContext";
-import { StepSuccess } from "@/components/onboarding/StepSuccess";
+import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
@@ -32,6 +31,7 @@ import { DraftLaunchPanel } from "@/components/appraisals/DraftLaunchPanel";
 import { CycleCompletionPanel } from "@/components/appraisals/CycleCompletionPanel";
 import { CycleActivityLog } from "@/components/appraisals/CycleActivityLog";
 import { cycleTrackerSteps } from "@/lib/trackerSteps";
+import { playSetupCompleteCue } from "@/lib/completionSounds";
 import { friendlyError } from "@/lib/siaErrors";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
@@ -50,25 +50,14 @@ const AppraisalCycleDetail = () => {
     completeCycle,
     deleteCycle,
   } = useAppraisalCycles();
-  const { markComplete, isOnboarding, steps } = useOnboarding();
+  const { markComplete, finishSetup, isOnboarding, steps } = useOnboarding();
   const { data: employees = [] } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { setFooterSuppressed } = useOnboardingContext();
 
   const cycle = cycles.find((c) => c.id === id) ?? null;
   const isHr = profile?.role === "hr_admin";
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [justLaunched, setJustLaunched] = useState(false);
-
-  // Own the onboarding chrome explicitly for the post-launch success beat,
-  // rather than relying on isOnboarding flipping false in the same render
-  // (mirrors SetupWizard's use of the same mechanism).
-  useEffect(() => {
-    if (!justLaunched) return;
-    setFooterSuppressed(true);
-    return () => setFooterSuppressed(false);
-  }, [justLaunched, setFooterSuppressed]);
 
   const isLaunched = !!cycle && cycle.status !== "draft";
   const cycleStepDone = steps.find((s) => s.key === "cycle")?.done ?? false;
@@ -111,18 +100,6 @@ const AppraisalCycleDetail = () => {
           <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to cycles
         </Button>
       </div>
-    );
-  }
-
-  if (justLaunched) {
-    return (
-      <StepSuccess
-        eyebrow="Setup complete"
-        title="Welcome to SIA"
-        description={`"${cycle.name}" is live. Your workspace is ready to run its first appraisal cycle.`}
-        primaryLabel="Go to dashboard"
-        onPrimary={() => navigate("/dashboard")}
-      />
     );
   }
 
@@ -200,14 +177,20 @@ const AppraisalCycleDetail = () => {
             onLaunch={async (launchParticipants) => {
               try {
                 await launchCycle.mutateAsync({ cycleId: cycle.id, participants: launchParticipants });
+              } catch (err) {
+                toast.error(friendlyError(err, "Launch failed"));
+                return;
+              }
+              try {
                 await markComplete("cycle");
                 if (isOnboarding) {
-                  setJustLaunched(true);
+                  playSetupCompleteCue();
+                  await finishSetup();
                 } else {
                   toast.success("Cycle launched");
                 }
               } catch (err) {
-                toast.error(friendlyError(err, "Launch failed"));
+                toast.error(friendlyError(err, "Could not finish setup"));
               }
             }}
             launching={launchCycle.isPending}
