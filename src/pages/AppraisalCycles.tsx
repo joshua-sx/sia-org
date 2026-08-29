@@ -7,7 +7,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
 import { useEmployees } from "@/hooks/useEmployees";
-import { toast } from "sonner";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
@@ -17,31 +16,30 @@ import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { OrgScoringSettingsCard } from "@/components/appraisals/OrgScoringSettingsCard";
 import { formatDate, formatWindow } from "@/lib/cycleSchema";
 import { QueryError, QueryLoading } from "@/components/QueryState";
-import { playSetupCompleteCue } from "@/lib/completionSounds";
-import { friendlyError } from "@/lib/siaErrors";
 
 const AppraisalCycles = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { data: cycles = [], isLoading, isError, error, refetch } = useAppraisalCycles();
   const { data: employees = [] } = useEmployees();
-  const { isOnboarding, steps, markComplete, finishSetup } = useOnboarding();
+  const { isOnboarding, steps } = useOnboarding();
   const [formOpen, setFormOpen] = useState(false);
 
   const isHr = profile?.role === "hr_admin";
   const hasEmployees = employees.length > 0;
   const cycleDone = steps.find((s) => s.key === "cycle")?.done ?? false;
   const hasLaunchedCycle = cycles.some((c) => c.status !== "draft");
-  const cycleReady = cycleDone || hasLaunchedCycle;
+  const hasAnyCycle = cycles.length > 0;
+  const cycleReady = cycleDone || hasAnyCycle;
 
   useStepReadiness(
     "cycle",
     cycleReady,
     cycleReady
-      ? "Ready to continue."
-      : cycles.length > 0
-        ? "Launch your cycle to continue."
-        : "Create and launch a cycle to continue."
+      ? hasLaunchedCycle
+        ? "Ready to finish setup."
+        : "Cycle drafted — finish setup, or open it to launch."
+      : "Create a cycle to finish setup.",
   );
 
   const showOnboardingChrome = isOnboarding && isHr;
@@ -176,17 +174,7 @@ const AppraisalCycles = () => {
       title="Create your first cycle"
       subtitle="Set the review timeline. Nothing is sent until you launch it."
       primaryLabel="Finish setup"
-      primaryDisabled={cycles.length === 0}
-      disabledReason="Create a cycle to finish setup."
-      onPrimary={async () => {
-        try {
-          await markComplete("cycle");
-          playSetupCompleteCue();
-          await finishSetup();
-        } catch (err) {
-          toast.error(friendlyError(err, "Could not finish setup"));
-        }
-      }}
+      hideFooter
     >
       {pageInner}
     </OnboardingStepFrame>

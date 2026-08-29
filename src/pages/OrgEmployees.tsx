@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
@@ -17,7 +17,6 @@ import EmployeeCsvImportModal from "@/components/employees/EmployeeCsvImportModa
 import { downloadTemplateCsv } from "@/lib/employeeCsv";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
-import { playSuccessCue } from "@/lib/completionSounds";
 import { friendlyError } from "@/lib/siaErrors";
 import {
   AlertDialog,
@@ -41,9 +40,7 @@ const OrgEmployees = () => {
     deleteEmployee,
   } = useEmployees();
   const { data: units = [] } = useOrgUnits();
-  const { isOnboarding, markComplete } = useOnboarding();
-  const navigate = useNavigate();
-
+  const { isOnboarding } = useOnboarding();
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
@@ -192,24 +189,13 @@ const OrgEmployees = () => {
         noIndex={isOnboarding}
       />
       {isOnboarding ? (
-        <OnboardingStepFrame
-          stepKey="people"
-          title="Add your people"
-          subtitle="Import your employee list or add people one at a time."
-          primaryLabel="Continue"
-          primaryDisabled={!ready}
-          disabledReason={blockingReason}
-          onPrimary={async () => {
-            try {
-              await markComplete("people");
-            } catch (err) {
-              toast.error(friendlyError(err, "Could not save this step"));
-              return;
-            }
-            playSuccessCue();
-            navigate("/appraisals");
-          }}
-        >
+          <OnboardingStepFrame
+            stepKey="people"
+            title="Add your people"
+            subtitle="Import your employee list or add people one at a time."
+            primaryLabel="Continue"
+            hideFooter
+          >
           {pageInner}
         </OnboardingStepFrame>
       ) : (

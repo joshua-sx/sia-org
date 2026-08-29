@@ -21,6 +21,7 @@ import { useEmployees } from "@/hooks/useEmployees";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
+import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
 import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
@@ -64,8 +65,12 @@ const AppraisalCycleDetail = () => {
 
   useStepReadiness(
     "cycle",
-    cycleStepDone || isLaunched,
-    isLaunched ? "Ready to continue." : "Launch your cycle to continue."
+    cycleStepDone || !!cycle,
+    cycle
+      ? isLaunched
+        ? "Ready to finish setup."
+        : "Finish setup, or launch this cycle first."
+      : "Create a cycle to finish setup.",
   );
   const { data: participants = [], isLoading: participantsLoading } = useCycleParticipants(
     isLaunched ? cycle.id : undefined,
@@ -103,8 +108,8 @@ const AppraisalCycleDetail = () => {
     );
   }
 
-  return (
-    <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
+  const page = (
+    <div className={isOnboarding ? "" : "mx-auto w-full max-w-5xl px-6 py-10 md:px-10"}>
       <button
         onClick={() => navigate("/appraisals")}
         className="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-foreground transition-colors"
@@ -252,6 +257,22 @@ const AppraisalCycleDetail = () => {
       </AlertDialog>
     </div>
   );
+
+  if (isOnboarding) {
+    return (
+      <OnboardingStepFrame
+        stepKey="cycle"
+        title="Launch your first cycle"
+        subtitle="Review the timeline and people, then finish setup — or launch the cycle now."
+        primaryLabel="Finish setup"
+        hideFooter
+      >
+        {page}
+      </OnboardingStepFrame>
+    );
+  }
+
+  return page;
 };
 
 export default AppraisalCycleDetail;

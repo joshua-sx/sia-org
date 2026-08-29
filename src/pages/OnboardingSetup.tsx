@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { PageHead } from "@/components/PageHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
+import { useOnboardingContext } from "@/components/onboarding/OnboardingContext";
 import { playSuccessCue } from "@/lib/completionSounds";
 import { INDUSTRIES } from "@/lib/onboardingOptions";
 
@@ -29,6 +30,7 @@ interface SetupForm {
 export default function OnboardingSetup() {
   const navigate = useNavigate();
   const { user, profile, organization, loading } = useAuth();
+  const { setFooterSuppressed } = useOnboardingContext();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<SetupForm>({
     first_name: "",
@@ -56,6 +58,11 @@ export default function OnboardingSetup() {
   }, [user, profile, organization, loading, navigate]);
 
   const alreadySetUp = !!profile && !!organization;
+
+  useEffect(() => {
+    setFooterSuppressed(true);
+    return () => setFooterSuppressed(false);
+  }, [setFooterSuppressed]);
 
   const validate = () => {
     const errs: Partial<Record<keyof SetupForm, string>> = {};
