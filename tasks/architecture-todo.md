@@ -47,7 +47,9 @@ verification. This list does not replace the interface-design todo in
 - [ ] Checkpoint E — local `db reset` green; approval
 
 ## Phase 6: Frontend, types, documentation (`fix/arch-phase-6-frontend-docs`)
-- [ ] Task 15 — Regenerate types; remove `as never`
+- [x] Task 15 — Regenerate types; remove `as never` (29 Aug 2026): `launch_appraisal_cycle`
+      already present in regenerated `types.ts`; casts removed from `useAppraisalCycles.ts`,
+      `tsgo --noEmit` clean.
 - [ ] Task 16 — AuthContext + bulk manager-link error handling
 - [ ] Task 17 — Move `appraisalRecord` I/O onto a hook
 - [ ] Task 18 — Query keys, QueryState, SPEC.md, architecture canvas
