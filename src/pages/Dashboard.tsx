@@ -6,9 +6,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { CheckCircle2, Circle, ChevronRight, Minus } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { DashboardAppraisalCard } from "@/components/appraisals/DashboardAppraisalCard";
+import { DashboardHrHome } from "@/components/appraisals/DashboardHrHome";
 import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { incompleteOnboardingResumeHref, type OnboardingStatus } from "@/lib/onboardingSteps";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
@@ -25,20 +27,20 @@ const Dashboard = () => {
   const { steps, progressCount, totalSteps, resume, setupComplete } = useOnboarding();
   const { data: employees = [] } = useEmployees();
   const { data: units = [] } = useOrgUnits();
+  const { data: cycles = [] } = useAppraisalCycles();
   const [celebrationDismissed, setCelebrationDismissed] = useState(false);
 
   const justCompleted =
     (location.state as { setupJustCompleted?: boolean } | null)?.setupJustCompleted === true;
 
-  // The real Dashboard only exists after onboarding. While setup is
-  // incomplete, send the admin to the step they're on.
   if (!setupComplete && !justCompleted) {
     return <Navigate to={incompleteOnboardingResumeHref(steps)} replace />;
   }
 
-
   const firstName = profile?.full_name?.split(" ")[0];
   const remaining = steps.filter((s) => !s.done);
+  const isHr = profile?.role === "hr_admin";
+  const setupFinished = remaining.length === 0;
 
   if (justCompleted && !celebrationDismissed) {
     return (
@@ -66,10 +68,9 @@ const Dashboard = () => {
     );
   }
 
-  const subtitle =
-    remaining.length === 0
-      ? "You're all set. Ready to run your first appraisal cycle."
-      : `Setup is done. ${remaining.length} optional ${remaining.length === 1 ? "step is" : "steps are"} still open below.`;
+  const subtitle = setupFinished
+    ? "Your workspace is ready. Open a cycle to start reviews."
+    : `Setup is done. ${remaining.length} optional ${remaining.length === 1 ? "step is" : "steps are"} still open below.`;
 
   return (
     <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">
@@ -77,70 +78,76 @@ const Dashboard = () => {
         title={`Welcome${firstName ? `, ${firstName}` : ""}`}
         subtitle={subtitle}
         actions={
-          organization && (
-            <div className="rounded-xl border border-hairline bg-surface-raised px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[220px]">
-              <p className="text-[11px] uppercase tracking-wider text-ink-subtle">Organization</p>
-              <p className="mt-0.5 text-sm font-medium text-foreground truncate">{organization.name}</p>
-            </div>
-          )
+          <div className="flex flex-wrap items-center gap-2">
+            {organization && (
+              <div className="rounded-xl border border-hairline bg-surface-raised px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] min-w-[180px]">
+                <p className="text-[11px] uppercase tracking-wider text-ink-subtle">Organization</p>
+                <p className="mt-0.5 text-sm font-medium text-foreground truncate">{organization.name}</p>
+              </div>
+            )}
+            <Button asChild>
+              <Link to="/appraisals">Open appraisals</Link>
+            </Button>
+          </div>
         }
       />
 
-      <DashboardAppraisalCard className="mt-8" />
+      {isHr ? <DashboardHrHome cycles={cycles} /> : <DashboardAppraisalCard className="mt-8" />}
 
-
-      <div className="mt-8 rounded-xl border border-hairline bg-surface-raised">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
-          <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
-          <span className="inline-flex items-center rounded-full bg-accent-green/[0.12] px-2 py-0.5 text-[11px] font-medium text-accent-green tabular-nums">
-            {progressCount}/{totalSteps}
-          </span>
-        </div>
-        <div className="divide-y divide-hairline">
-          {steps.map((item) => {
-            const Icon = item.icon;
-            const showResume = (item.status === "current" || item.status === "skipped") && item.href;
-            return (
-              <div key={item.key} className="flex items-center gap-3 px-5 py-3.5">
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: `hsl(var(${item.accent}) / 0.1)` }}
-                >
-                  <Icon className="h-4 w-4" style={{ color: `hsl(var(${item.accent}))` }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className={`text-sm ${item.done ? "text-ink-muted" : "font-medium text-foreground"}`}>
-                    {item.label}
-                  </span>
-                  <span className="ml-2 text-[11px] text-ink-subtle capitalize">
-                    · {STATUS_LABEL[item.status]}
-                  </span>
-                </div>
-                {item.done ? (
-                  <CheckCircle2 className="h-[18px] w-[18px] text-accent-green" />
-                ) : item.skipped ? (
-                  <button
-                    onClick={() => resume(item.key)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent-purple-ink bg-accent-purple/[0.14] hover:bg-accent-purple/[0.22] active:scale-[0.96]"
-                    style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
+      {!setupFinished && (
+        <div className="mt-8 rounded-xl border border-hairline bg-surface-raised">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
+            <h2 className="text-sm font-semibold text-foreground">Setup checklist</h2>
+            <span className="inline-flex items-center rounded-full bg-accent-green/[0.12] px-2 py-0.5 text-[11px] font-medium text-accent-green tabular-nums">
+              {progressCount}/{totalSteps}
+            </span>
+          </div>
+          <div className="divide-y divide-hairline">
+            {steps.map((item) => {
+              const Icon = item.icon;
+              const showResume = (item.status === "current" || item.status === "skipped") && item.href;
+              return (
+                <div key={item.key} className="flex items-center gap-3 px-5 py-3.5">
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                    style={{ backgroundColor: `hsl(var(${item.accent}) / 0.1)` }}
                   >
-                    <Minus className="h-3 w-3" /> Resume
-                  </button>
-                ) : showResume ? (
-                  <Link to={item.href!}>
-                    <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs">
-                      Continue
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </Link>
-                ) : (
-                  <Circle className="h-[18px] w-[18px] text-ink-subtle" />
-                )}
-              </div>
-            );
-          })}
+                    <Icon className="h-4 w-4" style={{ color: `hsl(var(${item.accent}))` }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className={`text-sm ${item.done ? "text-ink-muted" : "font-medium text-foreground"}`}>
+                      {item.label}
+                    </span>
+                    <span className="ml-2 text-[11px] text-ink-subtle capitalize">
+                      · {STATUS_LABEL[item.status]}
+                    </span>
+                  </div>
+                  {item.done ? (
+                    <CheckCircle2 className="h-[18px] w-[18px] text-accent-green" />
+                  ) : item.skipped ? (
+                    <button
+                      onClick={() => resume(item.key)}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent-purple-ink bg-accent-purple/[0.14] hover:bg-accent-purple/[0.22] active:scale-[0.96]"
+                      style={{ transitionProperty: "background-color, transform", transitionDuration: "150ms" }}
+                    >
+                      <Minus className="h-3 w-3" /> Resume
+                    </button>
+                  ) : showResume ? (
+                    <Link to={item.href!}>
+                      <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs">
+                        Continue
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Circle className="h-[18px] w-[18px] text-ink-subtle" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
