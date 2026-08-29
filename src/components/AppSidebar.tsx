@@ -63,7 +63,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r border-hairline bg-sidebar"
+      className="border-e border-hairline bg-sidebar"
     >
       <SidebarHeader className={collapsed ? "flex items-center justify-center px-0 py-5" : "px-4 py-5"}>
         {collapsed ? (
@@ -96,13 +96,13 @@ export function AppSidebar() {
                       title={collapsed ? item.title : undefined}
                       className={
                         collapsed
-                          ? "group relative flex h-9 w-9 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink-strong/[0.05] hover:text-foreground"
-                          : "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-ink-strong/[0.05] hover:text-foreground"
+                          ? "group relative flex h-10 w-10 items-center justify-center rounded-lg text-ink-muted transition-colors duration-150 hover:bg-ink-strong/[0.05] hover:text-foreground"
+                          : "group relative flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink-muted transition-colors duration-150 hover:bg-ink-strong/[0.05] hover:text-foreground"
                       }
                       activeClassName={
                         collapsed
-                          ? "!bg-ink-strong/[0.07] !text-foreground"
-                          : "!bg-ink-strong/[0.06] !text-foreground font-medium before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] before:rounded-r before:bg-ink-strong/[0.35]"
+                          ? "!bg-ink-strong/[0.07] !text-foreground shadow-[var(--shadow-border)]"
+                          : "!bg-ink-strong/[0.06] !text-foreground font-medium before:absolute before:inset-y-2 before:start-0 before:w-[2px] before:rounded-e-full before:bg-ink-strong/[0.35]"
                       }
                     >
                       <item.icon
@@ -127,8 +127,8 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   className={
                     collapsed
-                      ? "flex h-9 w-9 items-center justify-center rounded-md hover:bg-ink-strong/[0.05]"
-                      : "flex items-center gap-2 rounded-md px-2 py-2 text-sm text-foreground hover:bg-ink-strong/[0.05] w-full"
+                      ? "flex h-10 w-10 items-center justify-center rounded-lg hover:bg-ink-strong/[0.05]"
+                      : "flex min-h-10 w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-foreground hover:bg-ink-strong/[0.05]"
                   }
                 >
                   <div className="relative">
@@ -137,14 +137,14 @@ export function AppSidebar() {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-accent-green ring-2 ring-sidebar" />
+                    <span className="absolute -bottom-0.5 -end-0.5 h-2 w-2 rounded-full bg-accent-green ring-2 ring-sidebar" />
                   </div>
                   {!collapsed && (
                     <>
                       <span className="truncate font-medium">
                         {profile?.full_name ?? "User"}
                       </span>
-                      <ChevronsUpDown className="ml-auto h-3 w-3 text-ink-subtle" />
+                      <ChevronsUpDown className="ms-auto h-3 w-3 text-ink-subtle" />
                     </>
                   )}
                 </SidebarMenuButton>

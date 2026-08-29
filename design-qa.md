@@ -57,4 +57,14 @@ The focused comparison checks typography, line length, timeline geometry, action
 - P3: consider opting into React Router’s v7 future flags in a separate maintenance change to remove the two development-console warnings.
 - P3: repeat the same authenticated visual pass against the deployed Lovable origin after this branch is published, where Google OAuth proxying is available.
 
+## Workspace rollout QA
+
+The selected operational direction now extends beyond the dashboard into the People, Organization, and Appraisals index views. These screens share one 1240px workspace frame, consistent header/action alignment, 32–40px responsive margins, 16px elevated surfaces, and restrained 150ms interaction feedback.
+
+- People: passed at 1440px, 720px, and 390px CSS viewports with no horizontal overflow. Search filtering returns the expected row and the mobile directory preserves actions, status, role, and manager context.
+- Organization: passed at 1440px in LTR and RTL with no horizontal overflow. The hierarchy and detail rail mirror correctly, and collapse/expand behavior preserves the selected structure.
+- Appraisals: passed at 1440px and 390px with no horizontal overflow. Cycle rows preserve status, acknowledgement deadline, and three review windows in reading order.
+- UI polish: named design tokens pass, nested People card borders were removed, directional icons mirror in RTL, buttons use a restrained 0.96 press scale, and transitions name only the properties they animate.
+- Browser console: no runtime errors. The existing React Router v7 future-flag warnings remain.
+
 final result: passed

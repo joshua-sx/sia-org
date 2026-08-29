@@ -51,17 +51,17 @@ const TreeNode = ({
         aria-selected={isSelected}
         aria-level={level + 1}
         tabIndex={isTabStop ? 0 : -1}
-        className={`flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
-          isSelected ? "bg-accent font-medium" : ""
+        className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-lg pe-2.5 text-sm transition-[background-color,color,box-shadow] duration-150 hover:bg-ink-strong/[0.035] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
+          isSelected ? "bg-accent-red/[0.08] font-medium text-foreground ring-1 ring-inset ring-accent-red/[0.12]" : "text-ink-muted"
         } ${isInactive ? "opacity-50" : ""}`}
-        style={{ paddingLeft: `${level * 16 + 8}px` }}
+        style={{ paddingInlineStart: `${level * 16 + 8}px` }}
         onClick={() => onSelect(node)}
         onKeyDown={handleRowKeyDown}
       >
         {hasChildren ? (
           <button
             type="button"
-            className="p-0.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-ink-subtle transition-colors duration-150 hover:bg-ink-strong/[0.06] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={open ? `Collapse ${node.name}` : `Expand ${node.name}`}
             aria-expanded={open}
             onClick={(e) => {
@@ -70,21 +70,21 @@ const TreeNode = ({
             }}
           >
             {open ? (
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.75} />
             ) : (
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+              <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" strokeWidth={1.75} />
             )}
           </button>
         ) : (
           <span className="w-5" aria-hidden />
         )}
         {open && hasChildren ? (
-          <FolderOpen className="h-4 w-4 text-primary" aria-hidden />
+          <FolderOpen className="h-4 w-4 text-accent-red" strokeWidth={1.75} aria-hidden />
         ) : (
-          <Folder className="h-4 w-4 text-muted-foreground" aria-hidden />
+          <Folder className="h-4 w-4 text-ink-subtle" strokeWidth={1.75} aria-hidden />
         )}
         <span className="truncate">{node.name}</span>
-        <span className="ml-auto text-xs text-muted-foreground">{node.typeName}</span>
+        <span className="ms-auto shrink-0 rounded-full bg-ink-strong/[0.045] px-2 py-0.5 text-[11px] font-normal text-ink-muted">{node.typeName}</span>
       </div>
       {open && hasChildren && (
         <div role="group">

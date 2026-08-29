@@ -69,10 +69,10 @@ function EmployeeActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => onEdit(employee)}>
-          <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+          <Pencil className="me-2 h-3.5 w-3.5" strokeWidth={1.75} /> Edit
         </DropdownMenuItem>
         <DropdownMenuItem className="text-destructive" onClick={() => onDelete(employee)}>
-          <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+          <Trash2 className="me-2 h-3.5 w-3.5" strokeWidth={1.75} /> Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -102,20 +102,20 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
   }, [employees, q]);
 
   return (
-    <div className="rounded-2xl border border-hairline bg-surface-raised shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-hairline">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-subtle" />
+    <div className="overflow-hidden rounded-2xl bg-surface-raised shadow-[var(--shadow-border)]">
+      <div className="flex flex-col gap-3 border-b border-hairline px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-subtle" strokeWidth={1.75} />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search people…"
             aria-label="Search people"
-            className="h-9 pl-9 text-sm"
+            className="h-10 ps-9 text-sm"
           />
         </div>
-        <p className="text-xs text-ink-muted tabular-nums">
-          {filtered.length} of {employees.length}
+        <p className="text-xs text-ink-muted tabular-nums sm:text-end">
+          Showing {filtered.length} of {employees.length}
         </p>
       </div>
 
@@ -129,7 +129,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
             .join(" · ");
 
           return (
-            <div key={e.id} className="p-4 space-y-2">
+            <div key={e.id} className="space-y-3 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-medium text-foreground truncate">
@@ -139,7 +139,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
                 </div>
                 <EmployeeActions employee={e} onEdit={onEdit} onDelete={onDelete} />
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
+              <div className="flex flex-wrap items-center gap-3 text-sm">
                 <EmployeeStatusBadge status={e.employment_status} />
                 {e.job_title && (
                   <span className="text-ink-muted">{e.job_title}</span>
@@ -165,17 +165,15 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-hairline text-[11px] uppercase tracking-wider text-ink-subtle">
-              <th className="text-left px-4 py-2.5 font-medium">First name</th>
-              <th className="text-left px-4 py-2.5 font-medium">Last name</th>
-              <th className="text-left px-4 py-2.5 font-medium">Email</th>
-              <th className="text-left px-4 py-2.5 font-medium">Job title</th>
+              <th className="px-5 py-3 text-start font-medium">Person</th>
+              <th className="px-4 py-3 text-start font-medium">Role</th>
               {levels.map((lvl) => (
-                <th key={lvl.type.id} className="text-left px-4 py-2.5 font-medium">
+                <th key={lvl.type.id} className="px-4 py-3 text-start font-medium">
                   {lvl.type.name}
                 </th>
               ))}
-              <th className="text-left px-4 py-2.5 font-medium">Manager</th>
-              <th className="text-left px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-3 text-start font-medium">Manager</th>
+              <th className="px-4 py-3 text-start font-medium">Status</th>
               <th className="w-10" />
             </tr>
           </thead>
@@ -185,23 +183,24 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
               const perLevel = unitsByLevel(e.org_unit_id, ancestry, levels);
 
               return (
-                <tr key={e.id} className="border-b border-hairline last:border-b-0 hover:bg-ink-strong/[0.02]">
-                  <td className="px-4 py-3 font-medium text-foreground">{e.first_name}</td>
-                  <td className="px-4 py-3 font-medium text-foreground">{e.last_name}</td>
-                  <td className="px-4 py-3 text-ink-muted">{e.email}</td>
-                  <td className="px-4 py-3 text-ink-muted">{e.job_title ?? "—"}</td>
+                <tr key={e.id} className="border-b border-hairline transition-colors duration-150 last:border-b-0 hover:bg-ink-strong/[0.025]">
+                  <td className="px-5 py-3.5">
+                    <p className="font-medium text-foreground">{e.first_name} {e.last_name}</p>
+                    <p className="mt-0.5 text-xs text-ink-muted">{e.email}</p>
+                  </td>
+                  <td className="px-4 py-3.5 text-ink-muted">{e.job_title ?? "—"}</td>
                   {perLevel.map((u, i) => (
-                    <td key={levels[i].type.id} className="px-4 py-3 text-ink-muted">
+                    <td key={levels[i].type.id} className="px-4 py-3.5 text-ink-muted">
                       {u ? <span className="text-foreground">{u.name}</span> : "—"}
                     </td>
                   ))}
-                  <td className="px-4 py-3 text-ink-muted">
+                  <td className="px-4 py-3.5 text-ink-muted">
                     {manager ? `${manager.first_name} ${manager.last_name}` : "—"}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <EmployeeStatusBadge status={e.employment_status} />
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3.5">
                     <EmployeeActions employee={e} onEdit={onEdit} onDelete={onDelete} />
                   </td>
                 </tr>
@@ -209,7 +208,7 @@ export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7 + levels.length} className="px-4 py-8 text-center text-sm text-ink-muted">
+                <td colSpan={6 + levels.length} className="px-4 py-10 text-center text-sm text-ink-muted">
                   No matching employees.
                 </td>
               </tr>

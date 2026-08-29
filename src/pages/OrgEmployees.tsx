@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
-import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft } from "lucide-react";
+import { WorkspacePage } from "@/components/WorkspacePage";
+import { UserPlus, Upload, Download, AlertTriangle, ArrowLeft, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEmployees, type Employee } from "@/hooks/useEmployees";
@@ -28,6 +29,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const OrgEmployees = () => {
   const { profile } = useAuth();
@@ -108,13 +115,40 @@ const OrgEmployees = () => {
     <>
       {!isOnboarding && (
         <PageHeader
-          title="Add your employees"
-          subtitle="Add employees manually or import a CSV to build your reporting structure and prepare for appraisal cycles. No invitations will be sent during setup."
+          title="People"
+          subtitle="Manage employee details, reporting lines, and organizational placement from one directory."
+          actions={
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Upload className="h-4 w-4" strokeWidth={1.75} />
+                    Import
+                    <ChevronDown className="h-3.5 w-3.5 text-ink-subtle" strokeWidth={1.75} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => setImportOpen(true)}>
+                    <Upload className="me-2 h-4 w-4" strokeWidth={1.75} />
+                    Import CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={downloadTemplateCsv}>
+                    <Download className="me-2 h-4 w-4" strokeWidth={1.75} />
+                    Download CSV template
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button onClick={openAdd}>
+                <UserPlus className="h-4 w-4" strokeWidth={2} />
+                Add person
+              </Button>
+            </>
+          }
         />
       )}
 
       {showAttention && (
-        <div className="mb-6 rounded-xl border border-accent-purple/[0.35] bg-accent-purple/[0.08] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <div className="mt-8 rounded-xl border border-accent-purple/[0.35] bg-accent-purple/[0.08] p-4">
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-accent-purple" />
             <div className="min-w-0">
@@ -124,7 +158,7 @@ const OrgEmployees = () => {
                 {employeesWithoutManager.length === 1 ? "employee has" : "employees have"} no manager assigned.
                 Assign at least one manager-employee relationship to continue.
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-3">
                 <Button variant="outline" size="sm" onClick={handleAssignManager}>
                   Assign manager
                 </Button>
@@ -151,30 +185,12 @@ const OrgEmployees = () => {
               onAddManual={openAdd}
             />
           ) : (
-            <div className="rounded-xl border border-hairline bg-surface-raised shadow-[0_1px_2px_rgba(0,0,0,0.03),0_4px_12px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
-              <div className="flex flex-wrap gap-2 p-4 border-b border-hairline">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={openAdd}
-                  className="border-accent-blue/[0.4] text-accent-blue bg-accent-blue/[0.06] hover:bg-accent-blue/[0.12] hover:text-accent-blue"
-                >
-                  <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add manually
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
-                  <Upload className="mr-1.5 h-3.5 w-3.5" /> Import CSV
-                </Button>
-                <Button size="sm" variant="outline" onClick={downloadTemplateCsv}>
-                  <Download className="mr-1.5 h-3.5 w-3.5" /> Download CSV template
-                </Button>
-              </div>
-              <EmployeeTable
-                employees={employees}
-                unitsById={unitsById}
-                onEdit={openEdit}
-                onDelete={(e) => setConfirmDelete(e)}
-              />
-            </div>
+            <EmployeeTable
+              employees={employees}
+              unitsById={unitsById}
+              onEdit={openEdit}
+              onDelete={(e) => setConfirmDelete(e)}
+            />
           )}
       </div>
     </>
@@ -199,7 +215,7 @@ const OrgEmployees = () => {
           {pageInner}
         </OnboardingStepFrame>
       ) : (
-        <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
+        <WorkspacePage>{pageInner}</WorkspacePage>
       )}
       <EmployeeFormModal
         open={formOpen}

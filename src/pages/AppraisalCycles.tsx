@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CalendarClock, ChevronRight, Plus } from "lucide-react";
+import { CalendarClock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
+import { WorkspacePage } from "@/components/WorkspacePage";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAppraisalCycles, type AppraisalCycle } from "@/hooks/useAppraisalCycles";
+import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useStepReadiness } from "@/components/onboarding/OnboardingContext";
 import { OnboardingStepFrame } from "@/components/onboarding/OnboardingStepFrame";
 import { AppraisalsTabs } from "@/components/appraisals/AppraisalsTabs";
-import { CycleStatusBadge } from "@/components/appraisals/CycleStatusBadge";
+import { AppraisalCycleList } from "@/components/appraisals/AppraisalCycleList";
 import CycleFormModal from "@/components/appraisals/CycleFormModal";
 import { OrgScoringSettingsCard } from "@/components/appraisals/OrgScoringSettingsCard";
-import { formatDate, formatWindow } from "@/lib/cycleSchema";
 import { QueryError, QueryLoading } from "@/components/QueryState";
 
 const AppraisalCycles = () => {
@@ -49,7 +49,7 @@ const AppraisalCycles = () => {
       className="shrink-0"
       disabled={!hasEmployees}
     >
-      <Plus className="mr-1.5 h-4 w-4" /> New cycle
+      <Plus className="h-4 w-4" strokeWidth={2} /> New cycle
     </Button>
   );
 
@@ -57,11 +57,11 @@ const AppraisalCycles = () => {
     <>
       {!showOnboardingChrome && (
         <PageHeader
-          title="Appraisal cycles"
+          title="Appraisals"
           subtitle={
             isHr
-              ? "Create a cycle, review the timeline, and launch when your participant list is ready."
-              : "Cycles your organization is running. Your goals and reviews live in the tabs above once a cycle is active."
+              ? "Plan review cycles, monitor progress, and move every appraisal toward a clear next action."
+              : "Follow your organization's review cycles, goals, assessments, and final outcomes."
           }
           actions={
             isHr &&
@@ -113,7 +113,7 @@ const AppraisalCycles = () => {
             onRetry={() => void refetch()}
           />
         ) : cycles.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-hairline bg-surface-raised px-6 py-14 text-center">
+          <div className="rounded-2xl border border-dashed border-hairline bg-surface-raised px-6 py-14 text-center">
             <CalendarClock className="mx-auto h-8 w-8 text-accent-green" />
             <h2 className="mt-4 text-base font-semibold text-foreground text-balance">No appraisal cycles yet</h2>
             <p className="mx-auto mt-1 max-w-sm text-sm text-ink-muted text-pretty">
@@ -123,7 +123,7 @@ const AppraisalCycles = () => {
             </p>
             {isHr && (
               <Button className="mt-5" onClick={() => setFormOpen(true)} disabled={!hasEmployees}>
-                <Plus className="mr-1.5 h-4 w-4" /> Create first cycle
+                <Plus className="h-4 w-4" strokeWidth={2} /> Create first cycle
               </Button>
             )}
             {isHr && !hasEmployees && (
@@ -134,29 +134,7 @@ const AppraisalCycles = () => {
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-hairline bg-surface-raised divide-y divide-hairline overflow-hidden">
-            {cycles.map((cycle: AppraisalCycle) => (
-              <Link
-                key={cycle.id}
-                to={`/appraisals/${cycle.id}`}
-                className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-ink-strong/[0.03]"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-foreground truncate">{cycle.name}</span>
-                    <CycleStatusBadge status={cycle.status} />
-                  </div>
-                  <p className="mt-1 text-xs text-ink-muted">
-                    Goals {formatWindow(cycle.goal_window_start, cycle.goal_window_end)} · Interim{" "}
-                    {formatWindow(cycle.interim_window_start, cycle.interim_window_end)} · Final{" "}
-                    {formatWindow(cycle.final_window_start, cycle.final_window_end)} · Acknowledge by{" "}
-                    {formatDate(cycle.acknowledgement_due)}
-                  </p>
-                </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-ink-subtle" />
-              </Link>
-            ))}
-          </div>
+          <AppraisalCycleList cycles={cycles} />
         )}
       </div>
 
@@ -179,7 +157,7 @@ const AppraisalCycles = () => {
       {pageInner}
     </OnboardingStepFrame>
   ) : (
-    <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
+    <WorkspacePage>{pageInner}</WorkspacePage>
   );
 };
 

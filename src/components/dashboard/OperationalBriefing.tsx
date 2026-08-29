@@ -152,7 +152,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
             Define the review windows, confirm participants, and launch only when every required check is complete.
           </p>
           <Button asChild className="mt-6 h-11 px-5">
-            <Link to="/appraisals">Create cycle <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link to="/appraisals">Create cycle <ArrowRight className="ms-2 h-4 w-4 rtl:-scale-x-100" /></Link>
           </Button>
         </div>
       </div>
@@ -207,7 +207,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
             {phases.map((phase, index) => (
               <li key={phase.id} className="relative min-w-0">
                 {index < phases.length - 1 && (
-                  <span className="absolute left-7 right-[-18px] top-3.5 hidden h-px bg-hairline md:block" aria-hidden="true" />
+                  <span className="absolute start-7 end-[-18px] top-3.5 hidden h-px bg-hairline md:block" aria-hidden="true" />
                 )}
                 <span
                   className={cn(
@@ -265,7 +265,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
               <p className="mt-1 text-sm text-ink-muted">Resolve what matters most to keep the cycle on track.</p>
             </div>
             <Link to={`/appraisals/${cycle.id}`} className="hidden items-center gap-1.5 text-sm font-medium text-accent-blue hover:underline sm:inline-flex">
-              View all <ArrowRight className="h-4 w-4" />
+              View all <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
             </Link>
           </div>
           <ul className="mt-3 divide-y divide-hairline border-y border-hairline">
@@ -290,7 +290,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
                   >
                     {item.count}
                   </span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-ink-subtle transition-transform group-hover:translate-x-0.5" />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-ink-subtle transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" />
                 </Link>
               </li>
             ))}
@@ -298,7 +298,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
         </section>
       </div>
 
-      <aside className="border-t border-hairline px-6 py-10 xl:border-l xl:border-t-0 xl:px-8 xl:py-14" aria-labelledby="activity-heading">
+      <aside className="border-t border-hairline px-6 py-10 xl:border-s xl:border-t-0 xl:px-8 xl:py-14" aria-labelledby="activity-heading">
         <h2 id="activity-heading" className="text-base font-semibold tracking-[-0.2px]">Recent activity</h2>
         {!previewData && auditQuery.isLoading ? (
           <QueryLoading className="mt-6" label="Loading recent activity" rows={4} />
@@ -343,7 +343,7 @@ export function OperationalBriefing({ previewData }: { previewData?: Operational
           </ol>
         )}
         <Link to={`/appraisals/${cycle.id}`} className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-accent-blue hover:underline">
-          View all activity <ChevronRight className="h-4 w-4" />
+          View all activity <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />
         </Link>
       </aside>
     </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
+import { WorkspacePage } from "@/components/WorkspacePage";
 import { ArrowLeft, Plus, Upload, Settings2, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -183,18 +184,18 @@ const OrgStructure = () => {
     <>
       {!isOnboarding && (
         <PageHeader
-          title="Organization structure"
-          subtitle="Create and manage the divisions, departments, and teams within your organization."
+          title="Organization"
+          subtitle="Shape the reporting structure that connects your people, managers, and appraisal cycles."
           actions={
             <>
               <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
-                <Settings2 className="mr-1 h-3 w-3" /> Edit levels
+                <Settings2 className="h-4 w-4" strokeWidth={1.75} /> Edit levels
               </Button>
               <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
-                <Upload className="mr-1 h-3 w-3" /> Import CSV
+                <Upload className="h-4 w-4" strokeWidth={1.75} /> Import CSV
               </Button>
               <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
-                <Plus className="mr-1 h-3 w-3" /> Add unit
+                <Plus className="h-4 w-4" strokeWidth={2} /> Add unit
               </Button>
             </>
           }
@@ -205,20 +206,20 @@ const OrgStructure = () => {
       {isOnboarding && (
         <div className="flex flex-wrap gap-2 mb-6">
           <Button variant="outline" size="sm" onClick={() => setShowEditLevels(true)}>
-            <Settings2 className="mr-1 h-3 w-3" /> Edit levels
+            <Settings2 className="me-1 h-3 w-3" /> Edit levels
           </Button>
           <Button variant="outline" size="sm" onClick={() => setShowCsv(true)}>
-            <Upload className="mr-1 h-3 w-3" /> Import CSV
+            <Upload className="me-1 h-3 w-3" /> Import CSV
           </Button>
           <Button size="sm" onClick={() => { setAddParent(null); setAddTypeId(""); setShowAdd(true); }}>
-            <Plus className="mr-1 h-3 w-3" /> Add unit
+            <Plus className="me-1 h-3 w-3" /> Add unit
           </Button>
         </div>
       )}
 
       {units.length === 0 ? (
-        <div className={`rounded-xl border border-hairline bg-surface-raised p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.03)] ${isOnboarding ? "" : "mt-10"}`}>
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-red/[0.12]">
+        <div className={`rounded-2xl bg-surface-raised p-10 text-center shadow-[var(--shadow-border)] ${isOnboarding ? "" : "mt-10"}`}>
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-red/[0.12]">
             <Building2 className="h-6 w-6 text-accent-red" />
           </div>
           <h2 className="text-base font-semibold text-foreground text-balance">Your hierarchy is configured</h2>
@@ -226,21 +227,25 @@ const OrgStructure = () => {
             Add your first {topLevelType?.name ?? "unit"}.
           </p>
           <Button className="mt-6" onClick={() => { setAddParent(null); setAddTypeId(topLevelType?.id ?? ""); setShowAdd(true); }}>
-            <Plus className="mr-1 h-4 w-4" /> Add {topLevelType?.name ?? "unit"}
+            <Plus className="me-1 h-4 w-4" /> Add {topLevelType?.name ?? "unit"}
           </Button>
         </div>
       ) : (
-        <div className={`grid gap-6 ${isOnboarding ? "grid-cols-1" : "lg:grid-cols-[1fr_320px]"} ${isOnboarding ? "" : "mt-6"}`}>
-          <div className="rounded-xl border border-hairline bg-surface-raised p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <div className={`grid gap-6 ${isOnboarding ? "grid-cols-1" : "min-[1180px]:grid-cols-[minmax(0,1fr)_340px]"} ${isOnboarding ? "" : "mt-8"}`}>
+          <section className="rounded-2xl bg-surface-raised p-3 shadow-[var(--shadow-border)] sm:p-4" aria-label="Organization hierarchy">
             <OrgTree nodes={tree} selectedId={selectedId} onSelect={(n) => setSelectedId(n.id)} />
-          </div>
-          <div className="rounded-xl border border-hairline bg-surface-raised p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+          </section>
+          <aside className="self-start rounded-2xl bg-surface-raised p-6 shadow-[var(--shadow-border)] min-[1180px]:sticky min-[1180px]:top-20">
             {selectedNode ? (
               <UnitDetailPanel node={selectedNode} onAddChild={handleAddChild} />
             ) : (
-              <p className="text-sm text-ink-muted">Select a unit to view details.</p>
+              <div className="py-8 text-center">
+                <Building2 className="mx-auto h-5 w-5 text-ink-subtle" strokeWidth={1.75} />
+                <p className="mt-3 text-sm font-medium text-foreground">Select a unit</p>
+                <p className="mt-1 text-sm text-ink-muted">Its details and available actions will appear here.</p>
+              </div>
             )}
-          </div>
+          </aside>
         </div>
       )}
 
@@ -269,7 +274,7 @@ const OrgStructure = () => {
           {pageInner}
         </OnboardingStepFrame>
       ) : (
-        <div className="px-6 md:px-10 py-10 max-w-5xl mx-auto w-full">{pageInner}</div>
+        <WorkspacePage>{pageInner}</WorkspacePage>
       )}
 
     </>
