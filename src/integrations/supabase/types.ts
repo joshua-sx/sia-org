@@ -689,14 +689,7 @@ export type Database = {
         Args: { p_ack?: boolean; p_participant_id: string; p_stage: string }
         Returns: undefined
       }
-      bulk_import_employees: {
-        Args: { p_rows: Json }
-        Returns: Json
-      }
-      create_org_structure: {
-        Args: { p_levels: Json; p_units: Json }
-        Returns: undefined
-      }
+      bulk_import_employees: { Args: { p_rows: Json }; Returns: Json }
       close_cycle: {
         Args: { p_cycle_id: string; p_force?: boolean; p_note?: string }
         Returns: {
@@ -723,6 +716,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      create_org_structure: {
+        Args: { p_levels: Json; p_units: Json }
+        Returns: undefined
       }
       current_user_employee_id: { Args: never; Returns: string }
       current_user_org_id: { Args: never; Returns: string }
@@ -751,6 +748,33 @@ export type Database = {
       is_manager_of_participant: {
         Args: { p_participant_id: string }
         Returns: boolean
+      }
+      launch_appraisal_cycle: {
+        Args: { p_cycle_id: string; p_participants: Json }
+        Returns: {
+          acknowledgement_due: string
+          close_note: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          final_window_end: string
+          final_window_start: string
+          goal_window_end: string
+          goal_window_start: string
+          id: string
+          interim_window_end: string
+          interim_window_start: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "appraisal_cycles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       log_audit_event: {
         Args: {

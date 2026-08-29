@@ -18,7 +18,7 @@ verification. This list does not replace the interface-design todo in
 - [x] Task 4 — Same-org + active employee checks in `launch_appraisal_cycle` (`20260818020000`)
 - [x] Task 5 — Unique partial index: one active cycle per org (`20260818020001`)
 - [x] Task 6 — Same-org trigger on `cycle_participants` (`20260818020002`)
-- [ ] Checkpoint B — cannot attach foreign employees; approval (apply on Lovable Cloud)
+- [x] Checkpoint B — Phase 2 live on Lovable Cloud; foreign-org participants and duplicate active cycles rejected (verified 29 Aug 2026)
 
 ## Phase 3: Cycle write guards (`fix/arch-phase-3-cycle-guards`)
 - [ ] Task 7 — `guard_cycle_writes` status machine
