@@ -9,7 +9,7 @@ import { DashboardAppraisalCard } from "@/components/appraisals/DashboardApprais
 import { StepSuccess } from "@/components/onboarding/StepSuccess";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useOrgUnits } from "@/hooks/useOrgUnits";
-import type { OnboardingStatus } from "@/lib/onboardingSteps";
+import { incompleteOnboardingResumeHref, type OnboardingStatus } from "@/lib/onboardingSteps";
 
 const STATUS_LABEL: Record<OnboardingStatus, string> = {
   done: "Complete",
@@ -33,8 +33,7 @@ const Dashboard = () => {
   // The real Dashboard only exists after onboarding. While setup is
   // incomplete, send the admin to the step they're on.
   if (!setupComplete && !justCompleted) {
-    const nextStep = steps.find((s) => !s.done && !s.skipped && s.href) ?? steps[1];
-    return <Navigate to={nextStep?.href ?? "/org/structure"} replace />;
+    return <Navigate to={incompleteOnboardingResumeHref(steps)} replace />;
   }
 
 
