@@ -151,6 +151,13 @@ export type Database = {
             foreignKeyName: "audit_events_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -221,6 +228,13 @@ export type Database = {
             foreignKeyName: "cycle_participants_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
@@ -228,7 +242,21 @@ export type Database = {
             foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
             columns: ["extra_reviewer_id"]
             isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
+            columns: ["extra_reviewer_id"]
+            isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employee_directory"
             referencedColumns: ["id"]
           },
           {
@@ -305,6 +333,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "employees_manager_id_fkey"
             columns: ["manager_id"]
@@ -682,7 +717,100 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      employee_directory: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          employment_status:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          employment_type: Database["public"]["Enums"]["employment_type"] | null
+          first_name: string | null
+          id: string | null
+          job_title: string | null
+          last_name: string | null
+          manager_id: string | null
+          org_unit_id: string | null
+          organization_id: string | null
+          profile_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          employment_status?:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          employment_type?:
+            | Database["public"]["Enums"]["employment_type"]
+            | null
+          first_name?: string | null
+          id?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          manager_id?: string | null
+          org_unit_id?: string | null
+          organization_id?: string | null
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          employment_status?:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          employment_type?:
+            | Database["public"]["Enums"]["employment_type"]
+            | null
+          first_name?: string | null
+          id?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          manager_id?: string | null
+          org_unit_id?: string | null
+          organization_id?: string | null
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employee_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_org_unit_id_fkey"
+            columns: ["org_unit_id"]
+            isOneToOne: false
+            referencedRelation: "org_units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _seed_submit_and_ack: {
