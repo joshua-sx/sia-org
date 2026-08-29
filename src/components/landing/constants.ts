@@ -35,30 +35,30 @@ export const NAV_LINKS = [
   { label: "Who it's for", href: "#who" },
 ];
 
-/** Marketing claims. Several items are aspirational — see PRODUCT.md “Shipped vs not”. */
+/** Marketing claims. Keep aligned with PRODUCT.md “Shipped vs not”. */
 export const FEATURES = [
   {
     icon: Target,
     color: COLORS.blue,
     label: "Goal Setting",
-    title: "Set goals that connect to outcomes.",
-    desc: "Cascade objectives from org level down to every employee. Track progress in real time across cycles.",
+    title: "Weighted goals with real accountability.",
+    desc: "Managers set weighted goals for every report each cycle. Weights must total 100% before a stage can be scored.",
     span: "md:col-span-2",
   },
   {
     icon: ClipboardCheck,
     color: COLORS.red,
-    label: "360° Reviews",
-    title: "Feedback from every angle.",
-    desc: "Self, peer, and manager reviews in one workflow. Configurable forms per cycle.",
+    label: "Structured Reviews",
+    title: "A rating and a second perspective.",
+    desc: "Managers rate each goal 1–5 at interim and final. An optional extra reviewer adds independent written comments.",
     span: "md:col-span-1",
   },
   {
     icon: BarChart3,
     color: COLORS.purple,
-    label: "Analytics",
-    title: "See the full picture.",
-    desc: "Dashboards, exportable reports, and trend analysis across departments.",
+    label: "Progress & Records",
+    title: "See the cycle move.",
+    desc: "Live cycle progress for HR, plus exportable PDF appraisal records for the file.",
     span: "md:col-span-1",
   },
   {
@@ -107,7 +107,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     yearlyPrice: 0,
     ctaText: "Get started free",
     infoText: "No credit card required",
-    features: ["1 active appraisal cycle", "Up to 25 employees", "Goal setting & tracking", "Standard analytics dashboard"],
+    features: ["1 active appraisal cycle", "Up to 25 employees", "Weighted goal setting & tracking", "Cycle progress dashboard"],
   },
   {
     id: "growth",
@@ -120,9 +120,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       "Unlimited appraisal cycles",
       "Org structure builder",
-      "360° review workflows",
-      "Goal cascading & tracking",
-      "Real-time analytics dashboard",
+      "Extra-reviewer comments on appraisals",
+      "Interim & final scoring windows",
+      "Cycle progress dashboard & PDF records",
       "CSV import / export",
     ],
     isPopular: true,
@@ -139,7 +139,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "Everything in Growth",
       "Role-based access control",
       "Dedicated onboarding support",
-      "SSO & custom integrations",
+      "SSO & custom integrations (coming soon)",
       "Priority support",
     ],
   },

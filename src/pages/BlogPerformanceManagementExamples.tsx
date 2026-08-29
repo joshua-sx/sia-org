@@ -280,10 +280,15 @@ export default function BlogPerformanceManagementExamples() {
 
             <h2 style={{ fontFamily: GROTESK }}>See it in a real system</h2>
             <p>
-              SIA is a performance management system built specifically for
-              structured organizations — with cascading goals, role-based
-              reviewers, enforced windows, and an audit trail in the
-              database, not just the UI. If any of the examples above
+              SIA is a performance appraisal system built specifically for
+              structured organizations — managers set weighted goals and rate
+              their reports, an optional extra reviewer adds an independent
+              written perspective, review windows are enforced, and the audit
+              trail lives in the database, not just the UI. The goal cascades
+              and peer questionnaires in Examples 1 and 2 are patterns from
+              other systems; SIA keeps its reviewer model deliberately
+              simple — one accountable rater, one optional commenter. If the
+              weighted scoring, enforced windows, and role boundaries above
               matched your org,{" "}
               <Link to="/signup" className="underline">
                 create a workspace

@@ -135,10 +135,12 @@ Use this table in demos and copy. **Do not sell the right column as live.**
 | Auth / enterprise | Email signup, OAuth consent for MCP clients, role checks | SSO, custom integrations (listed on Business pricing — not built) |
 | Notifications | None | Email/in-app nudges for overdue reviews |
 
-The public landing page, pricing cards, and some blog copy still describe the
-**not shipped** column (especially 360°, cascading goals, analytics, SSO). Treat
-those as **aspirational marketing**. Correct them in copy before a sales push;
-do not “fix” them by changing product behavior to match the ads.
+Landing, pricing, and blog copy were trued up to the **Shipped** column on
+29 Aug 2026 (SSO on the Business plan is explicitly labeled coming soon). Note
+the pricing section component exists but is not currently rendered on the
+landing page; publishing pricing is an open go-to-market call. If new
+marketing copy drifts back toward the right column, correct the copy; do not
+“fix” it by changing product behavior to match the ads.
 
 ## How to talk about it
 
@@ -181,29 +183,33 @@ rollout. Appraisal/participant/goal data already respects cycle RLS.
 
 ## Open product decisions
 
-- Per-cycle override of org interim/final weights vs org-wide only — **locked
-  29 Aug 2026:** org weights are **snapshotted onto the cycle at launch**;
-  changing org settings mid-cycle does not affect in-flight cycles.
-
-See `tasks/architecture-plan.md` for engineering detail.
-
-## Locked product decisions (29 Aug 2026)
-
-- **Ack after `acknowledgement_due`:** block. Employees may acknowledge only
-  while the cycle is `active` and on or before `acknowledgement_due`.
-- **Goal weights during the goal window:** allow sum ≠ 100 until submit
-  (unchanged). Submit still requires exactly 100%.
-- **Employee visibility of `interim_score`:** hide at the database until
-  `final_submitted_at` (employees read via a masked view; managers and HR
-  see full scores on the base table).
-- **Terminated participants:** freeze goal, rating, and assessment-submit
-  writes when the participant's employee record is `terminated`. `on_leave`
-  is treated like `active`.
+None right now. New decisions land in **Locked product decisions** below;
+do not implement a side of a disputed behavior without updating this file.
 
 ## Locked product decisions
 
 - Cycle windows are frozen after launch. HR may edit dates while a cycle is a
   draft, but an active or completed cycle keeps its original timeline.
+- **Acknowledgement closes at `acknowledgement_due`** (locked 29 Aug 2026).
+  Employees may acknowledge only while the cycle is `active` and on or before
+  the due date. Auditability beats convenience; reopening a window would be a
+  separate future feature, not a loophole.
+- **`interim_score` is hidden from employees until final submit** (locked
+  29 Aug 2026). Enforced at the database, not only in the UI: employees read
+  via a masked view until `final_submitted_at`; managers and HR see full
+  scores on the base table.
+- **Goal weights may sum ≠ 100 during the goal window** (locked 29 Aug 2026).
+  Managers can save work-in-progress goal sets; submit still requires exactly
+  100%. This keeps the current behavior.
+- **Scoring weights are org-wide, snapshotted at launch** (locked 29 Aug 2026).
+  No per-cycle override of the interim/final split. The org's weights are
+  copied onto the cycle at launch so changing org settings mid-cycle never
+  changes an in-flight cycle's math.
+- **Terminated participants are frozen** (locked 29 Aug 2026). Goal, rating,
+  and assessment-submit writes are rejected when the participant's employee
+  record is `terminated`. `on_leave` is treated like `active`.
+
+See `tasks/architecture-plan.md` for engineering detail.
 
 ## Where other docs sit
 
