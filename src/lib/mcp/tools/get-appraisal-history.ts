@@ -64,9 +64,12 @@ export default defineTool({
       .limit(limit);
     if (error) return mcpError(error.message);
 
+    // To-one embeds come back as objects at runtime, but typegen lacks
+    // relationship metadata for the masked participant view, so postgrest-js
+    // infers arrays. Same convention as the app hooks (e.g. useCycleParticipants).
     const history = [...(participants ?? [])].sort((a, b) => {
-      const aClosed = (a.cycle as { closed_at: string | null })?.closed_at ?? "";
-      const bClosed = (b.cycle as { closed_at: string | null })?.closed_at ?? "";
+      const aClosed = (a.cycle as unknown as { closed_at: string | null } | null)?.closed_at ?? "";
+      const bClosed = (b.cycle as unknown as { closed_at: string | null } | null)?.closed_at ?? "";
       return bClosed.localeCompare(aClosed);
     });
 

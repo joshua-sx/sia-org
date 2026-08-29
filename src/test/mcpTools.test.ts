@@ -22,7 +22,7 @@ describe("mcp response helpers", () => {
 
   it("returns structured JSON content", () => {
     const result = mcpJson({ people: [] });
-    expect(result.isError).toBeUndefined();
+    expect("isError" in result).toBe(false);
     expect(result.structuredContent).toEqual({ people: [] });
     expect(JSON.parse(result.content[0].text)).toEqual({ people: [] });
   });

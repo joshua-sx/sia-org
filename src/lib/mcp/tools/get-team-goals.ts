@@ -40,7 +40,9 @@ export default defineTool({
         .select("id, title, weight")
         .eq("participant_id", participant.id)
         .order("created_at");
-      const employee = participant.employee as {
+      // To-one embed is an object at runtime; typegen infers an array. See
+      // get-appraisal-history.ts for the same convention.
+      const employee = participant.employee as unknown as {
         id: string;
         first_name: string;
         last_name: string;
