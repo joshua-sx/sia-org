@@ -10,6 +10,7 @@ verification. This list does not replace the interface-design todo in
 - [x] Lock ack-after-due: block (approved 29 Aug 2026)
 - [x] Lock weight-sum timing: allow ≠ 100 until submit (approved 29 Aug 2026)
 - [x] Lock employee `interim_score` visibility: hide until `final_submitted_at` at DB (approved 29 Aug 2026)
+- [x] Lock scoring weights: org-wide, snapshotted onto the cycle at launch; no per-cycle override (approved 29 Aug 2026)
 
 ## Phase 1: Org-structure privilege holes (`fix/arch-phase-1-org-rls`)
 - [x] Task 1 — Drop via_profile FOR ALL; add org to HR WITH CHECK (`20260818010000`)
