@@ -7,31 +7,64 @@ import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/whoami.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
+
+// src/lib/mcp/supabase.ts
 import { createClient } from "npm:@supabase/supabase-js@^2.103.0";
+function createMcpSupabase(ctx) {
+  if (!ctx.isAuthenticated()) return null;
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+var EMPLOYEE_SELECT = `
+  id,
+  employee_code,
+  first_name,
+  last_name,
+  email,
+  job_title,
+  employment_type,
+  employment_status,
+  org_unit_id,
+  manager_id,
+  profile_id,
+  org_unit:org_units(id, name, depth, unit_type_id, org_unit_types(name, level)),
+  manager:employees!employees_manager_id_fkey(id, first_name, last_name, job_title)
+`;
+async function getCallerEmployee(supabase, profileId) {
+  const { data, error } = await supabase.from("employees").select("id, first_name, last_name, job_title").eq("profile_id", profileId).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+// src/lib/mcp/response.ts
+function mcpError(message) {
+  return { content: [{ type: "text", text: message }], isError: true };
+}
+function mcpJson(structured) {
+  return {
+    content: [{ type: "text", text: JSON.stringify(structured, null, 2) }],
+    structuredContent: structured
+  };
+}
+
+// src/lib/mcp/tools/whoami.ts
 var whoami_default = defineTool({
   name: "whoami",
   title: "Who am I",
-  description: "Return the signed-in user's identity, role, and organization within SIA.",
+  description: "Return the signed-in user's profile, app role, organization, and linked employee record (job title, org unit).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
-    if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
-    }
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_PUBLISHABLE_KEY,
-      {
-        global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-        auth: { persistSession: false, autoRefreshToken: false }
-      }
-    );
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
     const { data: profile, error } = await supabase.from("profiles").select("id, full_name, email, role, organization_id, organizations(name, industry, country)").eq("id", ctx.getUserId()).single();
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-    return {
-      content: [{ type: "text", text: JSON.stringify(profile, null, 2) }],
-      structuredContent: { profile }
-    };
+    if (error) return mcpError(error.message);
+    const { data: employee } = await supabase.from("employees").select(
+      "id, first_name, last_name, email, job_title, org_unit_id, manager_id, org_unit:org_units(id, name), manager:employees!employees_manager_id_fkey(id, first_name, last_name, job_title)"
+    ).eq("profile_id", ctx.getUserId()).maybeSingle();
+    return mcpJson({ profile, employee: employee ?? null });
   }
 });
 
@@ -95,38 +128,335 @@ var list_unit_types_default = defineTool3({
   }
 });
 
-// src/lib/mcp/tools/list-employees.ts
+// src/lib/mcp/tools/list-people.ts
 import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.20.0";
-import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.103.0";
 import { z } from "npm:zod@^4.4.3";
-var list_employees_default = defineTool4({
-  name: "list_employees",
-  title: "List employees",
-  description: "List employees (profiles) in the signed-in user's organization. Optionally filter by role (hr_admin, manager, employee).",
+var list_people_default = defineTool4({
+  name: "list_people",
+  title: "List people",
+  description: "List employee records in the signed-in user's organization, including job title, org unit, and reporting line.",
   inputSchema: {
-    role: z.enum(["hr_admin", "manager", "employee"]).optional().describe("Optional role filter.")
+    org_unit_id: z.string().uuid().optional().describe("Optional org unit filter."),
+    employment_status: z.enum(["active", "on_leave", "terminated"]).optional().describe("Optional employment status filter.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ org_unit_id, employment_status }, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    let query = supabase.from("employees").select(EMPLOYEE_SELECT).order("last_name").order("first_name");
+    if (org_unit_id) query = query.eq("org_unit_id", org_unit_id);
+    if (employment_status) query = query.eq("employment_status", employment_status);
+    const { data, error } = await query;
+    if (error) return mcpError(error.message);
+    return mcpJson({ people: data ?? [] });
+  }
+});
+
+// src/lib/mcp/tools/list-profiles.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z2 } from "npm:zod@^4.4.3";
+var list_profiles_default = defineTool5({
+  name: "list_profiles",
+  title: "List signed-in users",
+  description: "List profiles (signed-in app users) in the organization. Optionally filter by app role (hr_admin, manager, employee).",
+  inputSchema: {
+    role: z2.enum(["hr_admin", "manager", "employee"]).optional().describe("Optional app role filter.")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ role }, ctx) => {
-    if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
-    }
-    const supabase = createClient4(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_PUBLISHABLE_KEY,
-      {
-        global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-        auth: { persistSession: false, autoRefreshToken: false }
-      }
-    );
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
     let query = supabase.from("profiles").select("id, full_name, email, role, created_at").order("full_name", { ascending: true });
     if (role) query = query.eq("role", role);
     const { data, error } = await query;
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-      structuredContent: { employees: data ?? [] }
-    };
+    if (error) return mcpError(error.message);
+    return mcpJson({ profiles: data ?? [] });
+  }
+});
+
+// src/lib/mcp/tools/get-org-chart.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var get_org_chart_default = defineTool6({
+  name: "get_org_chart",
+  title: "Get org chart",
+  description: "Return the organization's unit tree and people with reporting relationships. Answers who works here and what a department looks like.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const { data, error } = await supabase.rpc("mcp_get_org_chart");
+    if (error) return mcpError(error.message);
+    if (!data) return mcpError("Unable to load org chart");
+    return mcpJson(data);
+  }
+});
+
+// src/lib/mcp/tools/get-direct-reports.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var get_direct_reports_default = defineTool7({
+  name: "get_direct_reports",
+  title: "Get direct reports",
+  description: "List people who report directly to the signed-in user.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const caller = await getCallerEmployee(supabase, ctx.getUserId());
+    if (!caller) {
+      return mcpError("No employee record linked to your profile. Ask HR to link your account.");
+    }
+    const { data, error } = await supabase.from("employees").select(EMPLOYEE_SELECT).eq("manager_id", caller.id).order("last_name").order("first_name");
+    if (error) return mcpError(error.message);
+    return mcpJson({
+      manager_employee_id: caller.id,
+      direct_reports: data ?? []
+    });
+  }
+});
+
+// src/lib/mcp/tools/get-person.ts
+import { defineTool as defineTool8 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z3 } from "npm:zod@^4.4.3";
+var get_person_default = defineTool8({
+  name: "get_person",
+  title: "Get person",
+  description: "Look up a person by employee id, email, or name. Omit filters to return the signed-in user's employee record. Includes job title, org unit, manager, and active-cycle goal titles.",
+  inputSchema: {
+    employee_id: z3.string().uuid().optional().describe("Employee record id."),
+    email: z3.string().email().optional().describe("Employee email."),
+    name: z3.string().min(1).optional().describe("Partial name match (first or last).")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ employee_id, email, name }, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    let query = supabase.from("employees").select(EMPLOYEE_SELECT);
+    if (employee_id) {
+      query = query.eq("id", employee_id);
+    } else if (email) {
+      query = query.ilike("email", email);
+    } else if (name) {
+      query = query.or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%`);
+    } else {
+      const caller = await getCallerEmployee(supabase, ctx.getUserId());
+      if (!caller) return mcpError("No employee record linked to your profile.");
+      query = query.eq("id", caller.id);
+    }
+    const { data: people, error } = await query.limit(employee_id || email || !name ? 1 : 10);
+    if (error) return mcpError(error.message);
+    if (!people?.length) return mcpJson({ people: [], active_goals: [] });
+    const person = people.length === 1 ? people[0] : null;
+    const targetId = person?.id ?? people[0]?.id;
+    let activeGoals = [];
+    if (targetId) {
+      const { data: cycle } = await supabase.from("appraisal_cycles").select("id").eq("status", "active").maybeSingle();
+      if (cycle) {
+        const { data: participant } = await supabase.from("cycle_participants").select("id").eq("cycle_id", cycle.id).eq("employee_id", targetId).maybeSingle();
+        if (participant) {
+          const { data: goals } = await supabase.from("goals").select("title, weight").eq("participant_id", participant.id).order("created_at");
+          activeGoals = goals ?? [];
+        }
+      }
+    }
+    return mcpJson({
+      people,
+      active_goals: activeGoals
+    });
+  }
+});
+
+// src/lib/mcp/tools/get-active-cycle.ts
+import { defineTool as defineTool9 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var get_active_cycle_default = defineTool9({
+  name: "get_active_cycle",
+  title: "Get active appraisal cycle",
+  description: "Return the currently active appraisal cycle with window dates. Use this to answer when appraisals are due.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const { data, error } = await supabase.from("appraisal_cycles").select(
+      "id, name, status, goal_window_start, goal_window_end, interim_window_start, interim_window_end, final_window_start, final_window_end, acknowledgement_due, interim_weight_pct, final_weight_pct"
+    ).eq("status", "active").maybeSingle();
+    if (error) return mcpError(error.message);
+    return mcpJson({ cycle: data ?? null });
+  }
+});
+
+// src/lib/mcp/tools/get-my-goals.ts
+import { defineTool as defineTool10 } from "npm:@lovable.dev/mcp-js@0.20.0";
+
+// src/lib/mcp/participantTable.ts
+function participantTableForRole(role) {
+  return role === "employee" ? "cycle_participants_employee_read" : "cycle_participants";
+}
+
+// src/lib/mcp/tools/get-my-goals.ts
+var get_my_goals_default = defineTool10({
+  name: "get_my_goals",
+  title: "Get my goals",
+  description: "Return weighted goals for the signed-in user in the active appraisal cycle.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const caller = await getCallerEmployee(supabase, ctx.getUserId());
+    if (!caller) return mcpError("No employee record linked to your profile.");
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", ctx.getUserId()).single();
+    const participantTable = participantTableForRole(profile?.role);
+    const { data: cycle, error: cycleError } = await supabase.from("appraisal_cycles").select("id, name").eq("status", "active").maybeSingle();
+    if (cycleError) return mcpError(cycleError.message);
+    if (!cycle) return mcpJson({ cycle: null, goals: [], weight_sum: 0 });
+    const { data: participant, error: pError } = await supabase.from(participantTable).select("id").eq("cycle_id", cycle.id).eq("employee_id", caller.id).maybeSingle();
+    if (pError) return mcpError(pError.message);
+    if (!participant) return mcpJson({ cycle, goals: [], weight_sum: 0 });
+    const { data: goals, error: gError } = await supabase.from("goals").select("id, title, weight, created_at").eq("participant_id", participant.id).order("created_at");
+    if (gError) return mcpError(gError.message);
+    const weightSum = (goals ?? []).reduce((sum, g) => sum + (g.weight ?? 0), 0);
+    return mcpJson({ cycle, goals: goals ?? [], weight_sum: weightSum });
+  }
+});
+
+// src/lib/mcp/tools/get-team-goals.ts
+import { defineTool as defineTool11 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var get_team_goals_default = defineTool11({
+  name: "get_team_goals",
+  title: "Get team goals",
+  description: "Return goals for each direct report of the signed-in user in the active appraisal cycle. Requires a linked employee record and manager reporting line.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const caller = await getCallerEmployee(supabase, ctx.getUserId());
+    if (!caller) return mcpError("No employee record linked to your profile.");
+    const { data: cycle, error: cycleError } = await supabase.from("appraisal_cycles").select("id, name").eq("status", "active").maybeSingle();
+    if (cycleError) return mcpError(cycleError.message);
+    if (!cycle) return mcpJson({ cycle: null, team: [] });
+    const { data: participants, error: pError } = await supabase.from("cycle_participants").select(
+      "id, employee_id, employee:employees!cycle_participants_employee_id_fkey(id, first_name, last_name, job_title)"
+    ).eq("cycle_id", cycle.id).eq("manager_id", caller.id);
+    if (pError) return mcpError(pError.message);
+    const team = [];
+    for (const participant of participants ?? []) {
+      const { data: goals } = await supabase.from("goals").select("id, title, weight").eq("participant_id", participant.id).order("created_at");
+      const employee = participant.employee;
+      team.push({
+        employee_id: participant.employee_id,
+        employee_name: employee ? `${employee.first_name} ${employee.last_name}`.trim() : null,
+        job_title: employee?.job_title ?? null,
+        participant_id: participant.id,
+        goals: goals ?? [],
+        weight_sum: (goals ?? []).reduce((sum, g) => sum + (g.weight ?? 0), 0)
+      });
+    }
+    return mcpJson({ cycle, team });
+  }
+});
+
+// src/lib/mcp/tools/get-my-appraisal.ts
+import { defineTool as defineTool12 } from "npm:@lovable.dev/mcp-js@0.20.0";
+var get_my_appraisal_default = defineTool12({
+  name: "get_my_appraisal",
+  title: "Get my appraisal",
+  description: "Return the signed-in user's appraisal status and scores for the active cycle. Interim scores are hidden from employees until final submission.",
+  inputSchema: {},
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async (_input, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const caller = await getCallerEmployee(supabase, ctx.getUserId());
+    if (!caller) return mcpError("No employee record linked to your profile.");
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", ctx.getUserId()).single();
+    const participantTable = participantTableForRole(profile?.role);
+    const { data: cycle, error: cycleError } = await supabase.from("appraisal_cycles").select("id, name, status, acknowledgement_due").eq("status", "active").maybeSingle();
+    if (cycleError) return mcpError(cycleError.message);
+    if (!cycle) return mcpJson({ cycle: null, participant: null });
+    const { data: participant, error: pError } = await supabase.from(participantTable).select(
+      "id, interim_submitted_at, final_submitted_at, interim_score, final_score, overall_score, acknowledged_at"
+    ).eq("cycle_id", cycle.id).eq("employee_id", caller.id).maybeSingle();
+    if (pError) return mcpError(pError.message);
+    return mcpJson({ cycle, participant: participant ?? null });
+  }
+});
+
+// src/lib/mcp/tools/get-appraisal-history.ts
+import { defineTool as defineTool13 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z4 } from "npm:zod@^4.4.3";
+var get_appraisal_history_default = defineTool13({
+  name: "get_appraisal_history",
+  title: "Get appraisal history",
+  description: "Return completed-cycle appraisal records. Employees see their own history; managers see direct reports; HR sees org-wide history.",
+  inputSchema: {
+    employee_id: z4.string().uuid().optional().describe("Optional employee id. Defaults to the signed-in user. Managers/HR may query reports."),
+    limit: z4.number().int().min(1).max(20).optional().describe("Max cycles to return (default 10).")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ employee_id, limit = 10 }, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", ctx.getUserId()).single();
+    const participantTable = participantTableForRole(profile?.role);
+    let targetEmployeeId = employee_id;
+    if (!targetEmployeeId) {
+      const caller = await getCallerEmployee(supabase, ctx.getUserId());
+      if (!caller) return mcpError("No employee record linked to your profile.");
+      targetEmployeeId = caller.id;
+    } else if (profile?.role === "employee") {
+      const caller = await getCallerEmployee(supabase, ctx.getUserId());
+      if (!caller || caller.id !== targetEmployeeId) {
+        return mcpError("Employees may only view their own appraisal history.");
+      }
+    } else if (profile?.role === "manager" && employee_id) {
+      const { data: report } = await supabase.from("employees").select("id").eq("id", employee_id).eq("manager_id", (await getCallerEmployee(supabase, ctx.getUserId()))?.id ?? "").maybeSingle();
+      if (!report) return mcpError("Managers may only view appraisal history for direct reports.");
+    }
+    const { data: participants, error } = await supabase.from(participantTable).select(
+      `
+        id,
+        interim_submitted_at,
+        final_submitted_at,
+        interim_score,
+        final_score,
+        overall_score,
+        acknowledged_at,
+        cycle:appraisal_cycles!inner(id, name, status, closed_at)
+      `
+    ).eq("employee_id", targetEmployeeId).eq("cycle.status", "completed").limit(limit);
+    if (error) return mcpError(error.message);
+    const history = [...participants ?? []].sort((a, b) => {
+      const aClosed = a.cycle?.closed_at ?? "";
+      const bClosed = b.cycle?.closed_at ?? "";
+      return bClosed.localeCompare(aClosed);
+    });
+    return mcpJson({ employee_id: targetEmployeeId, history });
+  }
+});
+
+// src/lib/mcp/tools/get-pending-reviews.ts
+import { defineTool as defineTool14 } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { z as z5 } from "npm:zod@^4.4.3";
+var get_pending_reviews_default = defineTool14({
+  name: "get_pending_reviews",
+  title: "Get pending reviews",
+  description: "Return outstanding and overdue appraisal tasks scoped to the caller's permissions. HR sees org-wide data including department aggregates; managers see their team; employees see their own tasks.",
+  inputSchema: {
+    cycle_id: z5.string().uuid().optional().describe("Optional cycle id. Defaults to the active cycle.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ cycle_id }, ctx) => {
+    const supabase = createMcpSupabase(ctx);
+    if (!supabase) return mcpError("Not authenticated");
+    const { data, error } = await supabase.rpc("mcp_get_pending_reviews", {
+      p_cycle_id: cycle_id ?? null
+    });
+    if (error) return mcpError(error.message);
+    if (!data) return mcpError("Unable to load pending reviews");
+    return mcpJson(data);
   }
 });
 
@@ -134,14 +464,36 @@ var list_employees_default = defineTool4({
 var projectRef = "jntmckvvulntmywwzmen";
 var mcp_default = defineMcp({
   name: "sia-mcp",
-  title: "SIA \u2014 Smart Performance Management",
-  version: "0.1.0",
-  instructions: "Tools for SIA, a multi-tenant HR performance management platform. Use `whoami` to see the signed-in user, `list_unit_types` to see hierarchy levels, `list_org_units` to explore the org structure, and `list_employees` to find people in the organization. All reads are scoped to the signed-in user's organization.",
+  title: "Sia \u2014 Organizational intelligence",
+  version: "0.2.0",
+  instructions: `Sia structures your organization so AI can understand it. These read-only tools expose people, org structure, goals, and appraisals scoped to the authenticated user's permissions (RLS).
+
+Start with \`whoami\` to see identity and linked employee record.
+Org structure: \`get_org_chart\`, \`list_org_units\`, \`list_unit_types\`, \`list_people\`, \`get_direct_reports\`, \`get_person\`.
+Appraisals: \`get_active_cycle\`, \`get_my_goals\`, \`get_team_goals\`, \`get_my_appraisal\`, \`get_appraisal_history\`, \`get_pending_reviews\`.
+Signed-in app users: \`list_profiles\`.
+
+ChatGPT asks; Sia decides what the user may see. No write tools.`,
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
   }),
-  tools: [whoami_default, list_org_units_default, list_unit_types_default, list_employees_default]
+  tools: [
+    whoami_default,
+    get_org_chart_default,
+    list_org_units_default,
+    list_unit_types_default,
+    list_people_default,
+    list_profiles_default,
+    get_direct_reports_default,
+    get_person_default,
+    get_active_cycle_default,
+    get_my_goals_default,
+    get_team_goals_default,
+    get_my_appraisal_default,
+    get_appraisal_history_default,
+    get_pending_reviews_default
+  ]
 });
 
 // lovable-mcp-supabase-entry.ts

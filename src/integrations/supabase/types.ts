@@ -773,6 +773,11 @@ export type Database = {
       current_user_role: { Args: never; Returns: string }
       custom_jwt_claims: { Args: { event: Json }; Returns: Json }
       cycle_close_readiness: { Args: { p_cycle_id: string }; Returns: Json }
+      mcp_get_org_chart: { Args: never; Returns: Json }
+      mcp_get_pending_reviews: {
+        Args: { p_cycle_id?: string | null }
+        Returns: Json
+      }
       cycle_nudge_history: {
         Args: { p_cycle_id: string }
         Returns: {
