@@ -6,7 +6,8 @@ verification. This list does not replace the interface-design todo in
 
 ## Phase 0: Live verification
 - [ ] Task 0 — Confirm JWT hook, `pg_policies`, grants, appraisal migration pair, `launch_appraisal_cycle` on Lovable Cloud
-- [ ] Lock product decisions: ack after due date; window edits after launch; weight-sum timing; employee `interim_score` visibility
+- [x] Lock window-edit decision: freeze cycle windows after launch (approved 29 Aug 2026)
+- [ ] Lock remaining product decisions: ack after due date; weight-sum timing; employee `interim_score` visibility
 
 ## Phase 1: Org-structure privilege holes (`fix/arch-phase-1-org-rls`)
 - [x] Task 1 — Drop via_profile FOR ALL; add org to HR WITH CHECK (`20260818010000`)
@@ -21,7 +22,7 @@ verification. This list does not replace the interface-design todo in
 - [x] Checkpoint B — Phase 2 live on Lovable Cloud; foreign-org participants and duplicate active cycles rejected (verified 29 Aug 2026)
 
 ## Phase 3: Cycle write guards (`fix/arch-phase-3-cycle-guards`)
-- [ ] Task 7 — `guard_cycle_writes` status machine
+- [x] Task 7 — `guard_cycle_writes` status machine (`20260829040000`)
 - [ ] Checkpoint C — cannot INSERT `status=active`; approval
 
 ## Phase 4: Appraisal workflow contracts (`fix/arch-phase-4-appraisal-contracts`)
