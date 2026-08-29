@@ -717,6 +717,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_org_structure: {
+        Args: { p_levels: Json; p_units: Json }
+        Returns: undefined
+      }
       current_user_employee_id: { Args: never; Returns: string }
       current_user_org_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
