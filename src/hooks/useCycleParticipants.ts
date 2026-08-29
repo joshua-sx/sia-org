@@ -47,7 +47,7 @@ export function useCycleParticipants(cycleId: string | null | undefined) {
     queryFn: async () => {
       if (profile?.role === "employee") {
         const { data, error } = await supabase
-          .from("cycle_participants_employee_read")
+          .from("cycle_participants_employee_read" as "cycle_participants")
           .select(PARTICIPANT_SELECT)
           .eq("cycle_id", cycleId!)
           .order("created_at", { ascending: true });
