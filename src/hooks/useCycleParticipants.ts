@@ -40,12 +40,21 @@ const PARTICIPANT_SELECT = `*,
  * extra reviewers the rows they're attached to.
  */
 export function useCycleParticipants(cycleId: string | null | undefined) {
-  const { organization } = useAuth();
+  const { organization, profile } = useAuth();
   const qc = useQueryClient();
-
   const query = useQuery({
-    queryKey: ["cycle_participants", cycleId],
+    queryKey: ["cycle_participants", cycleId, profile?.role === "employee" ? "employee_read" : "full"],
     queryFn: async () => {
+      if (profile?.role === "employee") {
+        const { data, error } = await supabase
+          .from("cycle_participants_employee_read")
+          .select(PARTICIPANT_SELECT)
+          .eq("cycle_id", cycleId!)
+          .order("created_at", { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as unknown as CycleParticipant[];
+      }
+
       const { data, error } = await supabase
         .from("cycle_participants")
         .select(PARTICIPANT_SELECT)

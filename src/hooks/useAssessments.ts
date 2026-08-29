@@ -23,7 +23,7 @@ export function useAssessments(participantId: string | null | undefined, goalIds
   const qc = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["goal_ratings", participantId],
+    queryKey: ["goal_ratings", participantId, goalIds],
     queryFn: async () => {
       if (goalIds.length === 0) return [] as GoalRating[];
       const { data, error } = await supabase
@@ -37,7 +37,7 @@ export function useAssessments(participantId: string | null | undefined, goalIds
   });
 
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ["goal_ratings", participantId] });
+    qc.invalidateQueries({ queryKey: ["goal_ratings", participantId, goalIds] });
     qc.invalidateQueries({ queryKey: ["cycle_participants"] });
   };
 

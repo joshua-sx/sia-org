@@ -5,7 +5,7 @@ import MyReview from "@/pages/MyReview";
 
 vi.mock("@/hooks/useAppraisalCycles", () => ({
   useAppraisalCycles: () => ({
-    activeCycle: { id: "c1", status: "active" },
+    activeCycle: { id: "c1", status: "active", acknowledgement_due: "2999-04-01" },
     isLoading: false,
     isError: false,
     error: null,

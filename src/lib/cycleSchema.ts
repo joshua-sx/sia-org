@@ -211,13 +211,21 @@ export function formatWindow(start: string, end: string): string {
 
 
 /**
- * Whether the employee may acknowledge their review right now. Mirrors the
- * guard_participant_writes trigger (20260705121000_appraisal_policies_rpc.sql):
- * requires an overall score, no prior acknowledgement, and an active cycle.
+ * Whether the employee may acknowledge their review right now. Mirrors
+ * guard_participant_writes: requires an overall score, no prior acknowledgement,
+ * an active cycle, and on or before acknowledgement_due.
  */
-export function canAcknowledge(participant: {
-  overall_score: number | null;
-  acknowledged_at: string | null;
-}): boolean {
-  return participant.overall_score != null && participant.acknowledged_at == null;
+export function canAcknowledge(
+  participant: {
+    overall_score: number | null;
+    acknowledged_at: string | null;
+  },
+  cycle?: Pick<AppraisalCycle, "status" | "acknowledgement_due">,
+  today = todayISO(),
+): boolean {
+  if (participant.overall_score == null || participant.acknowledged_at != null) {
+    return false;
+  }
+  if (!cycle || cycle.status !== "active") return false;
+  return today <= cycle.acknowledgement_due;
 }

@@ -31,38 +31,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
-  // Guard against infinite refresh loops when the JWT hook is disabled at the platform level.
+  const [profileError, setProfileError] = useState<string | null>(null);
   const refreshedForUserRef = useRef<string | null>(null);
 
-  const fetchProfileAndOrg = async (userId: string): Promise<Profile | null> => {
-    const { data: profileData } = await supabase
+  const fetchProfileAndOrg = useCallback(async (userId: string): Promise<Profile | null> => {
+    const { data: profileData, error: profileFetchError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
 
-    if (profileData) {
-      setProfile(profileData);
-      const { data: orgData } = await supabase
-        .from("organizations")
-        .select(ORG_COLUMNS)
-        .eq("id", profileData.organization_id)
-        .single();
-      if (orgData) setOrganization(orgData as Organization);
+    if (profileFetchError) {
+      setProfile(null);
+      setOrganization(null);
+      setProfileError(profileFetchError.message);
+      return null;
+    }
+
+    if (!profileData) {
+      setProfile(null);
+      setOrganization(null);
+      setProfileError(null);
+      return null;
+    }
+
+    setProfile(profileData);
+    const { data: orgData, error: orgFetchError } = await supabase
+      .from("organizations")
+      .select(ORG_COLUMNS)
+      .eq("id", profileData.organization_id)
+      .single();
+
+    if (orgFetchError) {
+      setOrganization(null);
+      setProfileError(orgFetchError.message);
       return profileData as Profile;
     }
-    return null;
-  };
+
+    if (orgData) setOrganization(orgData as Organization);
+    setProfileError(null);
+    return profileData as Profile;
+  }, []);
 
   const refreshOrganization = useCallback(async () => {
     if (!profile) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("organizations")
       .select(ORG_COLUMNS)
       .eq("id", profile.organization_id)
       .single();
-    if (data) setOrganization(data as Organization);
+    if (error) {
+      setProfileError(error.message);
+      return;
+    }
+    if (data) {
+      setOrganization(data as Organization);
+      setProfileError(null);
+    }
   }, [profile]);
+
+  const refreshProfile = useCallback(async () => {
+    if (!session?.user) return;
+    setLoading(true);
+    await fetchProfileAndOrg(session.user.id);
+    setLoading(false);
+  }, [fetchProfileAndOrg, session?.user]);
 
   useEffect(() => {
     const loadForSession = async (session: Session | null) => {
@@ -79,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setOrganization(null);
+        setProfileError(null);
         refreshedForUserRef.current = null;
       }
     };
@@ -86,9 +120,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
-        // Await profile load before clearing loading so ProtectedRoute
-        // doesn't render with session truthy + profile null and bounce
-        // deep-link users to /complete-signup.
         loadForSession(session).finally(() => setLoading(false));
       }
     );
@@ -100,13 +131,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfileAndOrg]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
     setOrganization(null);
+    setProfileError(null);
     refreshedForUserRef.current = null;
   };
 
@@ -118,8 +150,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         organization,
         loading,
+        profileError,
         signOut,
         refreshOrganization,
+        refreshProfile,
       }}
     >
       {children}

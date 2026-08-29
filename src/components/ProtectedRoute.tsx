@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { QueryError } from "@/components/QueryState";
 
 function RouteLoadingScreen() {
   return (
@@ -18,13 +19,22 @@ function RouteLoadingScreen() {
 }
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, profile, loading } = useAuth();
+  const { session, profile, loading, profileError, refreshProfile } = useAuth();
 
   if (loading) {
     return <RouteLoadingScreen />;
   }
 
   if (!session) return <Navigate to="/login" replace />;
+  if (profileError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+        <div className="w-full max-w-md">
+          <QueryError message={profileError} onRetry={() => void refreshProfile()} />
+        </div>
+      </div>
+    );
+  }
   if (!profile) return <Navigate to="/onboarding/setup" replace />;
   return <>{children}</>;
 };

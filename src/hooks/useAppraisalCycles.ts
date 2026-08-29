@@ -20,6 +20,8 @@ export interface AppraisalCycle {
   closed_at: string | null;
   closed_by: string | null;
   close_note: string | null;
+  interim_weight_pct: number | null;
+  final_weight_pct: number | null;
 }
 
 export function useAppraisalCycles() {
@@ -96,10 +98,10 @@ export function useAppraisalCycles() {
       participants: Array<{ employee_id: string; manager_id: string }>;
     }) => {
       if (participants.length === 0) throw new Error("No participants to launch with");
-      const { data, error } = await supabase.rpc("launch_appraisal_cycle" as never, {
+      const { data, error } = await supabase.rpc("launch_appraisal_cycle", {
         p_cycle_id: cycleId,
         p_participants: participants,
-      } as never);
+      });
       if (error) throw error;
       return data as AppraisalCycle;
     },

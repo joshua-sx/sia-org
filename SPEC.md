@@ -1,7 +1,10 @@
 # Spec: Performance Appraisal Cycles
 
 > Product positioning, roles, and shipped-vs-not: **[`PRODUCT.md`](PRODUCT.md)** (source of truth).
-> This file is the cycle **feature** spec. Schema sketches below have drifted — live columns live in `supabase/migrations/` (e.g. `goals.participant_id`, `goals.weight`, not `cycle_participant_id` / `weight_pct`).
+> This file is the cycle **feature** spec. Schema sketches below are illustrative;
+> **live columns and policies** are in `supabase/migrations/` — e.g.
+> `goals.participant_id`, `goals.weight`, `appraisal_cycles.goal_window_start`,
+> `appraisal_cycles.interim_weight_pct` / `final_weight_pct` (snapshotted at launch).
 
 ## Objective
 
@@ -75,14 +78,16 @@ ALTER TABLE organizations
 CREATE TABLE appraisal_cycles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,                          -- e.g. "2026 Annual Review"
-  goal_setting_start DATE NOT NULL,
-  goal_setting_due DATE NOT NULL,
-  interim_start DATE NOT NULL,
-  interim_due DATE NOT NULL,
-  final_start DATE NOT NULL,
-  final_due DATE NOT NULL,
+  name TEXT NOT NULL,
+  goal_window_start DATE NOT NULL,
+  goal_window_end DATE NOT NULL,
+  interim_window_start DATE NOT NULL,
+  interim_window_end DATE NOT NULL,
+  final_window_start DATE NOT NULL,
+  final_window_end DATE NOT NULL,
   acknowledgement_due DATE NOT NULL,
+  interim_weight_pct INTEGER,  -- copied from organizations at launch
+  final_weight_pct INTEGER,    -- copied from organizations at launch
   status TEXT NOT NULL DEFAULT 'draft'
     CHECK (status IN ('draft', 'active', 'completed')),
   created_at TIMESTAMPTZ DEFAULT now()
@@ -105,13 +110,12 @@ CREATE TABLE cycle_participants (
 
 CREATE TABLE goals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  cycle_participant_id UUID NOT NULL REFERENCES cycle_participants(id) ON DELETE CASCADE,
+  participant_id UUID NOT NULL REFERENCES cycle_participants(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
-  weight_pct SMALLINT NOT NULL CHECK (weight_pct BETWEEN 1 AND 100),
+  weight INTEGER NOT NULL CHECK (weight BETWEEN 1 AND 100),
   created_at TIMESTAMPTZ DEFAULT now()
-  -- app-layer + trigger enforce: SUM(weight_pct) per cycle_participant_id = 100
-  -- before goal-setting window closes
+  -- submit_assessment_stage enforces SUM(weight) = 100 per participant_id
 );
 
 CREATE TABLE goal_ratings (
@@ -138,7 +142,7 @@ CREATE POLICY manager_writes_ratings ON goal_ratings
   USING (
     goal_id IN (
       SELECT g.id FROM goals g
-      JOIN cycle_participants cp ON cp.id = g.cycle_participant_id
+      JOIN cycle_participants cp ON cp.id = g.participant_id
       WHERE cp.manager_id = (SELECT id FROM employees WHERE profile_id = (SELECT auth.uid()))
     )
   )
