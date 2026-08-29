@@ -28,6 +28,8 @@ export type Database = {
           id: string
           interim_window_end: string
           interim_window_start: string
+          interim_weight_pct: number | null
+          final_weight_pct: number | null
           name: string
           organization_id: string
           status: string
@@ -46,6 +48,8 @@ export type Database = {
           id?: string
           interim_window_end: string
           interim_window_start: string
+          interim_weight_pct?: number | null
+          final_weight_pct?: number | null
           name: string
           organization_id: string
           status?: string
@@ -64,6 +68,8 @@ export type Database = {
           id?: string
           interim_window_end?: string
           interim_window_start?: string
+          interim_weight_pct?: number | null
+          final_weight_pct?: number | null
           name?: string
           organization_id?: string
           status?: string
@@ -682,7 +688,46 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      cycle_participants_employee_read: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          cycle_id: string
+          employee_id: string
+          extra_reviewer_id: string | null
+          final_score: number | null
+          final_submitted_at: string | null
+          id: string
+          interim_score: number | null
+          interim_submitted_at: string | null
+          manager_id: string
+          overall_score: number | null
+          updated_at: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_participants_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_extra_reviewer_id_fkey"
+            columns: ["extra_reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participants_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _seed_submit_and_ack: {
@@ -705,6 +750,8 @@ export type Database = {
           id: string
           interim_window_end: string
           interim_window_start: string
+          interim_weight_pct: number | null
+          final_weight_pct: number | null
           name: string
           organization_id: string
           status: string
@@ -764,6 +811,8 @@ export type Database = {
           id: string
           interim_window_end: string
           interim_window_start: string
+          interim_weight_pct: number | null
+          final_weight_pct: number | null
           name: string
           organization_id: string
           status: string

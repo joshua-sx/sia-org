@@ -126,15 +126,24 @@ do not “fix” them by changing product behavior to match the ads.
 
 ## Open product decisions
 
-These are unresolved on purpose. Do not implement a side without updating this
-file:
+- Per-cycle override of org interim/final weights vs org-wide only — **locked
+  29 Aug 2026:** org weights are **snapshotted onto the cycle at launch**;
+  changing org settings mid-cycle does not affect in-flight cycles.
 
-- Per-cycle override of org interim/final weights vs org-wide only.
-- Whether employees may acknowledge after `acknowledgement_due`.
-- Whether `interim_score` is hidden from employees until final submit (SPEC)
-  or only hidden in the UI.
+See `tasks/architecture-plan.md` for engineering detail.
 
-See `tasks/architecture-plan.md` for the engineering defaults if nobody answers.
+## Locked product decisions (29 Aug 2026)
+
+- **Ack after `acknowledgement_due`:** block. Employees may acknowledge only
+  while the cycle is `active` and on or before `acknowledgement_due`.
+- **Goal weights during the goal window:** allow sum ≠ 100 until submit
+  (unchanged). Submit still requires exactly 100%.
+- **Employee visibility of `interim_score`:** hide at the database until
+  `final_submitted_at` (employees read via a masked view; managers and HR
+  see full scores on the base table).
+- **Terminated participants:** freeze goal, rating, and assessment-submit
+  writes when the participant's employee record is `terminated`. `on_leave`
+  is treated like `active`.
 
 ## Locked product decisions
 

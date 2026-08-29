@@ -52,6 +52,8 @@ const cycle: AppraisalCycle = {
   closed_at: null,
   closed_by: null,
   close_note: null,
+  interim_weight_pct: 30,
+  final_weight_pct: 70,
 };
 
 const goals = [

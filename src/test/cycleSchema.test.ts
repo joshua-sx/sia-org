@@ -136,17 +136,39 @@ describe("formatDate", () => {
 });
 
 describe("canAcknowledge", () => {
+  const activeCycle = {
+    status: "active" as const,
+    acknowledgement_due: "2026-12-15",
+  };
+
   it("is false before the overall score exists", () => {
-    expect(canAcknowledge({ overall_score: null, acknowledged_at: null })).toBe(false);
+    expect(canAcknowledge({ overall_score: null, acknowledged_at: null }, activeCycle)).toBe(
+      false,
+    );
   });
 
   it("is true once scored and not yet acknowledged", () => {
-    expect(canAcknowledge({ overall_score: 4.2, acknowledged_at: null })).toBe(true);
+    expect(canAcknowledge({ overall_score: 4.2, acknowledged_at: null }, activeCycle)).toBe(
+      true,
+    );
   });
 
   it("is false once already acknowledged (cannot re-acknowledge)", () => {
     expect(
-      canAcknowledge({ overall_score: 4.2, acknowledged_at: "2026-07-01T00:00:00Z" }),
+      canAcknowledge(
+        { overall_score: 4.2, acknowledged_at: "2026-07-01T00:00:00Z" },
+        activeCycle,
+      ),
+    ).toBe(false);
+  });
+
+  it("is false after acknowledgement_due", () => {
+    expect(
+      canAcknowledge(
+        { overall_score: 4.2, acknowledged_at: null },
+        activeCycle,
+        "2026-12-16",
+      ),
     ).toBe(false);
   });
 });

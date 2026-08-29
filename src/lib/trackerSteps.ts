@@ -119,7 +119,10 @@ export function participantTrackerSteps(
     "interim_submitted_at" | "final_submitted_at" | "acknowledged_at" | "overall_score"
   >,
   goalWeightSum: number,
-  opts: { acknowledgeAction?: TrackerStep["action"] } = {},
+  opts: {
+    acknowledgeAction?: TrackerStep["action"];
+    cycle?: Pick<AppraisalCycle, "status" | "acknowledgement_due">;
+  } = {},
 ): TrackerStep[] {
   return sequentialize([
     {
@@ -134,7 +137,7 @@ export function participantTrackerSteps(
       id: "acknowledgement",
       label: "Acknowledgement",
       done: !!participant.acknowledged_at,
-      action: canAcknowledge(participant) ? opts.acknowledgeAction : undefined,
+      action: canAcknowledge(participant, opts.cycle) ? opts.acknowledgeAction : undefined,
     },
   ]);
 }
