@@ -23,12 +23,19 @@ export function useEmployees() {
     queryKey: ["employees", organization?.id, directoryOnly ? "directory" : "full"],
     queryFn: async () => {
       if (!organization) return [] as Employee[];
+      if (!directoryOnly) {
+        const { data, error } = await supabase
+          .from("employees")
+          .select("*")
+          .order("last_name", { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as Employee[];
+      }
       const { data, error } = await supabase
-        .from(directoryOnly ? "employee_directory" : "employees")
+        .from("employee_directory")
         .select("*")
         .order("last_name", { ascending: true });
       if (error) throw error;
-      if (!directoryOnly) return (data ?? []) as Employee[];
       return (data ?? []).map((row) => ({
         employee_code: null,
         start_date: null,
@@ -39,6 +46,7 @@ export function useEmployees() {
         ...row,
       })) as Employee[];
     },
+
     enabled: !!organization,
   });
 
