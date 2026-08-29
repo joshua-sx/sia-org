@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ONBOARDING_STEPS,
   type OnboardingStepKey,
@@ -44,31 +43,23 @@ export function OnboardingActionFooter({
   );
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2.5 border-t border-hairline py-5">
-      {backHref && (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => navigate(backHref)}
-          className="h-10 min-w-[96px] transition-transform duration-150 active:scale-[0.96]"
-        >
-          {backLabel}
-        </Button>
+    <div className="sticky bottom-0 z-20 -mx-5 mt-8 border-t border-hairline bg-surface/95 px-5 py-4 backdrop-blur md:-mx-10 md:px-10">
+      {primaryDisabled && disabledReason && (
+        <p className="mb-3 text-center text-xs text-ink-muted">{disabledReason}</p>
       )}
-      {primaryDisabled && disabledReason ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span tabIndex={0} className="inline-flex rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {primary}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs">
-            {disabledReason}
-          </TooltipContent>
-        </Tooltip>
-      ) : (
-        primary
-      )}
+      <div className="flex items-center justify-center gap-2.5">
+        {backHref && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(backHref)}
+            className="h-10 min-w-[96px] transition-transform duration-150 active:scale-[0.96]"
+          >
+            {backLabel}
+          </Button>
+        )}
+        {primary}
+      </div>
     </div>
   );
 }

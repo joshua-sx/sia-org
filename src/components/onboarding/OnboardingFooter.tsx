@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { playSetupCompleteCue, playSuccessCue } from "@/lib/completionSounds";
+import { friendlyError } from "@/lib/siaErrors";
 import { useOnboardingContext } from "./OnboardingContext";
 import { OnboardingNavFooter } from "./OnboardingNavFooter";
 
@@ -33,6 +35,7 @@ export function OnboardingFooter() {
       navigate(next.href);
       return;
     }
+    playSetupCompleteCue();
     await finishSetup();
   };
 
@@ -44,22 +47,24 @@ export function OnboardingFooter() {
           return;
         }
         await markComplete(activeStep);
-        if (!isLast) toast.success(`${step.label} step complete.`);
+        if (!isLast) playSuccessCue();
       }
       await advance();
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : "Could not complete step";
-      toast.error(message);
+      toast.error(friendlyError(e, "Could not complete step"));
     }
   };
+
+  const continueLabel = isLast ? "Finish setup" : `Continue to ${next.label}`;
 
   return (
     <OnboardingNavFooter
       onBack={() => previous?.href && navigate(previous.href)}
-      onContinue={handleContinue}
+      onContinue={() => void handleContinue()}
       canGoBack={!!previous?.href}
       continueDisabled={!isAlreadyDone && (!r.ready || saving)}
-      continueLabel={isLast ? "Finish setup" : "Continue"}
+      continueLabel={continueLabel}
+      hint={isAlreadyDone ? undefined : r.hint}
     />
   );
 }

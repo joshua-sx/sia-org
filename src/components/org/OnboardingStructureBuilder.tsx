@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Circle, Eye, EyeOff, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { OnboardingActionFooter } from "@/components/onboarding/OnboardingStepFrame";
+import { useOnboardingContext } from "@/components/onboarding/OnboardingContext";
 import TemplateSelector from "./TemplateSelector";
 import CustomLevelBuilder from "./CustomLevelBuilder";
 import AccordionBuilder, { UnitNode } from "./AccordionBuilder";
@@ -52,6 +53,7 @@ interface Props {
 /** Structure step for onboarding: one screen, progressive disclosure, no
  *  nested numbered wizard. */
 export default function OnboardingStructureBuilder({ industry, onComplete }: Props) {
+  const { setFooterSuppressed } = useOnboardingContext();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [customLevels, setCustomLevels] = useState<string[]>([]);
   const [units, setUnits] = useState<UnitNode[]>([]);
@@ -68,6 +70,11 @@ export default function OnboardingStructureBuilder({ industry, onComplete }: Pro
   const structureChosen = levels.length >= 1;
   const hasUnits = units.length > 0;
   const canContinue = structureChosen && hasUnits;
+
+  useEffect(() => {
+    setFooterSuppressed(true);
+    return () => setFooterSuppressed(false);
+  }, [setFooterSuppressed]);
 
   const save = async () => {
     if (!canContinue) return;

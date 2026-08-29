@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import OnboardingSkipControl from "@/components/onboarding/OnboardingSkipControl";
+import OnboardingFooter from "@/components/onboarding/OnboardingFooter";
 import NotificationBell from "@/components/NotificationBell";
 
 interface AppLayoutProps {
@@ -20,8 +21,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
             Skip to main content
           </a>
           <AppSidebar />
-          <div className="flex-1 flex flex-col min-w-0">
-            <header className="sticky top-0 z-50 h-12 flex items-center gap-3 border-b border-hairline bg-surface/80 backdrop-blur px-4 shrink-0">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center gap-3 border-b border-hairline bg-surface/80 px-4 backdrop-blur">
               <SidebarTrigger className="text-ink-subtle hover:text-foreground" />
               <div className="ml-auto flex items-center gap-4 text-xs text-ink-muted">
                 <OnboardingSkipControl />
@@ -32,9 +33,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </div>
               </div>
             </header>
-            <main id="main-content" className="flex-1 flex flex-col">
+            <main id="main-content" className="flex min-h-0 flex-1 flex-col overflow-auto">
               <div className="flex-1">{children}</div>
             </main>
+            <OnboardingFooter />
           </div>
         </div>
       </OnboardingProvider>

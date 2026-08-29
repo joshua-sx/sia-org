@@ -20,7 +20,6 @@ import CsvImportModal from "@/components/org/CsvImportModal";
 import EditLevelsModal from "@/components/org/EditLevelsModal";
 import { PageHead } from "@/components/PageHead";
 import { QueryError, QueryLoading } from "@/components/QueryState";
-import { playSuccessCue } from "@/lib/completionSounds";
 import { friendlyError } from "@/lib/siaErrors";
 
 const OrgStructure = () => {
@@ -265,18 +264,7 @@ const OrgStructure = () => {
           title="Build your organization"
           subtitle="Choose a structure, then add the teams and departments your people belong to."
           primaryLabel="Continue"
-          primaryDisabled={units.length === 0}
-          disabledReason="Add at least one organization unit to continue."
-          onPrimary={async () => {
-            try {
-              await markComplete("structure");
-            } catch (err) {
-              toast.error(friendlyError(err, "Could not save this step"));
-              return;
-            }
-            playSuccessCue();
-            navigate("/org/employees");
-          }}
+          hideFooter
         >
           {pageInner}
         </OnboardingStepFrame>
