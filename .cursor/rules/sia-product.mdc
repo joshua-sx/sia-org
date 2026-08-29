@@ -1,5 +1,5 @@
 ---
-description: SIA product truth for agents — roles, shipped vs marketing
+description: SIA product truth for agents — roles, shipped vs marketing, MCP north star
 alwaysApply: true
 ---
 
@@ -7,9 +7,10 @@ alwaysApply: true
 
 Canonical brief: `PRODUCT.md`. It wins over README, SPEC sketches, and landing copy.
 
-- **SIA** = multi-tenant performance appraisals for hierarchical orgs. Tagline “Smart Performance Management”. Do not invent another acronym expansion.
-- **Sia AI** is marketing preview only, not in the signed-in app.
+- **Sia** = organizational intelligence platform (“Your organization, AI-ready”). Layer 1 = multi-tenant performance appraisals. Do not invent an acronym expansion.
+- **Ask Sia** = read-only MCP + OAuth for external AI (ChatGPT, etc.). Not an in-app chatbot.
 - **Roles:** `hr_admin`, `manager`, `employee` on `profiles`. Extra reviewer is a cycle assignment (comments only).
 - **Employees do not self-review or rate.** Managers rate direct reports. No peer ratings.
-- **Do not claim as shipped:** 360° (self/peer), OKR cascade, analytics suite, SSO, email notifications.
+- **Do not claim as shipped:** ChatGPT connector (until Phase 1 MCP complete), 360° (self/peer), OKR cascade, analytics suite, SSO, email notifications, in-app AI chat.
+- **AI-ready by design:** model relationships (employee → unit, manager, goals, appraisals), not flat strings.
 - Schema: `supabase/migrations/`, not the SQL blocks in `SPEC.md`.
