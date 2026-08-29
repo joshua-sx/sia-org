@@ -103,9 +103,11 @@ Use this table in demos and copy. **Do not sell the right column as live.**
 | Notifications | None | Email/in-app nudges for overdue reviews |
 
 Landing, pricing, and blog copy were trued up to the **Shipped** column on
-29 Aug 2026 (SSO on the Business plan is explicitly labeled coming soon). If
-new marketing copy drifts back toward the right column, correct the copy;
-do not “fix” it by changing product behavior to match the ads.
+29 Aug 2026 (SSO on the Business plan is explicitly labeled coming soon). Note
+the pricing section component exists but is not currently rendered on the
+landing page; publishing pricing is an open go-to-market call. If new
+marketing copy drifts back toward the right column, correct the copy; do not
+“fix” it by changing product behavior to match the ads.
 
 ## How to talk about it
 
