@@ -38,8 +38,8 @@ do not answer:
 
 1. **Ack after `acknowledgement_due`:** block (default) vs allow while cycle is
    active.
-2. **HR editing windows on an `active` cycle:** freeze after launch (default)
-   vs allow (SPEC said “ask first”).
+2. **HR editing windows on an `active` cycle:** **freeze after launch**
+   (approved 29 Aug 2026).
 3. **Goal weights during the goal window:** allow sum ≠ 100 until submit
    (current, keep) vs reject when the window closes.
 4. **Employee API visibility of `interim_score`:** hide until

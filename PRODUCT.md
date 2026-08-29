@@ -131,11 +131,15 @@ file:
 
 - Per-cycle override of org interim/final weights vs org-wide only.
 - Whether employees may acknowledge after `acknowledgement_due`.
-- Whether HR may edit windows after launch.
 - Whether `interim_score` is hidden from employees until final submit (SPEC)
   or only hidden in the UI.
 
 See `tasks/architecture-plan.md` for the engineering defaults if nobody answers.
+
+## Locked product decisions
+
+- Cycle windows are frozen after launch. HR may edit dates while a cycle is a
+  draft, but an active or completed cycle keeps its original timeline.
 
 ## Where other docs sit
 
