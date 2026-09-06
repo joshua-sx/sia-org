@@ -22,15 +22,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </a>
           <AppSidebar />
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-3 border-b border-hairline bg-surface/80 px-4 backdrop-blur">
-              <SidebarTrigger className="text-ink-subtle hover:text-foreground" />
-              <div className="ms-auto flex items-center gap-4 text-xs text-ink-muted">
+            <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-3 border-b border-hairline bg-surface-raised/90 px-4 backdrop-blur">
+              <SidebarTrigger className="size-10 rounded-lg text-ink-subtle hover:bg-ink-strong/[0.05] hover:text-foreground" />
+              <div className="ms-auto flex items-center gap-2 text-xs text-ink-muted">
                 <OnboardingSkipControl />
                 <NotificationBell />
-                <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent-green" />
-                  <span>Live</span>
-                </div>
               </div>
             </header>
             <main id="main-content" className="flex min-h-0 flex-1 flex-col overflow-auto">

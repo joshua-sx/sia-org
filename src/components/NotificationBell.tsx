@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, CheckCheck } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -26,20 +27,24 @@ function relativeTime(iso: string): string {
 export function NotificationBell() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const navigate = useNavigate();
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const { notifications, unreadCount, markRead, markAllRead, isLoading } = useNotifications();
 
   const open = (n: AppNotification) => {
     if (!n.read_at) markRead([n.id]);
-    if (n.link) navigate(n.link);
+    if (n.link) {
+      setPopoverOpen(false);
+      navigate(n.link);
+    }
   };
 
   return (
-    <Popover>
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label={unreadCount > 0 ? `Reminders, ${unreadCount} unread` : "Reminders"}
-          className="relative flex h-7 w-7 items-center justify-center rounded-md text-ink-subtle transition-colors hover:bg-hairline/[0.5] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+          className="relative flex size-10 items-center justify-center rounded-lg text-ink-subtle transition-colors hover:bg-ink-strong/[0.05] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Bell className="h-4 w-4" />
           <AnimatePresence initial={false}>
@@ -68,9 +73,9 @@ export function NotificationBell() {
           </AnimatePresence>
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-[min(22rem,calc(100vw-2rem))] p-0">
         <div className="flex items-center justify-between border-b border-hairline px-3 py-2">
-          <p className="text-xs font-semibold text-foreground">Reminders</p>
+          <p className="text-sm font-semibold text-foreground">Notifications</p>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -89,7 +94,7 @@ export function NotificationBell() {
           <div className="px-3 py-8 text-center">
             <p className="text-xs font-medium text-foreground">You're all caught up</p>
             <p className="mt-1 text-[11px] text-ink-subtle">
-              Reminders about late appraisal tasks show up here.
+              Review reminders and updates appear here.
             </p>
           </div>
         ) : (
