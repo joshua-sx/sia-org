@@ -25,17 +25,21 @@ import CompleteSignup from "./pages/CompleteSignup";
 import OnboardingSetup from "./pages/OnboardingSetup";
 import BlogPerformanceManagementExamples from "./pages/BlogPerformanceManagementExamples";
 import DashboardPreview from "./pages/dev/DashboardPreview";
+import SidebarSystemPreview from "./pages/dev/SidebarSystemPreview";
 
 const queryClient = new QueryClient();
 const devRoutes = import.meta.env.DEV ? (
-  <Route path="/dev/dashboard-preview" element={<DashboardPreview />} />
+  <>
+    <Route path="/dev/dashboard-preview" element={<DashboardPreview />} />
+    <Route path="/dev/sidebar-system" element={<SidebarSystemPreview />} />
+  </>
 ) : null;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
