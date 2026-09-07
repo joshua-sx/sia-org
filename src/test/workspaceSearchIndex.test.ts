@@ -52,9 +52,8 @@ describe("workspace search index", () => {
   });
 
   it("finds teams and cycles", () => {
-    expect(searchWorkspace(allEntries(), "finance")[0].entries[0].url).toBe(
-      "/org/structure?unit=unit-1",
-    );
+    const teams = searchWorkspace(allEntries(), "finance").find((g) => g.kind === "team");
+    expect(teams?.entries[0].url).toBe("/org/structure?unit=unit-1");
     const cycles = searchWorkspace(allEntries(), "h1");
     expect(cycles[0].entries[0].url).toBe("/appraisals/cycle-1");
     expect(cycles[0].entries[0].subtitle).toBe("Draft");
