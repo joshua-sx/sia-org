@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
@@ -18,6 +18,8 @@ interface Props {
   employees: Employee[];
   /** Kept for API compatibility; not used since ancestry is derived internally. */
   unitsById?: Record<string, string>;
+  /** Pre-fills the search box, e.g. when arriving from workspace search. */
+  initialQuery?: string;
   onEdit: (e: Employee) => void;
   onDelete: (e: Employee) => void;
 }
@@ -79,8 +81,13 @@ function EmployeeActions({
   );
 }
 
-export function EmployeeTable({ employees, onEdit, onDelete }: Props) {
-  const [q, setQ] = useState("");
+export function EmployeeTable({ employees, initialQuery = "", onEdit, onDelete }: Props) {
+  const [q, setQ] = useState(initialQuery);
+
+  useEffect(() => {
+    setQ(initialQuery);
+  }, [initialQuery]);
+
   const { data: units = [] } = useOrgUnits();
   const { data: types = [] } = useOrgUnitTypes();
 
