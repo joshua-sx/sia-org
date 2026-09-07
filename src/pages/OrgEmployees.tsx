@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
@@ -41,6 +41,8 @@ import {
 const OrgEmployees = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const { profile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("q") ?? "";
   const {
     data: employees = [],
     isLoading,
@@ -210,6 +212,7 @@ const OrgEmployees = () => {
             <EmployeeTable
               employees={employees}
               unitsById={unitsById}
+              initialQuery={initialQuery}
               onEdit={openEdit}
               onDelete={(e) => setConfirmDelete(e)}
             />

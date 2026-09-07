@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,6 +11,17 @@ import {
 } from "@/components/ui/command";
 import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import type { RoleNavigationGroup } from "@/lib/workspaceNavigation";
+import { useEmployees } from "@/hooks/useEmployees";
+import { useOrgUnits } from "@/hooks/useOrgUnits";
+import { useOrgUnitTypes } from "@/hooks/useOrgUnitTypes";
+import { useAppraisalCycles } from "@/hooks/useAppraisalCycles";
+import {
+  cycleEntries,
+  pageEntries,
+  personEntries,
+  searchWorkspace,
+  teamEntries,
+} from "@/lib/workspaceSearchIndex";
 import { workspaceAccentClasses, workspaceNavigationIcons } from "./workspaceNavigationVisuals";
 
 interface WorkspaceSearchProps {
@@ -22,6 +33,12 @@ interface WorkspaceSearchProps {
 export function WorkspaceSearch({ groups, collapsed, onNavigate }: WorkspaceSearchProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const { data: employees = [] } = useEmployees();
+  const { data: units = [] } = useOrgUnits();
+  const { data: unitTypes = [] } = useOrgUnitTypes();
+  const { data: cycles = [] } = useAppraisalCycles();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -34,8 +51,22 @@ export function WorkspaceSearch({ groups, collapsed, onNavigate }: WorkspaceSear
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  const entries = useMemo(() => {
+    const unitNameById = new Map(units.map((unit) => [unit.id, unit.name]));
+    const typeNameById = new Map(unitTypes.map((type) => [type.id, type.name]));
+    return [
+      ...pageEntries(groups),
+      ...personEntries(employees, (id) => (id ? unitNameById.get(id) : undefined)),
+      ...teamEntries(units, (id) => typeNameById.get(id)),
+      ...cycleEntries(cycles),
+    ];
+  }, [groups, employees, units, unitTypes, cycles]);
+
+  const results = useMemo(() => searchWorkspace(entries, query), [entries, query]);
+
   const select = (url: string) => {
     setOpen(false);
+    setQuery("");
     onNavigate();
     navigate(url);
   };
@@ -66,27 +97,38 @@ export function WorkspaceSearch({ groups, collapsed, onNavigate }: WorkspaceSear
       <CommandDialog open={open} onOpenChange={setOpen} label="Search Sia">
         <DialogTitle className="sr-only">Search Sia</DialogTitle>
         <DialogDescription className="sr-only">
-          Search the workspace destinations available to you.
+          Search pages, people, teams and review cycles you have access to.
         </DialogDescription>
-        <CommandInput placeholder="Search Sia" aria-label="Search Sia" />
+        <CommandInput
+          placeholder="Search people, teams, cycles…"
+          aria-label="Search Sia"
+          value={query}
+          onValueChange={setQuery}
+        />
         <CommandList>
-          <CommandEmpty>No matching destination.</CommandEmpty>
-          {groups.map((group) => (
-            <CommandGroup key={group.label} heading={group.label}>
-              {group.items.map((item) => {
-                const Icon = workspaceNavigationIcons[item.icon];
+          <CommandEmpty>No matches.</CommandEmpty>
+          {results.map((group) => (
+            <CommandGroup key={group.kind} heading={group.label}>
+              {group.entries.map((entry) => {
+                const Icon = workspaceNavigationIcons[entry.icon];
                 return (
                   <CommandItem
-                    key={item.url}
-                    value={`${item.title} ${group.label}`}
-                    onSelect={() => select(item.url)}
+                    key={entry.id}
+                    value={entry.id}
+                    keywords={[entry.title, entry.subtitle ?? "", entry.keywords]}
+                    onSelect={() => select(entry.url)}
                     className="min-h-11 rounded-lg"
                   >
                     <Icon
-                      className={`me-2 size-4 ${workspaceAccentClasses[item.accent]}`}
+                      className={`me-2 size-4 shrink-0 ${workspaceAccentClasses[entry.accent]}`}
                       aria-hidden="true"
                     />
-                    <span>{item.title}</span>
+                    <span className="truncate">{entry.title}</span>
+                    {entry.subtitle && (
+                      <span className="ms-auto ps-3 truncate text-xs text-ink-subtle">
+                        {entry.subtitle}
+                      </span>
+                    )}
                   </CommandItem>
                 );
               })}
